@@ -461,34 +461,49 @@ export default function SkillGraph() {
       </div>
 
       {/* Buttons overlay - now after graph in DOM */}
-      <div className="absolute top-0 left-0 right-0 z-20 flex justify-between items-start p-4">
-        <div className="flex gap-1.5">
-          {(Object.keys(categoryColors) as SkillCategory[]).map((category) => (
-            <button
-              key={category}
-              style={{
-                backgroundColor: selectedCategory === category ? categoryColors[category] : `${categoryColors[category]}33`,
-                color: 'inherit', // Use inherited text color instead of hardcoded black
-                border: `2px solid ${categoryColors[category]}`
-              }}
-              className="px-3 py-1.5 rounded-full text-sm font-medium transition-colors hover:bg-opacity-80"
-              onClick={() => setSelectedCategory(category)}
-            >
-              {category.charAt(0).toUpperCase() + category.slice(1)}
-            </button>
-          ))}
+      <div className="absolute top-0 left-0 right-0 z-20 flex justify-between items-center p-4">
+        <div className="flex flex-col gap-1">
+          <div className="flex items-center gap-2 text-xs text-muted-foreground">
+            <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-filter">
+              <polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"/>
+            </svg>
+            <span>Click on a category to filter the skill graph, zoom in and out by scrolling, or grab a node and drag it around!</span>
+          </div>
+          
+          <div className="flex flex-wrap gap-1.5">
+            {(Object.keys(categoryColors) as SkillCategory[]).map((category) => (
+              <button
+                key={category}
+                style={{
+                  backgroundColor: selectedCategory === category ? categoryColors[category] : `${categoryColors[category]}33`,
+                  color: selectedCategory === category ? '#000000' : 'inherit',
+                  border: `2px solid ${categoryColors[category]}`
+                }}
+                className="px-3 py-1 rounded-full text-sm font-medium transition-all hover:bg-opacity-80 hover:scale-105 relative group"
+                onClick={() => setSelectedCategory(category)}
+              >
+                {category.charAt(0).toUpperCase() + category.slice(1)}
+                {selectedCategory !== category && (
+                  <span className="absolute -top-2 -right-2 flex h-4 w-4 items-center justify-center rounded-full bg-primary text-[10px] text-primary-foreground opacity-0 group-hover:opacity-100 transition-opacity">
+                    +
+                  </span>
+                )}
+              </button>
+            ))}
+          </div>
         </div>
+        
         <div className="flex gap-2">
           {selectedCategory && (
             <button
-              className="px-4 py-1.5 rounded-full text-sm font-medium bg-red-500 text-white hover:bg-red-600 transition-colors"
+              className="px-3 py-1 rounded-full text-sm font-medium bg-red-500 text-white hover:bg-red-600 transition-colors"
               onClick={() => setSelectedCategory(null)}
             >
-              Reset
+              Clear
             </button>
           )}
           <button
-            className="px-4 py-1.5 rounded-full text-sm font-medium bg-gray-500 text-white hover:bg-gray-600 transition-colors"
+            className="px-3 py-1 rounded-full text-sm font-medium bg-gray-500 text-white hover:bg-gray-600 transition-colors"
             onClick={resetGraphPosition}
             title="Center Graph"
           >
