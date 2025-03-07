@@ -165,8 +165,30 @@ export default function SkillGraph() {
   const [selectedCategory, setSelectedCategory] = useState<SkillCategory | null>(null);
   const [mounted, setMounted] = useState(false);
   const [graphData, setGraphData] = useState(skillsData);
+  const [dimensions, setDimensions] = useState({ width: 800, height: 600 });
   const graphRef = useRef<ForceGraphMethods | undefined>(undefined);
   const containerRef = useRef<HTMLDivElement>(null);
+
+  // Handle container resizing
+  useEffect(() => {
+    if (!mounted || !containerRef.current) return;
+
+    const updateDimensions = () => {
+      if (containerRef.current) {
+        const { width, height } = containerRef.current.getBoundingClientRect();
+        setDimensions({ width, height });
+      }
+    };
+
+    // Initial size
+    updateDimensions();
+
+    // Create resize observer
+    const resizeObserver = new ResizeObserver(updateDimensions);
+    resizeObserver.observe(containerRef.current);
+
+    return () => resizeObserver.disconnect();
+  }, [mounted]);
 
   useEffect(() => {
     setMounted(true);
@@ -238,7 +260,7 @@ export default function SkillGraph() {
     requestAnimationFrame(() => {
       fg.zoomToFit(400, 50);
     });
-  }, [mounted, graphData]);
+  }, [mounted, graphData, dimensions]);
 
   const handleNodeClick = useCallback((node: NodeObject) => {
     const skillNode = node as SkillNode;
@@ -251,34 +273,14 @@ export default function SkillGraph() {
 
   return (
     <div className="w-full h-[600px] relative overflow-hidden rounded-lg bg-card" ref={containerRef}>
-      <div className="absolute top-0 left-0 z-10 flex flex-wrap gap-2 p-4">
-        {(Object.keys(categoryColors) as SkillCategory[]).map((category) => (
-          <button
-            key={category}
-            className={`px-4 py-2 rounded-full text-sm font-medium transition-colors
-              ${selectedCategory === category 
-                ? 'bg-primary text-primary-foreground' 
-                : 'bg-muted hover:bg-muted/80'}`}
-            onClick={() => setSelectedCategory(category)}
-          >
-            {category.charAt(0).toUpperCase() + category.slice(1)}
-          </button>
-        ))}
-        {selectedCategory && (
-          <button
-            className="px-4 py-2 rounded-full text-sm font-medium bg-destructive text-destructive-foreground"
-            onClick={() => setSelectedCategory(null)}
-          >
-            Clear
-          </button>
-        )}
-      </div>
-      
-      <div className="graph-container w-full h-full">
+      {/* Graph container - now first in DOM order */}
+      <div className="absolute inset-0">
         <ForceGraph2D
           ref={graphRef}
           graphData={graphData}
           backgroundColor="transparent"
+          width={dimensions.width}
+          height={dimensions.height}
           nodeCanvasObject={(node: any, ctx, globalScale) => {
             const skillNode = node as SkillNode;
             const label = skillNode.name;
@@ -318,9 +320,35 @@ export default function SkillGraph() {
           cooldownTicks={100}
           d3VelocityDecay={0.2}
           warmupTicks={50}
-          width={GRAPH_CONFIG.width}
-          height={GRAPH_CONFIG.height}
         />
+      </div>
+
+      {/* Buttons overlay - now after graph in DOM */}
+      <div className="absolute top-0 left-0 right-0 z-20 flex justify-between items-start p-4">
+        <div className="flex gap-1.5">
+          {(Object.keys(categoryColors) as SkillCategory[]).map((category) => (
+            <button
+              key={category}
+              style={{
+                backgroundColor: selectedCategory === category ? categoryColors[category] : `${categoryColors[category]}33`,
+                color: selectedCategory === category ? '#000000' : '#000000',
+                border: `2px solid ${categoryColors[category]}`
+              }}
+              className="px-3 py-1.5 rounded-full text-sm font-medium transition-colors hover:bg-opacity-80"
+              onClick={() => setSelectedCategory(category)}
+            >
+              {category.charAt(0).toUpperCase() + category.slice(1)}
+            </button>
+          ))}
+        </div>
+        {selectedCategory && (
+          <button
+            className="px-4 py-1.5 rounded-full text-sm font-medium bg-red-500 text-white hover:bg-red-600 transition-colors ml-2"
+            onClick={() => setSelectedCategory(null)}
+          >
+            Reset
+          </button>
+        )}
       </div>
     </div>
   );
