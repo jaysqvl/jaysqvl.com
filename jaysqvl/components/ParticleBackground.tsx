@@ -3,6 +3,16 @@
 import { useEffect, useRef } from 'react';
 import { useTheme } from 'next-themes';
 
+// Configurable constants - adjust these values to change particle behavior
+const CURSOR_REPULSION_STRENGTH = 2.5; // Reasonable repulsion strength
+const CURSOR_REPULSION_RADIUS_MULTIPLIER = 0.15; // Percentage of screen size for cursor influence
+const PARTICLE_DENSITY = 0.00012; // Particles per pixel of screen area
+const MIN_PARTICLES = 60; // Minimum number of particles
+const MAX_PARTICLES = 300; // Maximum number of particles
+const PARTICLE_RESPAWN_INTERVAL = 1000; // Check for missing particles every 1000ms
+const MOMENTUM_RETENTION = 0.6; // How much momentum particles retain after being pushed (0-1)
+const DAMPING_FACTOR = 0.98; // Slightly higher damping for more natural movement (was 0.97)
+
 interface Particle {
   x: number;
   y: number;
@@ -34,6 +44,8 @@ export default function ParticleBackground() {
   const animationFrameId = useRef<number>(0);
   const time = useRef<number>(0);
   const isMouseActive = useRef<boolean>(false);
+  const particleCountRef = useRef<number>(0);
+  const respawnIntervalRef = useRef<NodeJS.Timeout | null>(null);
   const { theme, systemTheme } = useTheme();
 
   // Determine if dark mode is active
@@ -136,11 +148,12 @@ export default function ParticleBackground() {
       
       // Calculate particle count based on screen size
       const area = window.innerWidth * window.innerHeight;
-      const baseDensity = 0.00012;
       const particleCount = Math.min(
-        Math.max(Math.floor(area * baseDensity), 60),
-        300
+        Math.max(Math.floor(area * PARTICLE_DENSITY), MIN_PARTICLES),
+        MAX_PARTICLES
       );
+      
+      particleCountRef.current = particleCount;
       
       // Create a buffer zone around the edges
       const edgeBuffer = 40;
@@ -384,6 +397,73 @@ export default function ParticleBackground() {
       return { forceX, forceY };
     };
 
+    // Create a new particle at a random position
+    const createNewParticle = () => {
+      const edgeBuffer = 40;
+      const themeRgb = getThemeRgb();
+      const opacityRange = getOpacityRange();
+      const sizeRange = getParticleSizeRange();
+      
+      // Try to find a position not in a repulsion zone
+      let x, y;
+      let attempts = 0;
+      const maxAttempts = 20;
+      
+      do {
+        x = edgeBuffer + Math.random() * (canvas.width - edgeBuffer * 2);
+        y = edgeBuffer + Math.random() * (canvas.height - edgeBuffer * 2);
+        attempts++;
+      } while (isInsideRepulsionZone(x, y, 20) && attempts < maxAttempts);
+      
+      const baseSpeedX = (Math.random() * 0.4 - 0.2) * 0.3;
+      const baseSpeedY = (Math.random() * 0.4 - 0.2) * 0.3;
+      
+      return {
+        x,
+        y,
+        size: Math.random() * (sizeRange.max - sizeRange.min) + sizeRange.min,
+        speedX: baseSpeedX,
+        speedY: baseSpeedY,
+        baseSpeedX,
+        baseSpeedY,
+        color: `rgba(${themeRgb}, ${Math.random() * (opacityRange.max - opacityRange.min) + opacityRange.min})`,
+        teleporting: false,
+        offScreen: false
+      };
+    };
+    
+    // Check and maintain particle count
+    const maintainParticleCount = () => {
+      // Count visible particles (not completely off screen)
+      const visibleParticles = particles.current.filter(p => {
+        const farOffScreen = 
+          p.x < -100 || 
+          p.x > canvas.width + 100 || 
+          p.y < -100 || 
+          p.y > canvas.height + 100;
+        return !farOffScreen;
+      });
+      
+      // If we have fewer visible particles than we should, add more
+      if (visibleParticles.length < particleCountRef.current * 0.7) {
+        const particlesToAdd = Math.ceil(particleCountRef.current * 0.3);
+        
+        for (let i = 0; i < particlesToAdd; i++) {
+          particles.current.push(createNewParticle());
+        }
+        
+        // Remove particles that are far off screen to keep the total count reasonable
+        particles.current = particles.current.filter(p => {
+          const farOffScreen = 
+            p.x < -100 || 
+            p.x > canvas.width + 100 || 
+            p.y < -100 || 
+            p.y > canvas.height + 100;
+          return !farOffScreen || p.teleporting;
+        });
+      }
+    };
+
     // Animation loop
     const animate = () => {
       ctx.clearRect(0, 0, canvas.width, canvas.height);
@@ -400,12 +480,12 @@ export default function ParticleBackground() {
       
       // Calculate mouse influence radius based on screen size
       const mouseRadius = Math.min(
-        Math.max(window.innerWidth, window.innerHeight) * 0.15,
+        Math.max(window.innerWidth, window.innerHeight) * CURSOR_REPULSION_RADIUS_MULTIPLIER,
         180
       );
       
       // Define the completely off-screen threshold (when to teleport back)
-      const offScreenThreshold = 50; // Pixels completely off screen before teleporting
+      const offScreenThreshold = 20;
       
       particles.current.forEach((particle, index) => {
         // Handle teleporting particles
@@ -459,7 +539,10 @@ export default function ParticleBackground() {
           return;
         }
         
-        // Regular particle update
+        // Store previous speed for momentum calculation
+        const prevSpeedX = particle.speedX;
+        const prevSpeedY = particle.speedY;
+        
         // Reset to base speed for natural movement
         particle.speedX = particle.baseSpeedX;
         particle.speedY = particle.baseSpeedY;
@@ -473,13 +556,37 @@ export default function ParticleBackground() {
         const dy = mousePosition.current.y - particle.y;
         const distance = Math.sqrt(dx * dx + dy * dy);
         
+        // Track if particle was influenced by cursor this frame
+        let cursorInfluenced = false;
+        
         // Move particles away from mouse when close - with stronger effect
         if (isMouseActive.current && distance < mouseRadius) {
+          cursorInfluenced = true;
           const angle = Math.atan2(dy, dx);
+          
           // Stronger force with quadratic falloff (more powerful close to cursor)
-          const force = Math.pow((mouseRadius - distance) / mouseRadius, 2) * 2.5;
-          particle.speedX -= Math.cos(angle) * force;
-          particle.speedY -= Math.sin(angle) * force;
+          const force = Math.pow((mouseRadius - distance) / mouseRadius, 2) * CURSOR_REPULSION_STRENGTH;
+          
+          // Apply force as acceleration rather than directly setting velocity
+          const repulsionX = -Math.cos(angle) * force;
+          const repulsionY = -Math.sin(angle) * force;
+          
+          // Add to current speed instead of replacing it
+          particle.speedX += repulsionX;
+          particle.speedY += repulsionY;
+          
+          // Update base speeds to retain some of this momentum
+          particle.baseSpeedX = particle.baseSpeedX * (1 - MOMENTUM_RETENTION) + 
+                               particle.speedX * MOMENTUM_RETENTION * 0.2;
+          particle.baseSpeedY = particle.baseSpeedY * (1 - MOMENTUM_RETENTION) + 
+                               particle.speedY * MOMENTUM_RETENTION * 0.2;
+        }
+        
+        // If not influenced by cursor this frame, blend in previous frame's momentum
+        if (!cursorInfluenced && (Math.abs(prevSpeedX) > 0.1 || Math.abs(prevSpeedY) > 0.1)) {
+          // Retain some momentum from previous frame
+          particle.speedX += prevSpeedX * MOMENTUM_RETENTION * 0.5;
+          particle.speedY += prevSpeedY * MOMENTUM_RETENTION * 0.5;
         }
         
         // Apply repulsion forces from text and navbar
@@ -496,38 +603,30 @@ export default function ParticleBackground() {
         particle.x += particle.speedX;
         particle.y += particle.speedY;
         
-        // Slow down particles (damping)
-        particle.speedX *= 0.97;
-        particle.speedY *= 0.97;
+        // Slow down particles (damping) - slightly higher damping for more natural feel
+        particle.speedX *= DAMPING_FACTOR;
+        particle.speedY *= DAMPING_FACTOR;
         
-        // Check if particle is completely off screen
-        const isCompletelyOffScreen = 
-          particle.x < -offScreenThreshold || 
-          particle.x > canvas.width + offScreenThreshold || 
-          particle.y < -offScreenThreshold || 
-          particle.y > canvas.height + offScreenThreshold;
+        // Simple screen wrapping - if particle goes off one edge, bring it back on the opposite edge
+        const buffer = 5; // Small buffer to prevent getting stuck at the edge
         
-        // Check if particle is partially off screen
-        const isPartiallyOffScreen = 
-          particle.x < 0 || 
-          particle.x > canvas.width || 
-          particle.y < 0 || 
-          particle.y > canvas.height;
-        
-        // Update offScreen status
-        if (isPartiallyOffScreen) {
-          particle.offScreen = true;
+        if (particle.x < -buffer) {
+          particle.x = canvas.width + buffer;
+          particle.offScreen = false;
+        } else if (particle.x > canvas.width + buffer) {
+          particle.x = -buffer;
+          particle.offScreen = false;
         }
         
-        // Only start teleportation if the particle is completely off screen
-        if (isCompletelyOffScreen && particle.offScreen) {
-          // Start teleportation
-          particle.teleporting = true;
-          particle.teleportProgress = 0;
-          particle.teleportDestination = findTeleportDestination();
+        if (particle.y < -buffer) {
+          particle.y = canvas.height + buffer;
+          particle.offScreen = false;
+        } else if (particle.y > canvas.height + buffer) {
+          particle.y = -buffer;
+          particle.offScreen = false;
         }
         
-        // Draw regular particle (even if partially off screen)
+        // Draw regular particle
         if (!particle.teleporting) {
           // Update particle color to match current theme if needed
           if (!particle.color.includes(themeRgb)) {
@@ -543,17 +642,11 @@ export default function ParticleBackground() {
         
         // Draw connections between nearby particles
         // Only draw connections if neither particle is teleporting
-        // and at least one particle is on screen
         for (let j = index + 1; j < particles.current.length; j++) {
           const otherParticle = particles.current[j];
           
           if (particle.teleporting || otherParticle.teleporting) {
             continue; // Skip connections for teleporting particles
-          }
-          
-          // Skip connection if both particles are off screen
-          if (particle.offScreen && otherParticle.offScreen) {
-            continue;
           }
           
           const dx = particle.x - otherParticle.x;
@@ -592,6 +685,9 @@ export default function ParticleBackground() {
     window.addEventListener('mouseleave', handleMouseLeave);
     window.addEventListener('themechange', handleThemeChange);
     
+    // Set up particle respawn interval
+    respawnIntervalRef.current = setInterval(maintainParticleCount, PARTICLE_RESPAWN_INTERVAL);
+    
     // Initialize
     handleResize();
     
@@ -604,6 +700,9 @@ export default function ParticleBackground() {
       window.removeEventListener('mousemove', handleMouseMove);
       window.removeEventListener('mouseleave', handleMouseLeave);
       window.removeEventListener('themechange', handleThemeChange);
+      if (respawnIntervalRef.current) {
+        clearInterval(respawnIntervalRef.current);
+      }
       cancelAnimationFrame(animationFrameId.current);
     };
   }, [theme, systemTheme]);
