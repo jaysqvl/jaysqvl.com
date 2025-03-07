@@ -27,8 +27,8 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Jay SQVL",
-  description: "Personal portfolio website of Jay SQVL",
+  title: "Jaysqvl",
+  description: "Portfolio website of Jay Esquivel",
   icons: {
     icon: [
       {

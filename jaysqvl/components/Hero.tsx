@@ -1,8 +1,9 @@
 'use client';
 
 import { motion } from 'framer-motion';
-import { ArrowDown } from 'lucide-react';
+import { ArrowDown, FileText, Github, Linkedin, Terminal } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { Alert, AlertTitle, AlertDescription } from "@/components/ui/alert";
 import ParticleBackground from './ParticleBackground';
 import { useRef, useState, useEffect } from 'react';
 import Image from 'next/image';
@@ -151,10 +152,41 @@ export default function Hero() {
               transition={{ duration: 0.8, delay: 0.5 }}
               className="max-w-md"
             >
-              <p className="text-lg text-muted-foreground">
-                Building scalable applications with unique AI integrations.
-                Passionate about creating elegant solutions to complex problems.
-              </p>
+              <Alert>
+                <Terminal className="h-4 w-4" />
+                <AlertTitle>Welcome!</AlertTitle>
+                <AlertDescription>
+                  Here's a coffee for your stay ☕<br />
+                  Play around and enjoy!
+                </AlertDescription>
+              </Alert>
+            </motion.div>
+            
+            {/* Social Links */}
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.8, delay: 0.55 }}
+              className="flex flex-wrap gap-3 justify-center md:justify-start"
+            >
+              <Button variant="outline" size="sm" asChild>
+                <a href="https://github.com/jaysqvl" target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-2">
+                  <Github className="h-4 w-4" />
+                  GitHub
+                </a>
+              </Button>
+              <Button variant="outline" size="sm" asChild>
+                <a href="https://linkedin.com/in/jaysqvl" target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-2">
+                  <Linkedin className="h-4 w-4" />
+                  LinkedIn
+                </a>
+              </Button>
+              <Button variant="outline" size="sm" asChild>
+                <a href="/resume.pdf" target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-2">
+                  <FileText className="h-4 w-4" />
+                  Resume
+                </a>
+              </Button>
             </motion.div>
             
             <motion.div
