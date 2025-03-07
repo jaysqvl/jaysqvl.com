@@ -6,8 +6,8 @@ import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
 
 export default function Hero() {
   return (
-    <section className="min-h-[80vh] w-full flex flex-col items-center justify-center gap-8 px-4">
-      <div className="relative w-64 h-64 md:w-80 md:h-80 rounded-full overflow-hidden border-4 border-primary/10">
+    <section className="w-full min-h-screen flex flex-col justify-center items-center px-4 py-12">
+      <div className="relative w-64 h-64 md:w-80 md:h-80 rounded-full overflow-hidden border-4 border-primary/10 mb-8">
         <Image
           src="/profile.jpg"
           alt="Profile picture"
@@ -17,7 +17,7 @@ export default function Hero() {
         />
       </div>
       
-      <div className="text-center space-y-4">
+      <div className="text-center space-y-4 mb-8">
         <h1 className="text-4xl md:text-5xl font-bold tracking-tight">
           Jay Esquivel Jr.
         </h1>
@@ -26,7 +26,7 @@ export default function Hero() {
         </p>
       </div>
 
-      <div className="flex flex-wrap gap-4 justify-center">
+      <div className="flex flex-wrap gap-4 justify-center mb-8">
         <Button asChild variant="outline" size="lg">
           <Link href="/resume.pdf" target="_blank" className="gap-2">
             <FileText size={20} />
@@ -47,7 +47,7 @@ export default function Hero() {
         </Button>
       </div>
 
-      <Alert className="w-full max-w-lg bg-primary/5 border-primary/10">
+      <Alert className="w-full max-w-lg bg-primary/5 border-primary/10 mt-4">
         <Coffee className="h-4 w-4" />
         <AlertTitle>Welcome!</AlertTitle>
         <AlertDescription>
