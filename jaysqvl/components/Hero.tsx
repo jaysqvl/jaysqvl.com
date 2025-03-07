@@ -150,9 +150,9 @@ export default function Hero() {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.8, delay: 0.5 }}
-              className="max-w-md"
+              className="max-w-md relative z-30"
             >
-              <Alert>
+              <Alert className="bg-background backdrop-blur-sm shadow-md isolate">
                 <Terminal className="h-4 w-4" />
                 <AlertTitle>Welcome!</AlertTitle>
                 <AlertDescription>
@@ -167,21 +167,21 @@ export default function Hero() {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.8, delay: 0.55 }}
-              className="flex flex-wrap gap-3 justify-center md:justify-start"
+              className="flex flex-wrap gap-3 justify-center md:justify-start relative z-30"
             >
-              <Button variant="outline" size="sm" asChild>
+              <Button variant="outline" size="sm" asChild className="backdrop-blur-sm bg-background/100 shadow-md isolate">
                 <a href="https://github.com/jaysqvl" target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-2">
                   <Github className="h-4 w-4" />
                   GitHub
                 </a>
               </Button>
-              <Button variant="outline" size="sm" asChild>
+              <Button variant="outline" size="sm" asChild className="backdrop-blur-sm bg-background/100 shadow-md isolate">
                 <a href="https://linkedin.com/in/jaysqvl" target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-2">
                   <Linkedin className="h-4 w-4" />
                   LinkedIn
                 </a>
               </Button>
-              <Button variant="outline" size="sm" asChild>
+              <Button variant="outline" size="sm" asChild className="backdrop-blur-sm bg-background/100 shadow-md isolate">
                 <a href="/resume.pdf" target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-2">
                   <FileText className="h-4 w-4" />
                   Resume
@@ -193,14 +193,14 @@ export default function Hero() {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.8, delay: 0.6 }}
-              className="pt-4"
+              className="pt-4 relative z-30"
             >
               <Button 
                 size="lg" 
                 onClick={scrollToAbout}
                 onMouseEnter={() => setIsHovered(true)}
                 onMouseLeave={() => setIsHovered(false)}
-                className="relative group hero-button"
+                className="relative group hero-button backdrop-blur-sm bg-primary/100 shadow-md isolate"
               >
                 <span>Explore My Work</span>
                 <motion.div
