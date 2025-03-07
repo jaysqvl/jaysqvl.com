@@ -1,10 +1,14 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { Github, ExternalLink } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
+import dynamic from 'next/dynamic';
+
+// Import GitHubCallout with no SSR to avoid hydration errors
+const GitHubCallout = dynamic(() => import('./GitHubCallout'), { ssr: false });
 
 interface ProjectItem {
   title: string;
@@ -74,6 +78,12 @@ const projectsData: ProjectItem[] = [
 
 export default function Projects() {
   const [showAll, setShowAll] = useState(false);
+  const [isMounted, setIsMounted] = useState(false);
+  
+  // Set mounted state to handle client-side only rendering
+  useEffect(() => {
+    setIsMounted(true);
+  }, []);
   
   // Filter projects to show only featured ones initially
   const displayedProjects = showAll 
@@ -81,74 +91,90 @@ export default function Projects() {
     : projectsData.filter(project => project.featured);
 
   return (
-    <section className="w-full max-w-7xl mx-auto px-4 py-16" id="projects">
+    <section id="projects" className="w-full max-w-7xl mx-auto px-4 py-16 md:py-24">
       <div className="space-y-2 mb-8">
-        <h2 className="text-3xl font-bold tracking-tight">Notable Projects</h2>
+        <h2 className="text-3xl font-bold tracking-tight">Projects</h2>
         <div className="w-20 h-1 bg-primary rounded"></div>
       </div>
-
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {displayedProjects.map((project, index) => (
-          <motion.div
-            key={index}
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.5, delay: (index % 3) * 0.1 }}
-            className="bg-card border rounded-lg overflow-hidden shadow-sm hover:shadow-md transition-shadow"
-          >
-            <div className="p-6 space-y-4">
-              <div className="flex justify-between items-start">
-                <h3 className="text-xl font-semibold">{project.title}</h3>
-                <div className="flex gap-2">
-                  {project.github && (
-                    <a 
-                      href={project.github} 
-                      target="_blank" 
-                      rel="noopener noreferrer"
-                      className="text-muted-foreground hover:text-primary transition-colors"
-                      aria-label={`GitHub repository for ${project.title}`}
-                    >
-                      <Github className="h-5 w-5" />
-                    </a>
-                  )}
-                  {project.demo && (
-                    <a 
-                      href={project.demo} 
-                      target="_blank" 
-                      rel="noopener noreferrer"
-                      className="text-muted-foreground hover:text-primary transition-colors"
-                      aria-label={`Live demo for ${project.title}`}
-                    >
-                      <ExternalLink className="h-5 w-5" />
-                    </a>
-                  )}
+      
+      <div className="space-y-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 w-full max-w-6xl">
+          {displayedProjects.map((project, index) => (
+            <motion.div
+              key={index}
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.5, delay: (index % 3) * 0.1 }}
+              className="bg-card border rounded-lg overflow-hidden shadow-sm hover:shadow-md transition-shadow flex flex-col h-full"
+            >
+              <div className="p-6 flex flex-col h-full">
+                <div className="flex justify-between items-start mb-4">
+                  <h3 className="text-xl font-semibold">{project.title}</h3>
+                  <div className="flex gap-2">
+                    {project.github && (
+                      <a 
+                        href={project.github} 
+                        target="_blank" 
+                        rel="noopener noreferrer"
+                        className="text-muted-foreground hover:text-primary transition-colors"
+                        aria-label={`GitHub repository for ${project.title}`}
+                      >
+                        <Github className="h-5 w-5" />
+                      </a>
+                    )}
+                    {project.demo && (
+                      <a 
+                        href={project.demo} 
+                        target="_blank" 
+                        rel="noopener noreferrer"
+                        className="text-muted-foreground hover:text-primary transition-colors"
+                        aria-label={`Live demo for ${project.title}`}
+                      >
+                        <ExternalLink className="h-5 w-5" />
+                      </a>
+                    )}
+                  </div>
+                </div>
+                
+                <p className="text-muted-foreground line-clamp-3 mb-4">{project.description}</p>
+                
+                {/* Spacer to push badges to bottom */}
+                <div className="flex-grow"></div>
+                
+                <div className="flex flex-wrap gap-2">
+                  {project.technologies.map((tech, i) => (
+                    <Badge key={i} variant="outline" className="bg-primary/5">{tech}</Badge>
+                  ))}
                 </div>
               </div>
-              
-              <p className="text-muted-foreground line-clamp-3">{project.description}</p>
-              
-              <div className="flex flex-wrap gap-2 pt-2">
-                {project.technologies.map((tech, i) => (
-                  <Badge key={i} variant="outline" className="bg-primary/5">{tech}</Badge>
-                ))}
-              </div>
-            </div>
-          </motion.div>
-        ))}
-      </div>
-
-      {!showAll && projectsData.length > displayedProjects.length && (
-        <div className="flex justify-center mt-10">
+            </motion.div>
+          ))}
+          
+          {/* GitHub Callout - only show when all projects are displayed and client-side rendered */}
+          {showAll && isMounted && (
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5 }}
+            >
+              <GitHubCallout />
+            </motion.div>
+          )}
+        </div>
+        
+        {/* Show More/Less Button */}
+        <div className="flex justify-center mt-8">
           <Button 
-            onClick={() => setShowAll(true)}
-            variant="outline"
-            className="px-8"
+            variant="outline" 
+            size="lg"
+            onClick={() => setShowAll(!showAll)}
+            className="gap-2"
           >
-            Show More Projects
+            {showAll ? 'Show Less' : 'Show More Projects'}
           </Button>
         </div>
-      )}
+      </div>
     </section>
   );
 } 
