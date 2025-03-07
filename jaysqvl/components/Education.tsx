@@ -2,6 +2,7 @@
 
 import { motion } from 'framer-motion';
 import { GraduationCap, Calendar, MapPin } from 'lucide-react';
+import LogoOrIcon from '@/components/LogoOrIcon';
 
 interface EducationItem {
   institution: string;
@@ -9,6 +10,7 @@ interface EducationItem {
   location: string;
   period: string;
   activities?: string[];
+  logoSrc?: string;
 }
 
 const educationData: EducationItem[] = [
@@ -16,7 +18,8 @@ const educationData: EducationItem[] = [
     institution: "Simon Fraser University",
     degree: "Bachelor of Applied Science, Computer Science - Software Systems",
     location: "Burnaby, BC",
-    period: "Sept 2022 – Present"
+    period: "Sept 2022 – Present",
+    logoSrc: "/sfu.jpg"
   },
   {
     institution: "University of British Columbia",
@@ -28,7 +31,8 @@ const educationData: EducationItem[] = [
       "Event Planning for ~700 Members",
       "Maintain and Develop Brand Sponsorships",
       "Social Media Management"
-    ]
+    ],
+    logoSrc: "/ubc.jpg"
   }
 ];
 
@@ -56,9 +60,14 @@ export default function Education() {
             )}
             
             <div className="flex gap-4">
-              {/* Timeline dot */}
+              {/* Timeline dot with logo or icon */}
               <div className="mt-1.5 flex-shrink-0 w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center">
-                <GraduationCap className="h-5 w-5 text-primary" />
+                <LogoOrIcon 
+                  logoSrc={education.logoSrc || ''}
+                  alt={`${education.institution} logo`}
+                  icon={<GraduationCap className="h-5 w-5 text-primary" />}
+                  className="text-primary"
+                />
               </div>
               
               {/* Content */}
@@ -71,11 +80,11 @@ export default function Education() {
                   <div className="flex flex-col sm:flex-row sm:items-center gap-2 text-muted-foreground">
                     <div className="flex items-center gap-1.5">
                       <Calendar className="h-4 w-4" />
-                      <span className="text-sm">{education.period}</span>
+                      <span className="text-sm sm:text-base">{education.period}</span>
                     </div>
                     <div className="flex items-center gap-1.5">
                       <MapPin className="h-4 w-4" />
-                      <span className="text-sm">{education.location}</span>
+                      <span className="text-sm sm:text-base">{education.location}</span>
                     </div>
                   </div>
                 </div>

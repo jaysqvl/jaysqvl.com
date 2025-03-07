@@ -3,6 +3,7 @@
 import { motion } from 'framer-motion';
 import { Calendar, Briefcase, ExternalLink } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
+import LogoOrIcon from '@/components/LogoOrIcon';
 
 interface ExperienceItem {
   title: string;
@@ -12,6 +13,7 @@ interface ExperienceItem {
   description: string[];
   technologies: string[];
   link?: string;
+  logoSrc?: string;
 }
 
 const experiences: ExperienceItem[] = [
@@ -29,7 +31,8 @@ const experiences: ExperienceItem[] = [
       "Actively developing a personalized front-end to optimize the user experience and align with business requirements."
     ],
     technologies: ["Python", "Bash", "Docker", "HTML", "CSS", "JavaScript", "Google Cloud Platform (GCP)"],
-    link: "https://offroadexpert.shop"
+    link: "https://offroadexpert.shop",
+    logoSrc: "/offroadexpert.jpg"
   },
   {
     title: "Contract Software Developer",
@@ -42,6 +45,7 @@ const experiences: ExperienceItem[] = [
       "Provided private tutoring in Mathematics, Computer Science, and Data Science for university students."
     ],
     technologies: ["Python", "JavaScript", "React", "Node.js", "Docker", "Cloud Services", "AI/ML"],
+    logoSrc: "/jaysqvl.jpg"
   }
 ];
 
@@ -69,9 +73,14 @@ export default function Experience() {
             )}
             
             <div className="flex gap-4">
-              {/* Timeline dot */}
+              {/* Timeline dot with logo or icon */}
               <div className="mt-1.5 flex-shrink-0 w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center">
-                <Briefcase className="h-5 w-5 text-primary" />
+                <LogoOrIcon 
+                  logoSrc={experience.logoSrc || ''}
+                  alt={`${experience.company} logo`}
+                  icon={<Briefcase className="h-5 w-5 text-primary" />}
+                  className="text-primary"
+                />
               </div>
               
               {/* Content */}
@@ -87,7 +96,7 @@ export default function Experience() {
                   </div>
                   <div className="flex items-center gap-1.5 text-muted-foreground">
                     <Calendar className="h-4 w-4" />
-                    <span className="text-sm">{experience.period}</span>
+                    <span className="text-sm sm:text-base">{experience.period}</span>
                     {experience.link && (
                       <a 
                         href={experience.link} 

@@ -9,9 +9,9 @@ export default function AboutMe() {
         <div className="w-20 h-1 bg-primary rounded"></div>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
+      <div className="space-y-8">
         {/* Introduction Card - 1/3 width on large screens */}
-        <div className="lg:col-span-4 bg-card rounded-lg border shadow-sm p-6">
+        <div className="bg-card rounded-lg border p-6 shadow-sm">
           <p className="text-muted-foreground">
             Hey! I'm Jay, a Software Engineer with roots in backend development and AI applications. Currently pursuing
             my Bachelor's in Computer Science at Simon Fraser University with practical experience in building scalable
@@ -21,7 +21,7 @@ export default function AboutMe() {
         </div>
 
         {/* Skills Graph - 2/3 width on large screens */}
-        <div className="lg:col-span-8 bg-card rounded-lg border shadow-sm">
+        <div className="bg-card rounded-lg border shadow-sm">
           <SkillGraph />
         </div>
       </div>
