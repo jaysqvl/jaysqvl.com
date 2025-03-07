@@ -4,6 +4,7 @@ import "./globals.css";
 import { ThemeProvider } from "@/components/theme-provider";
 import Navbar from "@/components/Navbar";
 import { Toaster } from "@/components/ui/sonner";
+import ChatButton from '@/components/ChatButton';
 
 // Font for body text
 const inter = Inter({
@@ -67,6 +68,7 @@ export default function RootLayout({
           <Navbar />
           {children}
           <Toaster />
+          <ChatButton />
         </ThemeProvider>
       </body>
     </html>
