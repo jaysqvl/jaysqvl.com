@@ -95,9 +95,13 @@ export default function ParticleBackground() {
       initParticles(); // Initialize particles after updating repulsion zones
     };
 
-    // Track mouse position and activity
+    // Track mouse position and activity, accounting for scroll position
     const handleMouseMove = (e: MouseEvent) => {
-      mousePosition.current = { x: e.clientX, y: e.clientY };
+      // Add scroll offset to mouse coordinates to make them relative to the document
+      mousePosition.current = { 
+        x: e.clientX + window.scrollX, 
+        y: e.clientY + window.scrollY 
+      };
       isMouseActive.current = true;
     };
     
@@ -489,6 +493,10 @@ export default function ParticleBackground() {
       // Define the completely off-screen threshold (when to teleport back)
       const offScreenThreshold = 20;
       
+      // Adjust the canvas position to account for scrolling
+      ctx.save();
+      ctx.translate(-window.scrollX, -window.scrollY);
+      
       // First pass: calculate all forces
       particles.current.forEach((particle, index) => {
         // Skip force calculation for teleporting particles
@@ -703,6 +711,9 @@ export default function ParticleBackground() {
         }
       });
       
+      // Restore canvas context
+      ctx.restore();
+      
       animationFrameId.current = requestAnimationFrame(animate);
     };
 
@@ -721,6 +732,14 @@ export default function ParticleBackground() {
     window.addEventListener('mousemove', handleMouseMove);
     window.addEventListener('mouseleave', handleMouseLeave);
     window.addEventListener('themechange', handleThemeChange);
+    // Add scroll event listener to update particle positions
+    window.addEventListener('scroll', () => {
+      // Force redraw on scroll
+      if (animationFrameId.current) {
+        cancelAnimationFrame(animationFrameId.current);
+        animationFrameId.current = requestAnimationFrame(animate);
+      }
+    });
     
     // Set up particle respawn interval
     respawnIntervalRef.current = setInterval(maintainParticleCount, PARTICLE_RESPAWN_INTERVAL);
@@ -737,6 +756,7 @@ export default function ParticleBackground() {
       window.removeEventListener('mousemove', handleMouseMove);
       window.removeEventListener('mouseleave', handleMouseLeave);
       window.removeEventListener('themechange', handleThemeChange);
+      window.removeEventListener('scroll', () => {});
       if (respawnIntervalRef.current) {
         clearInterval(respawnIntervalRef.current);
       }
@@ -747,7 +767,7 @@ export default function ParticleBackground() {
   return (
     <canvas 
       ref={canvasRef} 
-      className="absolute inset-0 -z-10 w-full h-full pointer-events-none"
+      className="fixed inset-0 -z-10 w-full h-full pointer-events-none"
     />
   );
 } 
