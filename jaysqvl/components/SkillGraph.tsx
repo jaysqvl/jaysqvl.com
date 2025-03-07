@@ -175,8 +175,17 @@ export default function SkillGraph() {
   const [graphData, setGraphData] = useState(skillsData);
   const [dimensions, setDimensions] = useState({ width: 0, height: 0 });
   const [isInitialized, setIsInitialized] = useState(false);
+  const [isGraphReady, setIsGraphReady] = useState(false);
   const graphRef = useRef<ForceGraphMethods | undefined>(undefined);
   const containerRef = useRef<HTMLDivElement>(null);
+
+  // Function to reset graph position based on node positions
+  const resetGraphPosition = useCallback(() => {
+    if (!graphRef.current || !graphData.nodes.length) return;
+    
+    // Use the graph's built-in zoomToFit method which centers based on actual node positions
+    graphRef.current.zoomToFit(400, 50);
+  }, [graphData.nodes]);
 
   // Set mounted state
   useEffect(() => {
@@ -190,7 +199,14 @@ export default function SkillGraph() {
     const updateDimensions = () => {
       if (containerRef.current) {
         const { width, height } = containerRef.current.getBoundingClientRect();
-        setDimensions({ width, height });
+        
+        // Only update dimensions if they've actually changed
+        setDimensions(prevDimensions => {
+          if (prevDimensions.width !== width || prevDimensions.height !== height) {
+            return { width, height };
+          }
+          return prevDimensions;
+        });
       }
     };
 
@@ -206,6 +222,18 @@ export default function SkillGraph() {
 
     return () => resizeObserver.disconnect();
   }, [mounted]);
+
+  // Separate effect for handling graph position on resize
+  useEffect(() => {
+    if (!isGraphReady || !graphRef.current || !dimensions.width) return;
+    
+    // Reset graph position when dimensions change
+    const timer = setTimeout(() => {
+      resetGraphPosition();
+    }, 100);
+    
+    return () => clearTimeout(timer);
+  }, [dimensions, isGraphReady, resetGraphPosition]);
 
   // Delayed initialization to ensure dimensions are properly set
   useEffect(() => {
@@ -323,6 +351,52 @@ export default function SkillGraph() {
     }
   }, []);
 
+  // Function to get the appropriate text color based on theme
+  const getTextColor = useCallback(() => {
+    // Always use black text for node labels since they're on colored backgrounds
+    return '#000000';
+  }, []);
+
+  // Function to get the appropriate outline color based on theme
+  const getOutlineColor = useCallback(() => {
+    if (typeof window !== 'undefined') {
+      return document.documentElement.classList.contains('dark') ? 'rgba(255, 255, 255, 0.2)' : 'rgba(0, 0, 0, 0.2)';
+    }
+    return 'rgba(0, 0, 0, 0.2)'; // Default
+  }, []);
+
+  // Add an effect to update colors when theme changes
+  useEffect(() => {
+    const handleThemeChange = () => {
+      if (graphRef.current) {
+        // Force a re-render when theme changes
+        // Since there's no direct refresh method, we'll reheat the simulation
+        graphRef.current.d3ReheatSimulation();
+      }
+    };
+
+    // Listen for theme changes
+    const observer = new MutationObserver((mutations) => {
+      mutations.forEach((mutation) => {
+        if (
+          mutation.type === 'attributes' &&
+          mutation.attributeName === 'class'
+        ) {
+          handleThemeChange();
+        }
+      });
+    });
+
+    if (typeof window !== 'undefined') {
+      observer.observe(document.documentElement, {
+        attributes: true,
+        attributeFilter: ['class'],
+      });
+    }
+
+    return () => observer.disconnect();
+  }, [mounted, isInitialized]);
+
   if (!mounted) return null;
 
   return (
@@ -346,15 +420,15 @@ export default function SkillGraph() {
               ctx.arc(node.x!, node.y!, nodeR, 0, 2 * Math.PI, false);
               ctx.fillStyle = categoryColors[skillNode.category];
               ctx.fill();
-              ctx.strokeStyle = 'rgba(0, 0, 0, 0.2)';
+              ctx.strokeStyle = getOutlineColor();
               ctx.lineWidth = 2;
               ctx.stroke();
               
-              // Draw label
+              // Draw label with black text for better readability against colored backgrounds
               ctx.font = `bold ${GRAPH_CONFIG.fontSize}px Inter, system-ui, sans-serif`;
               ctx.textAlign = 'center';
               ctx.textBaseline = 'middle';
-              ctx.fillStyle = '#000000';
+              ctx.fillStyle = '#000000'; // Always black for better contrast
               
               // Handle multi-word labels
               const words = label.split(' ');
@@ -370,11 +444,18 @@ export default function SkillGraph() {
             }}
             nodeRelSize={GRAPH_CONFIG.nodeRadius}
             linkWidth={2}
-            linkColor={() => 'rgba(0, 0, 0, 0.2)'}
+            linkColor={() => getOutlineColor()}
             onNodeClick={handleNodeClick}
             cooldownTicks={100}
             d3VelocityDecay={0.2}
             warmupTicks={50}
+            onEngineStop={() => {
+              // Ensure graph is visible when simulation stops
+              if (!isGraphReady) {
+                resetGraphPosition();
+                setIsGraphReady(true);
+              }
+            }}
           />
         )}
       </div>
@@ -387,7 +468,7 @@ export default function SkillGraph() {
               key={category}
               style={{
                 backgroundColor: selectedCategory === category ? categoryColors[category] : `${categoryColors[category]}33`,
-                color: selectedCategory === category ? '#000000' : '#000000',
+                color: 'inherit', // Use inherited text color instead of hardcoded black
                 border: `2px solid ${categoryColors[category]}`
               }}
               className="px-3 py-1.5 rounded-full text-sm font-medium transition-colors hover:bg-opacity-80"
@@ -397,14 +478,23 @@ export default function SkillGraph() {
             </button>
           ))}
         </div>
-        {selectedCategory && (
+        <div className="flex gap-2">
+          {selectedCategory && (
+            <button
+              className="px-4 py-1.5 rounded-full text-sm font-medium bg-red-500 text-white hover:bg-red-600 transition-colors"
+              onClick={() => setSelectedCategory(null)}
+            >
+              Reset
+            </button>
+          )}
           <button
-            className="px-4 py-1.5 rounded-full text-sm font-medium bg-red-500 text-white hover:bg-red-600 transition-colors ml-2"
-            onClick={() => setSelectedCategory(null)}
+            className="px-4 py-1.5 rounded-full text-sm font-medium bg-gray-500 text-white hover:bg-gray-600 transition-colors"
+            onClick={resetGraphPosition}
+            title="Center Graph"
           >
-            Reset
+            Center
           </button>
-        )}
+        </div>
       </div>
     </div>
   );
