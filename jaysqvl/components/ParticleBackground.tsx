@@ -9,9 +9,11 @@ const CURSOR_REPULSION_RADIUS_MULTIPLIER = 0.15; // Percentage of screen size fo
 const PARTICLE_DENSITY = 0.00012; // Particles per pixel of screen area
 const MIN_PARTICLES = 60; // Minimum number of particles
 const MAX_PARTICLES = 300; // Maximum number of particles
-const PARTICLE_RESPAWN_INTERVAL = 10000; // Check for missing particles every 1000ms
+const PARTICLE_RESPAWN_INTERVAL = 10000; // Check for missing particles every 10000ms
 const MOMENTUM_RETENTION = 0.6; // How much momentum particles retain after being pushed (0-1)
 const DAMPING_FACTOR = 0.98; // Slightly higher damping for more natural movement (was 0.97)
+const PARTICLE_REPULSION_RADIUS = 100; // How close particles need to be to repel each other
+const PARTICLE_REPULSION_STRENGTH = 0.02; // Strength of particle-to-particle repulsion
 
 interface Particle {
   x: number;
@@ -487,57 +489,10 @@ export default function ParticleBackground() {
       // Define the completely off-screen threshold (when to teleport back)
       const offScreenThreshold = 20;
       
+      // First pass: calculate all forces
       particles.current.forEach((particle, index) => {
-        // Handle teleporting particles
-        if (particle.teleporting && particle.teleportProgress !== undefined && particle.teleportDestination) {
-          // Advance teleport progress
-          particle.teleportProgress += 0.05;
-          
-          // Fade out and in effect
-          let opacity = 0;
-          if (particle.teleportProgress < 0.5) {
-            // Fade out (first half of teleport)
-            opacity = 1 - particle.teleportProgress * 2;
-          } else {
-            // Fade in (second half of teleport)
-            opacity = (particle.teleportProgress - 0.5) * 2;
-          }
-          
-          // Update position based on teleport progress
-          if (particle.teleportProgress >= 0.5 && particle.teleportProgress < 0.51) {
-            // At midpoint, actually move the particle to destination
-            particle.x = particle.teleportDestination.x;
-            particle.y = particle.teleportDestination.y;
-            particle.offScreen = false;
-            
-            // Apply immediate repulsion if the particle teleported into a repulsion zone
-            const { forceX, forceY } = getRepulsionForce(particle.x, particle.y);
-            if (Math.abs(forceX) > 0.01 || Math.abs(forceY) > 0.01) {
-              particle.x += forceX * 10;
-              particle.y += forceY * 10;
-            }
-          }
-          
-          // Draw teleporting particle with adjusted opacity
-          const baseColor = particle.color.replace(/[\d.]+\)$/, '');
-          ctx.fillStyle = `${baseColor}${opacity})`;
-          ctx.beginPath();
-          ctx.arc(particle.x, particle.y, particle.size, 0, Math.PI * 2);
-          ctx.fill();
-          
-          // End teleport when complete
-          if (particle.teleportProgress >= 1) {
-            particle.teleporting = false;
-            particle.teleportProgress = undefined;
-            particle.teleportDestination = undefined;
-            // Update particle color to match current theme
-            const opacityRange = getOpacityRange();
-            particle.color = `rgba(${themeRgb}, ${Math.random() * (opacityRange.max - opacityRange.min) + opacityRange.min})`;
-          }
-          
-          // Skip the rest of the update for teleporting particles
-          return;
-        }
+        // Skip force calculation for teleporting particles
+        if (particle.teleporting) return;
         
         // Store previous speed for momentum calculation
         const prevSpeedX = particle.speedX;
@@ -599,6 +554,35 @@ export default function ParticleBackground() {
         particle.speedX += forceX * repulsionMultiplier;
         particle.speedY += forceY * repulsionMultiplier;
         
+        // Apply particle-to-particle repulsion to prevent clumping
+        let particleRepulsionX = 0;
+        let particleRepulsionY = 0;
+        
+        for (let j = 0; j < particles.current.length; j++) {
+          if (j === index) continue; // Skip self
+          
+          const otherParticle = particles.current[j];
+          if (otherParticle.teleporting) continue; // Skip teleporting particles
+          
+          const pdx = particle.x - otherParticle.x;
+          const pdy = particle.y - otherParticle.y;
+          const particleDistance = Math.sqrt(pdx * pdx + pdy * pdy);
+          
+          // Only apply repulsion if particles are close enough
+          if (particleDistance < PARTICLE_REPULSION_RADIUS && particleDistance > 0) {
+            // Inverse square law for more natural repulsion
+            const repulsionForce = PARTICLE_REPULSION_STRENGTH * (1 - (particleDistance / PARTICLE_REPULSION_RADIUS));
+            
+            // Normalize direction vector
+            particleRepulsionX += (pdx / particleDistance) * repulsionForce;
+            particleRepulsionY += (pdy / particleDistance) * repulsionForce;
+          }
+        }
+        
+        // Apply particle repulsion forces
+        particle.speedX += particleRepulsionX;
+        particle.speedY += particleRepulsionY;
+        
         // Update position
         particle.x += particle.speedX;
         particle.y += particle.speedY;
@@ -624,6 +608,59 @@ export default function ParticleBackground() {
         } else if (particle.y > canvas.height + buffer) {
           particle.y = -buffer;
           particle.offScreen = false;
+        }
+      });
+      
+      // Second pass: draw particles and connections
+      particles.current.forEach((particle, index) => {
+        // Handle teleporting particles
+        if (particle.teleporting && particle.teleportProgress !== undefined && particle.teleportDestination) {
+          // Advance teleport progress
+          particle.teleportProgress += 0.05;
+          
+          // Fade out and in effect
+          let opacity = 0;
+          if (particle.teleportProgress < 0.5) {
+            // Fade out (first half of teleport)
+            opacity = 1 - particle.teleportProgress * 2;
+          } else {
+            // Fade in (second half of teleport)
+            opacity = (particle.teleportProgress - 0.5) * 2;
+          }
+          
+          // Update position based on teleport progress
+          if (particle.teleportProgress >= 0.5 && particle.teleportProgress < 0.51) {
+            // At midpoint, actually move the particle to destination
+            particle.x = particle.teleportDestination.x;
+            particle.y = particle.teleportDestination.y;
+            particle.offScreen = false;
+            
+            // Apply immediate repulsion if the particle teleported into a repulsion zone
+            const { forceX, forceY } = getRepulsionForce(particle.x, particle.y);
+            if (Math.abs(forceX) > 0.01 || Math.abs(forceY) > 0.01) {
+              particle.x += forceX * 10;
+              particle.y += forceY * 10;
+            }
+          }
+          
+          // Draw teleporting particle with adjusted opacity
+          const baseColor = particle.color.replace(/[\d.]+\)$/, '');
+          ctx.fillStyle = `${baseColor}${opacity})`;
+          ctx.beginPath();
+          ctx.arc(particle.x, particle.y, particle.size, 0, Math.PI * 2);
+          ctx.fill();
+          
+          // End teleport when complete
+          if (particle.teleportProgress >= 1) {
+            particle.teleporting = false;
+            particle.teleportProgress = undefined;
+            particle.teleportDestination = undefined;
+            // Update particle color to match current theme
+            const opacityRange = getOpacityRange();
+            particle.color = `rgba(${themeRgb}, ${Math.random() * (opacityRange.max - opacityRange.min) + opacityRange.min})`;
+          }
+          
+          return; // Skip the rest for teleporting particles
         }
         
         // Draw regular particle
