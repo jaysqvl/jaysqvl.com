@@ -129,6 +129,11 @@ const skillsData: GraphData = {
     { source: 'pytest', target: 'flask' },
     { source: 'junit', target: 'android' },
     
+    // Add direct connections between testing tools
+    { source: 'jest', target: 'pytest' },
+    { source: 'pytest', target: 'junit' },
+    { source: 'jest', target: 'junit' },
+    
     // Cross-category Connections
     { source: 'python', target: 'docker' },
     { source: 'javascript', target: 'aws' },
@@ -153,10 +158,13 @@ const categoryColors: Record<SkillCategory, string> = {
 const GRAPH_CONFIG = {
   nodeRadius: 35,
   fontSize: 12,
-  linkDistance: 100,
-  chargeStrength: -300,
-  centerStrength: 1,
-  collisionStrength: 1,
+  minLinkDistance: 150,
+  maxLinkDistance: 250,
+  chargeStrength: -400,
+  chargeDistanceMax: 100,
+  centerStrength: 0.05,
+  collisionStrength: 1.5,
+  collisionRadiusOffset: 2,
   width: 800,
   height: 600,
 };
@@ -165,9 +173,15 @@ export default function SkillGraph() {
   const [selectedCategory, setSelectedCategory] = useState<SkillCategory | null>(null);
   const [mounted, setMounted] = useState(false);
   const [graphData, setGraphData] = useState(skillsData);
-  const [dimensions, setDimensions] = useState({ width: 800, height: 600 });
+  const [dimensions, setDimensions] = useState({ width: 0, height: 0 });
+  const [isInitialized, setIsInitialized] = useState(false);
   const graphRef = useRef<ForceGraphMethods | undefined>(undefined);
   const containerRef = useRef<HTMLDivElement>(null);
+
+  // Set mounted state
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   // Handle container resizing
   useEffect(() => {
@@ -182,76 +196,116 @@ export default function SkillGraph() {
 
     // Initial size
     updateDimensions();
-
+    
     // Create resize observer
-    const resizeObserver = new ResizeObserver(updateDimensions);
+    const resizeObserver = new ResizeObserver(() => {
+      updateDimensions();
+    });
+    
     resizeObserver.observe(containerRef.current);
 
     return () => resizeObserver.disconnect();
   }, [mounted]);
 
+  // Delayed initialization to ensure dimensions are properly set
   useEffect(() => {
-    setMounted(true);
-  }, []);
+    if (!mounted || dimensions.width === 0) return;
+    
+    // Only run once when dimensions are first available
+    if (!isInitialized) {
+      // Delay initialization to ensure dimensions are properly applied
+      const timer = setTimeout(() => {
+        setIsInitialized(true);
+      }, 1000);
+      
+      return () => clearTimeout(timer);
+    }
+  }, [mounted, dimensions, isInitialized]);
 
   // Update graph data when category changes
   useEffect(() => {
-    if (!mounted) return;
+    if (!mounted || !isInitialized) return;
 
     if (!selectedCategory) {
       setGraphData(skillsData);
-      return;
+    } else {
+      // Get primary nodes (selected category)
+      const primaryNodes = skillsData.nodes.filter(node => node.category === selectedCategory);
+      const primaryNodeIds = new Set(primaryNodes.map(node => node.id));
+
+      // Find all connected nodes and their links
+      const connectedNodes = new Set<string>();
+      const relevantLinks = skillsData.links.filter(link => {
+        const source = (typeof link.source === 'object' && link.source !== null) ? 
+          (link.source as SkillNode).id : 
+          link.source as string;
+        const target = (typeof link.target === 'object' && link.target !== null) ? 
+          (link.target as SkillNode).id : 
+          link.target as string;
+        
+        // If either end is in our primary nodes, keep this link and both nodes
+        if (primaryNodeIds.has(source) || primaryNodeIds.has(target)) {
+          connectedNodes.add(source);
+          connectedNodes.add(target);
+          return true;
+        }
+        return false;
+      });
+
+      // Get all nodes that are part of our filtered graph
+      const relevantNodes = skillsData.nodes.filter(node => 
+        connectedNodes.has(node.id)
+      );
+
+      setGraphData({
+        nodes: relevantNodes,
+        links: relevantLinks
+      });
     }
+  }, [selectedCategory, mounted, isInitialized]);
 
-    // Get primary nodes (selected category)
-    const primaryNodes = skillsData.nodes.filter(node => node.category === selectedCategory);
-    const primaryNodeIds = new Set(primaryNodes.map(node => node.id));
-
-    // Find all connected nodes and their links
-    const connectedNodes = new Set<string>();
-    const relevantLinks = skillsData.links.filter(link => {
-      const source = (typeof link.source === 'object' && link.source !== null) ? 
-        (link.source as SkillNode).id : 
-        link.source as string;
-      const target = (typeof link.target === 'object' && link.target !== null) ? 
-        (link.target as SkillNode).id : 
-        link.target as string;
-      
-      // If either end is in our primary nodes, keep this link and both nodes
-      if (primaryNodeIds.has(source) || primaryNodeIds.has(target)) {
-        connectedNodes.add(source);
-        connectedNodes.add(target);
-        return true;
-      }
-      return false;
-    });
-
-    // Get all nodes that are part of our filtered graph
-    const relevantNodes = skillsData.nodes.filter(node => 
-      connectedNodes.has(node.id)
-    );
-
-    setGraphData({
-      nodes: relevantNodes,
-      links: relevantLinks
-    });
-  }, [selectedCategory, mounted]);
+  // Calculate dynamic link distance based on node count
+  const calculateLinkDistance = useCallback((nodeCount: number) => {
+    // Scale between min and max link distance based on node count
+    // Fewer nodes -> shorter distance, more nodes -> longer distance
+    const minNodes = 5;  // Minimum nodes to consider
+    const maxNodes = skillsData.nodes.length;  // Maximum possible nodes
+    
+    // Clamp node count between min and max
+    const clampedCount = Math.max(minNodes, Math.min(maxNodes, nodeCount));
+    
+    // Calculate scaling factor (0 to 1)
+    const scaleFactor = (clampedCount - minNodes) / (maxNodes - minNodes);
+    
+    // Calculate distance using linear interpolation
+    return GRAPH_CONFIG.minLinkDistance + 
+           scaleFactor * (GRAPH_CONFIG.maxLinkDistance - GRAPH_CONFIG.minLinkDistance);
+  }, []);
 
   // Initialize forces when component mounts or graph data changes
   useEffect(() => {
-    if (!graphRef.current || !mounted) return;
+    if (!graphRef.current || !mounted || dimensions.width === 0 || !isInitialized) return;
 
     const fg = graphRef.current;
+    
+    // Calculate dynamic link distance based on current node count
+    const linkDistance = calculateLinkDistance(graphData.nodes.length);
 
     // Reset forces with adjusted parameters for better clustering
-    fg.d3Force('charge')?.strength(GRAPH_CONFIG.chargeStrength);
+    fg.d3Force('charge')
+      ?.strength(GRAPH_CONFIG.chargeStrength)
+      ?.distanceMax(GRAPH_CONFIG.chargeDistanceMax);
+
     fg.d3Force('link')
-      ?.distance(GRAPH_CONFIG.linkDistance)
-      .strength(1);
-    fg.d3Force('center')?.strength(GRAPH_CONFIG.centerStrength);
+      ?.distance(linkDistance)
+      ?.strength(0.7);
+
+    fg.d3Force('center')
+      ?.strength(GRAPH_CONFIG.centerStrength);
+
     fg.d3Force('collision')
       ?.strength(GRAPH_CONFIG.collisionStrength)
-      .radius(GRAPH_CONFIG.nodeRadius * 1.2);
+      ?.radius((node: NodeObject) => GRAPH_CONFIG.nodeRadius * (1 + GRAPH_CONFIG.collisionRadiusOffset));
 
     // Reheat the simulation
     fg.d3ReheatSimulation();
@@ -260,7 +314,7 @@ export default function SkillGraph() {
     requestAnimationFrame(() => {
       fg.zoomToFit(400, 50);
     });
-  }, [mounted, graphData, dimensions]);
+  }, [mounted, graphData, dimensions, isInitialized, calculateLinkDistance]);
 
   const handleNodeClick = useCallback((node: NodeObject) => {
     const skillNode = node as SkillNode;
@@ -275,52 +329,54 @@ export default function SkillGraph() {
     <div className="w-full h-[600px] relative overflow-hidden rounded-lg bg-card" ref={containerRef}>
       {/* Graph container - now first in DOM order */}
       <div className="absolute inset-0">
-        <ForceGraph2D
-          ref={graphRef}
-          graphData={graphData}
-          backgroundColor="transparent"
-          width={dimensions.width}
-          height={dimensions.height}
-          nodeCanvasObject={(node: any, ctx, globalScale) => {
-            const skillNode = node as SkillNode;
-            const label = skillNode.name;
-            const nodeR = GRAPH_CONFIG.nodeRadius;
-            
-            // Draw node circle with border
-            ctx.beginPath();
-            ctx.arc(node.x!, node.y!, nodeR, 0, 2 * Math.PI, false);
-            ctx.fillStyle = categoryColors[skillNode.category];
-            ctx.fill();
-            ctx.strokeStyle = 'rgba(0, 0, 0, 0.2)';
-            ctx.lineWidth = 2;
-            ctx.stroke();
-            
-            // Draw label
-            ctx.font = `bold ${GRAPH_CONFIG.fontSize}px Inter, system-ui, sans-serif`;
-            ctx.textAlign = 'center';
-            ctx.textBaseline = 'middle';
-            ctx.fillStyle = '#000000';
-            
-            // Handle multi-word labels
-            const words = label.split(' ');
-            if (words.length > 1) {
-              const lineHeight = GRAPH_CONFIG.fontSize + 2;
-              words.forEach((word, i) => {
-                const y = node.y! + (i - (words.length - 1) / 2) * lineHeight;
-                ctx.fillText(word, node.x!, y);
-              });
-            } else {
-              ctx.fillText(label, node.x!, node.y!);
-            }
-          }}
-          nodeRelSize={GRAPH_CONFIG.nodeRadius}
-          linkWidth={2}
-          linkColor={() => 'rgba(0, 0, 0, 0.2)'}
-          onNodeClick={handleNodeClick}
-          cooldownTicks={100}
-          d3VelocityDecay={0.2}
-          warmupTicks={50}
-        />
+        {dimensions.width > 0 && (
+          <ForceGraph2D
+            ref={graphRef}
+            graphData={isInitialized ? graphData : { nodes: [], links: [] }}
+            backgroundColor="transparent"
+            width={dimensions.width}
+            height={dimensions.height}
+            nodeCanvasObject={(node: any, ctx, globalScale) => {
+              const skillNode = node as SkillNode;
+              const label = skillNode.name;
+              const nodeR = GRAPH_CONFIG.nodeRadius;
+              
+              // Draw node circle with border
+              ctx.beginPath();
+              ctx.arc(node.x!, node.y!, nodeR, 0, 2 * Math.PI, false);
+              ctx.fillStyle = categoryColors[skillNode.category];
+              ctx.fill();
+              ctx.strokeStyle = 'rgba(0, 0, 0, 0.2)';
+              ctx.lineWidth = 2;
+              ctx.stroke();
+              
+              // Draw label
+              ctx.font = `bold ${GRAPH_CONFIG.fontSize}px Inter, system-ui, sans-serif`;
+              ctx.textAlign = 'center';
+              ctx.textBaseline = 'middle';
+              ctx.fillStyle = '#000000';
+              
+              // Handle multi-word labels
+              const words = label.split(' ');
+              if (words.length > 1) {
+                const lineHeight = GRAPH_CONFIG.fontSize + 2;
+                words.forEach((word, i) => {
+                  const y = node.y! + (i - (words.length - 1) / 2) * lineHeight;
+                  ctx.fillText(word, node.x!, y);
+                });
+              } else {
+                ctx.fillText(label, node.x!, node.y!);
+              }
+            }}
+            nodeRelSize={GRAPH_CONFIG.nodeRadius}
+            linkWidth={2}
+            linkColor={() => 'rgba(0, 0, 0, 0.2)'}
+            onNodeClick={handleNodeClick}
+            cooldownTicks={100}
+            d3VelocityDecay={0.2}
+            warmupTicks={50}
+          />
+        )}
       </div>
 
       {/* Buttons overlay - now after graph in DOM */}
