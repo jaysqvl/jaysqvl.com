@@ -9,7 +9,7 @@ const CURSOR_REPULSION_RADIUS_MULTIPLIER = 0.15; // Percentage of screen size fo
 const PARTICLE_DENSITY = 0.00012; // Particles per pixel of screen area
 const MIN_PARTICLES = 60; // Minimum number of particles
 const MAX_PARTICLES = 300; // Maximum number of particles
-const PARTICLE_RESPAWN_INTERVAL = 1000; // Check for missing particles every 1000ms
+const PARTICLE_RESPAWN_INTERVAL = 10000; // Check for missing particles every 1000ms
 const MOMENTUM_RETENTION = 0.6; // How much momentum particles retain after being pushed (0-1)
 const DAMPING_FACTOR = 0.98; // Slightly higher damping for more natural movement (was 0.97)
 
