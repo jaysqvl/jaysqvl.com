@@ -12,8 +12,116 @@ You will be using NextJS 15, shadcn, tailwind, and lucide icons.
     - Projects
 - Light and dark mode switcher
 
-# Doc
+# Resume/Some of My Information
+# Jay Esquivel Jr.
 
+**Projects:** [github.com/Jaysqvl](https://github.com/Jaysqvl)  
+**Full Legal Name:** Bob Dayupay Esquivel Jr.  
+**LinkedIn:** [linkedin.com/in/Jaysqvl/](https://linkedin.com/in/Jaysqvl/)  
+**Phone:** +1-778-991-1371  
+**Email:** jaysqvl@gmail.com  
+
+---
+
+## Education
+
+### Simon Fraser University, Burnaby, BC  
+**Bachelor of Applied Science, Computer Science - Software Systems**  
+*Sept 2022 – Present*  
+
+### University of British Columbia, Vancouver, BC  
+**Bachelor of Science, Computer Science & Mathematics**  
+*Sept 2020 – Aug 2022*  
+- **UBC CVC Social Club External Relations Executive**  
+  - Event Planning for ~700 Members  
+  - Maintain and Develop Brand Sponsorships  
+  - Social Media Management  
+
+---
+
+## Experience
+
+### **Software Engineer**  
+**OffroadExpert** — *Python, Bash, Docker, HTML, CSS, JavaScript, Google Cloud Platform (GCP)*  
+*June 2024 – Present | Vancouver, BC*  
+- Automated vendor product data entry and processing using a pipe and filter back-end architecture, scaling product ingestion capacity **300x** and eliminating manual intervention.
+- Developed dockerized, full-stack internal company tools combining React and TailwindCSS with Python to open product processing configuration to non-technical staff.
+- Implemented an AI filter layer in the product processing pipeline incorporating OpenAI’s batch-processing API, prompt-caching, and prompt engineering techniques to improve SEO cost-effectively.
+- Designed and deployed private cloud infrastructure including networking, virtual machines, docker management, and VPN setup, ensuring system reliability and security while reducing cloud operational costs.
+- Deployed **OffRoadExpert.shop** by leveraging Shopify’s REST Admin API for back-end operations, front-end hosting, and e-commerce management tools to create a fully custom system.
+- Actively developing a personalized front-end to optimize the user experience and align with business requirements.
+
+### **Contract Software Developer**  
+**Jaysqvl Solutions** — *Vancouver, BC / Remote*  
+*Sept 2020 – Present*  
+- Software consultations and development for small businesses including **generative AI applications, web, cloud, networking, virtualization, containerization, security systems, and IT infrastructure**.
+- Developed **REST APIs, full-stack web applications,** and audited course content (debugging and testing) for various courses on **Udemy** and private platforms, contributing to **teaching 3000+ students** with a **4.5-star average rating**.
+- Provided private tutoring in **Mathematics, Computer Science, and Data Science** for university students.
+
+---
+
+## Technical Skills
+
+**Languages:** Python, Java, JavaScript, Kotlin, C++, C, HTML, CSS, SQL, R, Racket, LaTeX, Bash  
+**AI Knowledge and Applications:** Langchain & HuggingFace, AI Agents, Fine-Tuning, Transformer Models, Neural Nets, Computer Vision, Vector Embeddings & Retrieval Augmented Generation (RAG), Prompt Engineering  
+**Frameworks and Engines:** React.js, Node.js, Langchain, HuggingFace, Flask, Android, Hugo  
+**Database:** Firebase, Supabase, Pinecone, PostgreSQL, Redis, Microsoft SQL Server, SQLite, MariaDB  
+**Development/Deployment:** Git, Docker, Vercel, GitHub Pages, GitHub Actions  
+**Test:** GoogleTest, GoogleMock, Libfuzzer, PIT, Stryker, Hypothesis, JUnit, PyTest, ACTS  
+**Cloud:** Google Cloud (GCP), Amazon Web Services (AWS), Cloud Functions, Load Balancers & API Gateways, Virtual Machines, Dockerized Deployments, Storage Services  
+
+---
+
+## Projects
+
+### **ExpensAI** — *An AI-Powered Spending and Financial Management App*  
+*Kotlin, Python, Google Cloud (GCP), Firebase*  
+- Deployed a **secure image API** on GCP Cloud Functions that validates base64-encoded images and utilizes OpenAI’s Vision API for classification.
+- Developed a text API that takes **unidentifiable transaction history** and generates personalized insights.
+- Created dynamic components that **synchronize in real-time** with both local and cloud persistence layers.
+- Implemented **co-routines and threading** to optimize performance without compromising stability.
+- Designed and implemented **Google Cloud infrastructure** services to optimize cost.
+
+### **Cardiolo** — *Cardio Stats Tracking App with Trained Automatic Activity Classification*  
+*Kotlin, Weka, Google Cloud (GCP)*  
+- Trained and integrated a **WEKA Classification** background service to automatically identify cardiovascular activities based on phone movements.
+- Deployed a custom map using the **Google Maps API** to track activity routes as a service.
+- Developed a **dynamic UI** with co-routines, threading, and API pre-fetching for optimal performance.
+- Integrated **Room databases** for secure user data storage and **CSV export**.
+
+### **Jaysqvl.com** — *Portfolio Website*  
+*HTML, CSS, JavaScript, React.js, Next.js, Vercel, GitHub Actions & Pages, Hugo*  
+- Created **Jaysqvl.com** using the Hugo static site generating framework.
+- Automated deployment of builds using **GitHub Actions**, reducing deployment time by 5 minutes per commit.
+- Built **V2 using React.js and Next.js**, deployed on Vercel.
+
+### **Impersonator** — *Full-Stack PDF ChatBot (Pre-ChatGPT File Ingest Capability)*  
+*Python, Langchain, Docker, Supabase*  
+- Designed a **polymorphic back-end** to support multiple **LLMs** (localized, fine-tuned, cloud).
+- Streamlined development environment setup via **Dockerization**.
+- Created a front-end using **Streamlit** to expedite development and UI integration.
+
+### **Decode** — *Chrome Extension for Evaluating Product Sustainability While Shopping*  
+*HTML, CSS, JavaScript, Python*  
+- Developed an API that **scrapes the user’s product page, calculates sustainability scores, and returns insights**.
+- Assisted in UI/UX implementation and development.
+
+### **Divide and Conquer** — *Socket-Based Rendition of the Classic Game*  
+*Java, Sockets*  
+- Developed a **Java Swing-based** multiplayer game with a token-based **packet messaging system** to reduce client-to-client latency **5x**.
+- Implemented **server-side asynchronous client handling**, improving performance based on logical threads.
+
+### **PeerAdvice** — *Full-Stack Peer-to-Peer UBC Advising Platform*  
+*HTML, CSS, JavaScript, Flask, PostgreSQL, FireBase*  
+- Developed a **Flask-based back-end** featuring **GET and POST** API endpoints.
+- Integrated **Google Authentication** and **Calendly** for seamless advisor bookings.
+
+### **Hercules** — *Gamified Workout Mobile-App*  
+*Java, Android*  
+- Developed the **front-end using Java Android Library**.
+- Optimized back-end data structures, reducing **run-time memory usage by over 200%**.
+
+See all of my new projects and their demos at [github.com/jaysqvl](https://github.com/jaysqvl).
 
 # Current File Structure
 .

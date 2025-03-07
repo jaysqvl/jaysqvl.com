@@ -1,12 +1,13 @@
 import Image from 'next/image';
 import Link from 'next/link';
-import { Github, Linkedin, FileText } from 'lucide-react';
+import { Github, Linkedin, FileText, Coffee } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
 
 export default function Hero() {
   return (
     <section className="min-h-[80vh] w-full flex flex-col items-center justify-center gap-8 px-4">
-      <div className="relative w-48 h-48 rounded-full overflow-hidden border-4 border-primary/10">
+      <div className="relative w-64 h-64 md:w-80 md:h-80 rounded-full overflow-hidden border-4 border-primary/10">
         <Image
           src="/profile.jpg"
           alt="Profile picture"
@@ -45,6 +46,14 @@ export default function Hero() {
           </Link>
         </Button>
       </div>
+
+      <Alert className="w-full max-w-lg bg-primary/5 border-primary/10">
+        <Coffee className="h-4 w-4" />
+        <AlertTitle>Welcome!</AlertTitle>
+        <AlertDescription>
+          Here's a virtual coffee for your visit ☕
+        </AlertDescription>
+      </Alert>
     </section>
   );
 } 
