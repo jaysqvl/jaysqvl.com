@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useRef } from 'react';
+import { useTheme } from 'next-themes';
 
 interface Particle {
   x: number;
@@ -33,6 +34,37 @@ export default function ParticleBackground() {
   const animationFrameId = useRef<number>(0);
   const time = useRef<number>(0);
   const isMouseActive = useRef<boolean>(false);
+  const { theme, systemTheme } = useTheme();
+
+  // Determine if dark mode is active
+  const isDarkMode = () => {
+    const currentTheme = theme === 'system' ? systemTheme : theme;
+    return currentTheme === 'dark';
+  };
+
+  // Get the appropriate RGB values based on theme
+  const getThemeRgb = () => {
+    return isDarkMode() ? '255, 255, 255' : '10, 10, 12'; // Lighter white in dark mode, darker black in light mode
+  };
+
+  // Get appropriate opacity range based on theme
+  const getOpacityRange = () => {
+    return isDarkMode() 
+      ? { min: 0.5, max: 0.9 } // Dark mode opacity range (increased further)
+      : { min: 0.6, max: 0.95 }; // Light mode opacity range (increased further)
+  };
+
+  // Get connection opacity multiplier based on theme
+  const getConnectionOpacity = () => {
+    return isDarkMode() ? 0.6 : 0.7; // Increased further for both modes
+  };
+
+  // Get particle size range based on theme
+  const getParticleSizeRange = () => {
+    return isDarkMode()
+      ? { min: 1.5, max: 3.0 } // Slightly larger particles in dark mode
+      : { min: 1.0, max: 2.5 }; // Original size in light mode
+  };
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -113,6 +145,9 @@ export default function ParticleBackground() {
       // Create a buffer zone around the edges
       const edgeBuffer = 40;
       
+      // Get current theme RGB values
+      const themeRgb = getThemeRgb();
+      
       // Try to create particles outside repulsion zones
       let attempts = 0;
       const maxAttempts = particleCount * 5;
@@ -126,16 +161,18 @@ export default function ParticleBackground() {
         if (!isInsideRepulsionZone(x, y, 20)) {
           const baseSpeedX = (Math.random() * 0.4 - 0.2) * 0.3;
           const baseSpeedY = (Math.random() * 0.4 - 0.2) * 0.3;
+          const opacityRange = getOpacityRange();
+          const sizeRange = getParticleSizeRange();
           
           particles.current.push({
             x,
             y,
-            size: Math.random() * 2 + 1,
+            size: Math.random() * (sizeRange.max - sizeRange.min) + sizeRange.min,
             speedX: baseSpeedX,
             speedY: baseSpeedY,
             baseSpeedX,
             baseSpeedY,
-            color: `rgba(var(--primary-rgb), ${Math.random() * 0.4 + 0.1})`,
+            color: `rgba(${themeRgb}, ${Math.random() * (opacityRange.max - opacityRange.min) + opacityRange.min})`,
             teleporting: false,
             offScreen: false
           });
@@ -149,16 +186,18 @@ export default function ParticleBackground() {
         for (let i = 0; i < remaining; i++) {
           const baseSpeedX = (Math.random() * 0.4 - 0.2) * 0.3;
           const baseSpeedY = (Math.random() * 0.4 - 0.2) * 0.3;
+          const opacityRange = getOpacityRange();
+          const sizeRange = getParticleSizeRange();
           
           particles.current.push({
             x: edgeBuffer + Math.random() * (canvas.width - edgeBuffer * 2),
             y: edgeBuffer + Math.random() * (canvas.height - edgeBuffer * 2),
-            size: Math.random() * 2 + 1,
+            size: Math.random() * (sizeRange.max - sizeRange.min) + sizeRange.min,
             speedX: baseSpeedX,
             speedY: baseSpeedY,
             baseSpeedX,
             baseSpeedY,
-            color: `rgba(var(--primary-rgb), ${Math.random() * 0.4 + 0.1})`,
+            color: `rgba(${themeRgb}, ${Math.random() * (opacityRange.max - opacityRange.min) + opacityRange.min})`,
             teleporting: false,
             offScreen: false
           });
@@ -259,11 +298,7 @@ export default function ParticleBackground() {
           height: rect.height + 10,
           strength: 3.5 // Even stronger repulsion for the title
         });
-        
-        console.log("Found navbar title:", navbarTitle.textContent, rect);
       } else {
-        console.log("Could not find navbar title element");
-        
         // Fallback: add a manual repulsion zone for the top-left area
         repulsionZones.current.push({
           x: 20,
@@ -312,8 +347,6 @@ export default function ParticleBackground() {
           strength: 2.5
         });
       }
-      
-      console.log("Total repulsion zones:", repulsionZones.current.length);
     };
 
     // Check if a point is inside or near a repulsion zone
@@ -355,6 +388,9 @@ export default function ParticleBackground() {
     const animate = () => {
       ctx.clearRect(0, 0, canvas.width, canvas.height);
       time.current += 0.003;
+      
+      // Get current theme RGB values
+      const themeRgb = getThemeRgb();
       
       // Calculate connection distance based on screen size
       const connectionDistance = Math.min(
@@ -414,6 +450,9 @@ export default function ParticleBackground() {
             particle.teleporting = false;
             particle.teleportProgress = undefined;
             particle.teleportDestination = undefined;
+            // Update particle color to match current theme
+            const opacityRange = getOpacityRange();
+            particle.color = `rgba(${themeRgb}, ${Math.random() * (opacityRange.max - opacityRange.min) + opacityRange.min})`;
           }
           
           // Skip the rest of the update for teleporting particles
@@ -490,6 +529,12 @@ export default function ParticleBackground() {
         
         // Draw regular particle (even if partially off screen)
         if (!particle.teleporting) {
+          // Update particle color to match current theme if needed
+          if (!particle.color.includes(themeRgb)) {
+            const opacityRange = getOpacityRange();
+            particle.color = `rgba(${themeRgb}, ${Math.random() * (opacityRange.max - opacityRange.min) + opacityRange.min})`;
+          }
+          
           ctx.fillStyle = particle.color;
           ctx.beginPath();
           ctx.arc(particle.x, particle.y, particle.size, 0, Math.PI * 2);
@@ -516,10 +561,11 @@ export default function ParticleBackground() {
           const distance = Math.sqrt(dx * dx + dy * dy);
           
           if (distance < connectionDistance) {
-            const opacity = 0.2 * (1 - distance / connectionDistance);
+            const connectionOpacityMultiplier = getConnectionOpacity();
+            const opacity = connectionOpacityMultiplier * (1 - distance / connectionDistance) + 0.15; // Increased base opacity
             ctx.beginPath();
-            ctx.strokeStyle = `rgba(var(--primary-rgb), ${opacity})`;
-            ctx.lineWidth = 0.4;
+            ctx.strokeStyle = `rgba(${themeRgb}, ${Math.min(opacity, 0.95)})`; // Higher cap
+            ctx.lineWidth = isDarkMode() ? 0.7 : 0.6; // Thicker lines in both modes
             ctx.moveTo(particle.x, particle.y);
             ctx.lineTo(otherParticle.x, otherParticle.y);
             ctx.stroke();
@@ -530,10 +576,21 @@ export default function ParticleBackground() {
       animationFrameId.current = requestAnimationFrame(animate);
     };
 
+    // Handle theme changes
+    const handleThemeChange = () => {
+      // Update particle colors to match the new theme
+      const themeRgb = getThemeRgb();
+      const opacityRange = getOpacityRange();
+      particles.current.forEach(particle => {
+        particle.color = `rgba(${themeRgb}, ${Math.random() * (opacityRange.max - opacityRange.min) + opacityRange.min})`;
+      });
+    };
+
     // Set up event listeners
     window.addEventListener('resize', handleResize);
     window.addEventListener('mousemove', handleMouseMove);
     window.addEventListener('mouseleave', handleMouseLeave);
+    window.addEventListener('themechange', handleThemeChange);
     
     // Initialize
     handleResize();
@@ -546,9 +603,10 @@ export default function ParticleBackground() {
       window.removeEventListener('resize', handleResize);
       window.removeEventListener('mousemove', handleMouseMove);
       window.removeEventListener('mouseleave', handleMouseLeave);
+      window.removeEventListener('themechange', handleThemeChange);
       cancelAnimationFrame(animationFrameId.current);
     };
-  }, []);
+  }, [theme, systemTheme]);
 
   return (
     <canvas 

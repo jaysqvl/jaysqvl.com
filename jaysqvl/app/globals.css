@@ -148,6 +148,12 @@
     --input: 240 5.9% 90%;
     --ring: 240 5.9% 10%;
     --radius: 0.5rem;
+    
+    /* Card enhancement variables */
+    --card-shadow: 0 10px 30px -15px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+    --card-hover-shadow: 0 20px 30px -15px rgba(0, 0, 0, 0.15), 0 10px 15px -3px rgba(0, 0, 0, 0.07);
+    --card-border-color: rgba(0, 0, 0, 0.05);
+    --card-gradient: linear-gradient(to bottom right, rgba(255, 255, 255, 0.01), rgba(255, 255, 255, 0.1));
   }
 
   .dark {
@@ -171,6 +177,12 @@
     --border: 240 3.7% 15.9%;
     --input: 240 3.7% 15.9%;
     --ring: 240 4.9% 83.9%;
+    
+    /* Dark mode card enhancement variables */
+    --card-shadow: 0 10px 30px -15px rgba(0, 0, 0, 0.5), 0 4px 6px -2px rgba(0, 0, 0, 0.3);
+    --card-hover-shadow: 0 20px 30px -15px rgba(0, 0, 0, 0.7), 0 10px 15px -3px rgba(0, 0, 0, 0.4);
+    --card-border-color: rgba(255, 255, 255, 0.08);
+    --card-gradient: linear-gradient(to bottom right, rgba(255, 255, 255, 0.03), rgba(255, 255, 255, 0.01));
   }
   
   /* Apply fonts to elements using direct CSS */
@@ -182,5 +194,57 @@
   
   code, pre {
     font-family: var(--font-mono);
+  }
+  
+  /* Enhanced card styling */
+  .bg-card {
+    background-image: var(--card-gradient);
+    box-shadow: var(--card-shadow);
+    border-color: var(--card-border-color) !important;
+    transition: all 0.3s ease;
+  }
+  
+  .bg-card:hover {
+    box-shadow: var(--card-hover-shadow);
+    transform: translateY(-2px);
+  }
+  
+  /* Section heading enhancements */
+  section h2 {
+    position: relative;
+    display: inline-block;
+  }
+  
+  section h2::after {
+    content: '';
+    position: absolute;
+    bottom: -0.5rem;
+    left: 0;
+    width: 3rem;
+    height: 0.25rem;
+    background: linear-gradient(90deg, hsl(var(--primary)), transparent);
+    border-radius: 9999px;
+  }
+  
+  /* Button enhancements */
+  .button-primary {
+    position: relative;
+    overflow: hidden;
+    transition: all 0.3s ease;
+  }
+  
+  .button-primary::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.1), transparent);
+    transition: all 0.6s ease;
+  }
+  
+  .button-primary:hover::before {
+    left: 100%;
   }
 }
