@@ -264,8 +264,8 @@ export default function ParticleBackground() {
       if (navbar) {
         const rect = navbar.getBoundingClientRect();
         repulsionZones.current.push({
-          x: rect.left,
-          y: rect.top,
+          x: rect.left + window.scrollX,
+          y: rect.top + window.scrollY,
           width: rect.width,
           height: rect.height,
           strength: 2.5
@@ -311,8 +311,8 @@ export default function ParticleBackground() {
         
         // Add padding around the title for better repulsion
         repulsionZones.current.push({
-          x: rect.left - 10,
-          y: rect.top - 5,
+          x: rect.left + window.scrollX - 10,
+          y: rect.top + window.scrollY - 5,
           width: rect.width + 20,
           height: rect.height + 10,
           strength: 3.5 // Even stronger repulsion for the title
@@ -320,8 +320,8 @@ export default function ParticleBackground() {
       } else {
         // Fallback: add a manual repulsion zone for the top-left area
         repulsionZones.current.push({
-          x: 20,
-          y: 20,
+          x: 20 + window.scrollX,
+          y: 20 + window.scrollY,
           width: 200,
           height: 40,
           strength: 3.5
@@ -333,8 +333,8 @@ export default function ParticleBackground() {
       if (heroTextContainer) {
         const rect = heroTextContainer.getBoundingClientRect();
         repulsionZones.current.push({
-          x: rect.left,
-          y: rect.top,
+          x: rect.left + window.scrollX,
+          y: rect.top + window.scrollY,
           width: rect.width,
           height: rect.height,
           strength: 3
@@ -346,8 +346,8 @@ export default function ParticleBackground() {
       if (profilePic) {
         const rect = profilePic.getBoundingClientRect();
         repulsionZones.current.push({
-          x: rect.left,
-          y: rect.top,
+          x: rect.left + window.scrollX,
+          y: rect.top + window.scrollY,
           width: rect.width,
           height: rect.height,
           strength: 3
@@ -359,8 +359,8 @@ export default function ParticleBackground() {
       if (button) {
         const rect = button.getBoundingClientRect();
         repulsionZones.current.push({
-          x: rect.left,
-          y: rect.top,
+          x: rect.left + window.scrollX,
+          y: rect.top + window.scrollY,
           width: rect.width,
           height: rect.height,
           strength: 2.5
@@ -732,14 +732,20 @@ export default function ParticleBackground() {
     window.addEventListener('mousemove', handleMouseMove);
     window.addEventListener('mouseleave', handleMouseLeave);
     window.addEventListener('themechange', handleThemeChange);
-    // Add scroll event listener to update particle positions
-    window.addEventListener('scroll', () => {
+    
+    // Add scroll event listener to update particle positions and repulsion zones
+    const handleScroll = () => {
+      // Update repulsion zones when scrolling
+      updateRepulsionZones();
+      
       // Force redraw on scroll
       if (animationFrameId.current) {
         cancelAnimationFrame(animationFrameId.current);
         animationFrameId.current = requestAnimationFrame(animate);
       }
-    });
+    };
+    
+    window.addEventListener('scroll', handleScroll);
     
     // Set up particle respawn interval
     respawnIntervalRef.current = setInterval(maintainParticleCount, PARTICLE_RESPAWN_INTERVAL);
@@ -756,7 +762,7 @@ export default function ParticleBackground() {
       window.removeEventListener('mousemove', handleMouseMove);
       window.removeEventListener('mouseleave', handleMouseLeave);
       window.removeEventListener('themechange', handleThemeChange);
-      window.removeEventListener('scroll', () => {});
+      window.removeEventListener('scroll', handleScroll);
       if (respawnIntervalRef.current) {
         clearInterval(respawnIntervalRef.current);
       }
