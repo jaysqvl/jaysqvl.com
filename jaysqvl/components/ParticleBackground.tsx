@@ -12,8 +12,8 @@ const MAX_PARTICLES = 300; // Maximum number of particles
 const PARTICLE_RESPAWN_INTERVAL = 10000; // Check for missing particles every 10000ms
 const MOMENTUM_RETENTION = 0.6; // How much momentum particles retain after being pushed (0-1)
 const DAMPING_FACTOR = 0.98; // Slightly higher damping for more natural movement (was 0.97)
-const PARTICLE_REPULSION_RADIUS = 100; // How close particles need to be to repel each other
-const PARTICLE_REPULSION_STRENGTH = 0.02; // Strength of particle-to-particle repulsion
+const PARTICLE_REPULSION_RADIUS = 50; // How close particles need to be to repel each other
+const PARTICLE_REPULSION_STRENGTH = 0.01; // Strength of particle-to-particle repulsion
 
 interface Particle {
   x: number;
