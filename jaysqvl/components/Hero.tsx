@@ -85,7 +85,7 @@ export default function Hero() {
             transition={{ duration: 0.8 }}
             className="relative profile-picture-container"
           >
-            <div className="relative w-48 h-48 md:w-64 md:h-64 rounded-full overflow-hidden border-4 border-primary/20">
+            <div className="relative w-56 h-56 md:w-72 md:h-72 rounded-full overflow-hidden border-4 border-primary/20">
               <Image
                 src="/profile.jpg" // Make sure to add your profile picture to the public folder
                 alt="Jay's profile picture"
@@ -103,7 +103,7 @@ export default function Hero() {
             
             {/* Animated ring around profile picture */}
             <motion.div 
-              className="absolute -inset-2 rounded-full border-2 border-primary/30"
+              className="absolute -inset-3 rounded-full border-2 border-primary/30"
               animate={{ 
                 boxShadow: ['0 0 0 0 rgba(var(--primary-rgb), 0.2)', '0 0 0 10px rgba(var(--primary-rgb), 0)'],
               }}
