@@ -3,6 +3,7 @@
 import { useCallback, useRef, useState, useEffect } from 'react';
 import dynamic from 'next/dynamic';
 import type { NodeObject, LinkObject } from 'react-force-graph-2d';
+import { useTheme } from 'next-themes';
 
 // Dynamically import ForceGraph2D with no SSR
 const ForceGraph2D = dynamic(
@@ -783,6 +784,7 @@ const SkillGraph = () => {
   const [dimensions, setDimensions] = useState({ width: 0, height: 0 });
   const [isInitialized, setIsInitialized] = useState(false);
   const [isGraphReady, setIsGraphReady] = useState(false);
+  const { theme, systemTheme } = useTheme();
   
   // Use a simple any type for the ref to avoid complex typing issues
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -1105,9 +1107,17 @@ const SkillGraph = () => {
 
   // Function to get the appropriate outline color based on theme
   const getOutlineColor = useCallback(() => {
-    // Use a safe default for initial render to avoid hydration errors
-    return 'rgba(0, 0, 0, 0.2)';
-  }, []);
+    // Check if component is mounted to avoid hydration issues
+    if (!mounted) return 'rgba(0, 0, 0, 0.2)';
+    
+    // Determine current theme
+    const currentTheme = theme === 'system' ? systemTheme : theme;
+    
+    // Return appropriate color based on theme
+    return currentTheme === 'dark' 
+      ? 'rgba(255, 255, 255, 0.2)' // Light color for dark mode
+      : 'rgba(0, 0, 0, 0.2)';      // Dark color for light mode
+  }, [theme, systemTheme, mounted]);
 
   // Add an effect to update colors when theme changes or component mounts
   useEffect(() => {
@@ -1118,7 +1128,7 @@ const SkillGraph = () => {
     const updateOutlineColor = () => {
       if (!currentGraph) return;
       
-      // Reheat simulation when theme changes (no need to store outlineColor)
+      // Reheat simulation when theme changes
       currentGraph.d3ReheatSimulation();
     };
     
@@ -1145,7 +1155,7 @@ const SkillGraph = () => {
     }
 
     return () => observer.disconnect();
-  }, [mounted, isInitialized]);
+  }, [mounted, isInitialized, theme, systemTheme]);
 
   if (!mounted) return null;
 
