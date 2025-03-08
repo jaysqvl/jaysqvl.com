@@ -6,6 +6,7 @@ import Navbar from "@/components/Navbar";
 import { Toaster } from "@/components/ui/sonner";
 import ChatButton from '@/components/ChatButton';
 import { Analytics } from '@vercel/analytics/react';
+import { SpeedInsights } from "@vercel/speed-insights/next"
 
 // Font for body text
 const inter = Inter({
@@ -72,6 +73,7 @@ export default function RootLayout({
           <ChatButton />
         </ThemeProvider>
         <Analytics />
+        <SpeedInsights />
       </body>
     </html>
   );
