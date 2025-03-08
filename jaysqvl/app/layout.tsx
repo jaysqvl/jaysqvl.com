@@ -5,6 +5,7 @@ import { ThemeProvider } from "@/components/theme-provider";
 import Navbar from "@/components/Navbar";
 import { Toaster } from "@/components/ui/sonner";
 import ChatButton from '@/components/ChatButton';
+import { Analytics } from '@vercel/analytics/react';
 
 // Font for body text
 const inter = Inter({
@@ -70,6 +71,7 @@ export default function RootLayout({
           <Toaster />
           <ChatButton />
         </ThemeProvider>
+        <Analytics />
       </body>
     </html>
   );
