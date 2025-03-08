@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useCallback } from 'react';
 import { useTheme } from 'next-themes';
 
 // Configurable constants - adjust these values to change particle behavior
@@ -50,35 +50,35 @@ export default function ParticleBackground() {
   const respawnIntervalRef = useRef<NodeJS.Timeout | null>(null);
   const { theme, systemTheme } = useTheme();
 
-  // Determine if dark mode is active
-  const isDarkMode = () => {
+  // Determine if dark mode is active - wrapped in useCallback to prevent re-creation on every render
+  const isDarkMode = useCallback(() => {
     const currentTheme = theme === 'system' ? systemTheme : theme;
     return currentTheme === 'dark';
-  };
+  }, [theme, systemTheme]);
 
-  // Get the appropriate RGB values based on theme
-  const getThemeRgb = () => {
+  // Get the appropriate RGB values based on theme - wrapped in useCallback
+  const getThemeRgb = useCallback(() => {
     return isDarkMode() ? '255, 255, 255' : '10, 10, 12'; // Lighter white in dark mode, darker black in light mode
-  };
+  }, [isDarkMode]);
 
-  // Get appropriate opacity range based on theme
-  const getOpacityRange = () => {
+  // Get appropriate opacity range based on theme - wrapped in useCallback
+  const getOpacityRange = useCallback(() => {
     return isDarkMode() 
       ? { min: 0.5, max: 0.9 } // Dark mode opacity range (increased further)
       : { min: 0.6, max: 0.95 }; // Light mode opacity range (increased further)
-  };
+  }, [isDarkMode]);
 
-  // Get connection opacity multiplier based on theme
-  const getConnectionOpacity = () => {
+  // Get connection opacity multiplier based on theme - wrapped in useCallback
+  const getConnectionOpacity = useCallback(() => {
     return isDarkMode() ? 0.6 : 0.7; // Increased further for both modes
-  };
+  }, [isDarkMode]);
 
-  // Get particle size range based on theme
-  const getParticleSizeRange = () => {
+  // Get particle size range based on theme - wrapped in useCallback
+  const getParticleSizeRange = useCallback(() => {
     return isDarkMode()
       ? { min: 1.5, max: 3.0 } // Slightly larger particles in dark mode
       : { min: 1.0, max: 2.5 }; // Original size in light mode
-  };
+  }, [isDarkMode]);
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -123,29 +123,6 @@ export default function ParticleBackground() {
         }
       }
       return false;
-    };
-
-    // Find a valid teleport destination (not in a repulsion zone)
-    const findTeleportDestination = () => {
-      // Target the central area of the screen
-      const centerX = canvas.width / 2;
-      const centerY = canvas.height / 2;
-      const radius = Math.min(canvas.width, canvas.height) * 0.3; // 30% of smaller dimension
-      
-      let x, y;
-      let attempts = 0;
-      const maxAttempts = 20;
-      
-      do {
-        // Generate position within a circle around the center
-        const angle = Math.random() * Math.PI * 2;
-        const distance = Math.random() * radius;
-        x = centerX + Math.cos(angle) * distance;
-        y = centerY + Math.sin(angle) * distance;
-        attempts++;
-      } while (isInsideRepulsionZone(x, y, 20) && attempts < maxAttempts);
-      
-      return { x, y };
     };
 
     // Initialize particles
@@ -272,20 +249,6 @@ export default function ParticleBackground() {
         });
       }
       
-      // Try multiple selectors to find the "Jay Esquivel" title
-      const navbarTitleSelectors = [
-        'a:contains("Jay Esquivel")', 
-        'h1:contains("Jay Esquivel")', 
-        '.logo', 
-        'nav > a:first-child',
-        'nav > div > a:first-child',
-        'a[href="/"]',
-        'a.font-bold',
-        'a.text-lg',
-        'a.text-xl',
-        'a.text-2xl'
-      ];
-      
       // Custom contains selector implementation
       const findElementWithText = (selector: string, text: string) => {
         const elements = document.querySelectorAll(selector);
@@ -298,7 +261,7 @@ export default function ParticleBackground() {
       };
       
       // Try to find the title element
-      let navbarTitle = 
+      const navbarTitle = 
         findElementWithText('a', 'Jay Esquivel') || 
         findElementWithText('h1', 'Jay Esquivel') ||
         document.querySelector('nav > a:first-child') ||
@@ -489,9 +452,6 @@ export default function ParticleBackground() {
         Math.max(window.innerWidth, window.innerHeight) * CURSOR_REPULSION_RADIUS_MULTIPLIER,
         180
       );
-      
-      // Define the completely off-screen threshold (when to teleport back)
-      const offScreenThreshold = 20;
       
       // Adjust the canvas position to account for scrolling
       ctx.save();
@@ -768,7 +728,7 @@ export default function ParticleBackground() {
       }
       cancelAnimationFrame(animationFrameId.current);
     };
-  }, [theme, systemTheme]);
+  }, [theme, systemTheme, isDarkMode, getThemeRgb, getOpacityRange, getParticleSizeRange, getConnectionOpacity]);
 
   return (
     <canvas 

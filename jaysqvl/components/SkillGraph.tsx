@@ -2,24 +2,20 @@
 
 import { useCallback, useRef, useState, useEffect } from 'react';
 import dynamic from 'next/dynamic';
-import { motion, AnimatePresence } from 'framer-motion';
-import type { ForceGraphMethods, NodeObject, LinkObject } from 'react-force-graph-2d';
-
-// Define the extended ForceGraphMethods type with width and height
-interface ExtendedForceGraphMethods extends ForceGraphMethods {
-  width: (width: number) => void;
-  height: (height: number) => void;
-}
+import type { NodeObject, LinkObject } from 'react-force-graph-2d';
 
 // Dynamically import ForceGraph2D with no SSR
-const ForceGraph2D = dynamic(() => import('react-force-graph-2d'), {
+const ForceGraph2D = dynamic(
+  () => import('react-force-graph-2d').then((mod) => mod.default),
+  { 
   ssr: false,
   loading: () => (
     <div className="w-full h-[600px] flex items-center justify-center">
       <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-primary"></div>
     </div>
   )
-});
+  }
+);
 
 // Define types for our graph data
 type SkillCategory = 'languages' | 'frameworks' | 'database' | 'dev' | 'test' | 'cloud' | 'knowledge';
@@ -31,6 +27,7 @@ interface SkillNode extends NodeObject {
   level: number;
   group: number;
   color?: string;
+  isLeaf?: boolean;  // Adding explicit type for isLeaf property
 }
 
 interface SkillLink extends LinkObject {
@@ -319,16 +316,477 @@ const GRAPH_CONFIG = {
   collisionRadiusOffset: 2.5,
   width: 800,
   height: 600,
+  // Add new configuration for improved layout
+  initialLayoutIterations: 50,
+  spreadFactor: 1.5,
+  leafNodeRepulsion: 1.2,
+  // Add configuration for component separation
+  componentSpacing: 300,
+  componentPadding: 100,
 };
 
-export default function SkillGraph() {
+// Helper function to detect leaf nodes (nodes with only one connection)
+const detectLeafNodes = (nodes: SkillNode[], links: SkillLink[]) => {
+  // Count connections for each node
+  const connectionCounts: Record<string, number> = {};
+  
+  links.forEach(link => {
+    const source = typeof link.source === 'object' ? (link.source as SkillNode).id : link.source as string;
+    const target = typeof link.target === 'object' ? (link.target as SkillNode).id : link.target as string;
+    
+    connectionCounts[source] = (connectionCounts[source] || 0) + 1;
+    connectionCounts[target] = (connectionCounts[target] || 0) + 1;
+  });
+  
+  // Mark leaf nodes by directly modifying the original nodes (preserving references)
+  nodes.forEach(node => {
+    node.isLeaf = (connectionCounts[node.id] || 0) <= 1;
+  });
+  
+  return nodes; // Return the same nodes array with isLeaf property added
+};
+
+// Helper function to identify connected components in the graph
+const findConnectedComponents = (nodes: SkillNode[], links: SkillLink[]): SkillNode[][] => {
+  // Create a map of node id to node index in the nodes array
+  const nodeMap: Record<string, number> = {};
+  nodes.forEach((node, index) => {
+    nodeMap[node.id] = index;
+  });
+  
+  // Create an adjacency list representation of the graph
+  const adjacencyList: Record<string, string[]> = {};
+  nodes.forEach(node => {
+    adjacencyList[node.id] = [];
+  });
+  
+  links.forEach(link => {
+    const source = typeof link.source === 'object' ? (link.source as SkillNode).id : link.source as string;
+    const target = typeof link.target === 'object' ? (link.target as SkillNode).id : link.target as string;
+    
+    // Add bidirectional connections (undirected graph)
+    if (adjacencyList[source]) adjacencyList[source].push(target);
+    if (adjacencyList[target]) adjacencyList[target].push(source);
+  });
+  
+  // Use depth-first search to identify connected components
+  const visited: Record<string, boolean> = {};
+  const components: SkillNode[][] = [];
+  
+  const dfs = (nodeId: string, component: SkillNode[]) => {
+    visited[nodeId] = true;
+    component.push(nodes[nodeMap[nodeId]]);
+    
+    for (const neighbor of adjacencyList[nodeId] || []) {
+      if (!visited[neighbor]) {
+        dfs(neighbor, component);
+      }
+    }
+  };
+  
+  // Find all connected components
+  nodes.forEach(node => {
+    if (!visited[node.id]) {
+      const component: SkillNode[] = [];
+      dfs(node.id, component);
+      components.push(component);
+    }
+  });
+  
+  return components;
+};
+
+// Position components using the average-center and radius approach with pure horizontal layout
+const positionComponentsWithRadii = (components: SkillNode[][], width: number, height: number) => {
+  // Exit if we have 0 or 1 component (no separation needed)
+  if (!components || components.length <= 1) return;
+  
+  // Filter out any invalid components (empty or with invalid nodes)
+  const validComponents = components.filter(comp => comp && Array.isArray(comp) && comp.length > 0);
+  
+  // Sort components by size (node count) in descending order
+  validComponents.sort((a, b) => b.length - a.length);
+  
+  // If no valid components after filtering, exit
+  if (validComponents.length <= 1) return;
+  
+  // Center of the visualization area
+  const centerX = width / 2;
+  const centerY = height / 2;
+  
+  // Calculate center and radius for each component
+  const componentInfo = validComponents.map(component => {
+    // Filter out any invalid nodes
+    const validNodes = component.filter(node => node && typeof node === 'object');
+    
+    if (validNodes.length === 0) {
+      return {
+        component: validNodes,
+        centerX,
+        centerY,
+        radius: GRAPH_CONFIG.nodeRadius * 3,
+        placed: false
+      };
+    }
+    
+    // Calculate center (average position)
+    let sumX = 0, sumY = 0;
+    let nodesWithPosition = 0;
+    
+    validNodes.forEach(node => {
+      if (node && node.x !== undefined && node.y !== undefined) {
+        sumX += node.x;
+        sumY += node.y;
+        nodesWithPosition++;
+      }
+    });
+    
+    // Handle edge case of no valid positions
+    if (nodesWithPosition === 0) {
+      return { 
+        component: validNodes, 
+        centerX, 
+        centerY, 
+        radius: GRAPH_CONFIG.nodeRadius * Math.sqrt(validNodes.length) * 2.5,
+        placed: false
+      };
+    }
+    
+    const avgX = sumX / nodesWithPosition;
+    const avgY = sumY / nodesWithPosition;
+    
+    // Find farthest node to determine radius
+    let maxDistance = 0;
+    
+    validNodes.forEach(node => {
+      if (node && node.x !== undefined && node.y !== undefined) {
+        const distance = Math.sqrt(
+          Math.pow(node.x - avgX, 2) + 
+          Math.pow(node.y - avgY, 2)
+        );
+        maxDistance = Math.max(maxDistance, distance);
+      }
+    });
+    
+    // Add node radius to ensure we account for node size
+    maxDistance += GRAPH_CONFIG.nodeRadius * 2;
+    
+    // Calculate radius with some padding, but not too excessive
+    const radius = maxDistance * 1.7; // Reduced from 3.0 to 1.7 for tighter spacing
+    
+    return { 
+      component: validNodes, 
+      centerX: avgX, 
+      centerY: avgY, 
+      radius,
+      placed: false 
+    };
+  });
+  
+  // Filter out any empty component info
+  const validComponentInfo = componentInfo.filter(info => info.component.length > 0);
+  if (validComponentInfo.length <= 1) return;
+  
+  // NEW APPROACH: Pure horizontal layout with fixed spacing
+  // First, determine the total width needed and adjust spacing accordingly
+  const totalComponents = validComponentInfo.length;
+  
+  // Calculate average component size and determine suitable spacing
+  const avgRadius = validComponentInfo.reduce((sum, info) => sum + info.radius, 0) / totalComponents;
+  
+  // Calculate spacing based on available width and number of components
+  // We want to use about 80% of the available width
+  const usableWidth = width * 0.8;
+  
+  // First component is placed at center
+  validComponentInfo[0].placed = true;
+  
+  if (totalComponents > 1) {
+    // For 2 components only, place the second one to the right of the first
+    if (totalComponents === 2) {
+      const info = validComponentInfo[1];
+      const spacing = validComponentInfo[0].radius + info.radius + 80; // Small fixed padding
+      
+      // Place to the right of center
+      const newX = centerX + spacing;
+      const newY = centerY;
+      
+      // Move component
+      const dx = newX - info.centerX;
+      const dy = newY - info.centerY;
+      
+      info.component.forEach(node => {
+        if (node && node.x !== undefined && node.y !== undefined) {
+          node.x += dx;
+          node.y += dy;
+        }
+      });
+      
+      info.centerX = newX;
+      info.centerY = newY;
+      info.placed = true;
+    } 
+    // For more than 2 components, use a distributed horizontal layout
+    else {
+      // Calculate a sensible component spacing based on component count
+      // Tighter spacing for more components
+      const baseSpacing = Math.min(
+        (usableWidth - validComponentInfo[0].radius * 2) / (totalComponents - 1),
+        avgRadius * 2.5 // Limit max spacing
+      );
+      
+      // Place components in a line from left to right
+      // Center component already placed (at index 0)
+      
+      // Place left side components
+      const leftCount = Math.floor((totalComponents - 1) / 2);
+      for (let i = 0; i < leftCount; i++) {
+        const info = validComponentInfo[i + 1]; // Skip center component (index 0)
+        
+        // Calculate position (from center moving left)
+        const distance = (i + 1) * baseSpacing;
+        const newX = centerX - distance;
+        const newY = centerY;
+        
+        // Move component
+        const dx = newX - info.centerX;
+        const dy = newY - info.centerY;
+        
+        info.component.forEach(node => {
+          if (node && node.x !== undefined && node.y !== undefined) {
+            node.x += dx;
+            node.y += dy;
+          }
+        });
+        
+        info.centerX = newX;
+        info.centerY = newY;
+        info.placed = true;
+      }
+      
+      // Place right side components
+      for (let i = leftCount; i < totalComponents - 1; i++) {
+        const info = validComponentInfo[i + 1]; // Skip center component (index 0)
+        
+        // Calculate position (from center moving right)
+        const distance = (i - leftCount + 1) * baseSpacing;
+        const newX = centerX + distance;
+        const newY = centerY;
+        
+        // Move component
+        const dx = newX - info.centerX;
+        const dy = newY - info.centerY;
+        
+        info.component.forEach(node => {
+          if (node && node.x !== undefined && node.y !== undefined) {
+            node.x += dx;
+            node.y += dy;
+          }
+        });
+        
+        info.centerX = newX;
+        info.centerY = newY;
+        info.placed = true;
+      }
+    }
+  }
+  
+  // Check for overlaps and fix them
+  let hasOverlaps = true;
+  let iterations = 0;
+  const maxIterations = 5;
+  
+  while (hasOverlaps && iterations < maxIterations) {
+    hasOverlaps = false;
+    iterations++;
+    
+    // Check each pair of components for overlaps
+    for (let i = 0; i < validComponentInfo.length; i++) {
+      for (let j = i + 1; j < validComponentInfo.length; j++) {
+        const info1 = validComponentInfo[i];
+        const info2 = validComponentInfo[j];
+        
+        // Calculate distance between centers
+        const dx = info2.centerX - info1.centerX;
+        const dy = info2.centerY - info1.centerY;
+        const distance = Math.sqrt(dx * dx + dy * dy);
+        
+        // Calculate minimum non-overlapping distance
+        const minDistance = info1.radius + info2.radius + 50; // 50px minimum padding
+        
+        // If overlapping, adjust positions
+        if (distance < minDistance) {
+          hasOverlaps = true;
+          
+          // Move components apart horizontally
+          const overlap = minDistance - distance;
+          const moveX = (dx / distance) * overlap;
+          
+          // Move second component away (mostly horizontally)
+          info2.component.forEach(node => {
+            if (node && node.x !== undefined && node.y !== undefined) {
+              node.x += moveX;
+            }
+          });
+          
+          info2.centerX += moveX;
+        }
+      }
+    }
+  }
+  
+  // Final adjustment: ensure all components are within view bounds with some padding
+  const padding = 40;
+  
+  // Find leftmost and rightmost component positions
+  let minX = Infinity;
+  let maxX = -Infinity;
+  
+  validComponentInfo.forEach(info => {
+    const leftEdge = info.centerX - info.radius;
+    const rightEdge = info.centerX + info.radius;
+    
+    minX = Math.min(minX, leftEdge);
+    maxX = Math.max(maxX, rightEdge);
+  });
+  
+  // If components extend beyond view, shift everything to center them
+  if (minX < padding || maxX > width - padding) {
+    const currentWidth = maxX - minX;
+    const availableWidth = width - 2 * padding;
+    
+    // Only adjust if it fits in available width
+    if (currentWidth <= availableWidth) {
+      const leftShift = minX - padding;
+      const rightShift = (width - padding) - maxX;
+      const horizontalShift = (rightShift - leftShift) / 2;
+      
+      // Apply the shift to all components
+      validComponentInfo.forEach(info => {
+        info.component.forEach(node => {
+          if (node && node.x !== undefined) {
+            node.x += horizontalShift;
+          }
+        });
+        
+        info.centerX += horizontalShift;
+      });
+    }
+  }
+};
+
+// Helper function to calculate initial positions in a circular layout
+const calculateInitialPositions = (nodes: SkillNode[], width: number, height: number) => {
+  if (!nodes || !Array.isArray(nodes) || nodes.length === 0 || !width || !height) return;
+
+  try {
+    // First, identify connected components using the current graph data
+    const components = findConnectedComponents(nodes, skillsData.links);
+    
+    // If we have multiple components, first position each component internally
+    if (components && components.length > 1) {
+      // For each component, layout nodes by category
+      components.forEach(component => {
+        if (component && Array.isArray(component) && component.length > 0) {
+          const componentWidth = width / 2;  // Use scaled dimensions for each component
+          const componentHeight = height / 2;
+          
+          // Position nodes within the component using category-based layout
+          positionComponentByCategory(component, componentWidth, componentHeight);
+        }
+      });
+      
+      // Then position components relative to each other
+      positionComponentsWithRadii(components, width, height);
+      return;
+    }
+    
+    // For a single component, use the standard layout
+    positionComponentByCategory(nodes, width, height);
+  } catch (error) {
+    console.error("Error in calculateInitialPositions:", error);
+  }
+};
+
+// Helper to position nodes within a component by category
+const positionComponentByCategory = (nodes: SkillNode[], width: number, height: number) => {
+  if (!nodes || !Array.isArray(nodes) || nodes.length === 0 || !width || !height) return;
+  
+  try {
+    // Filter out invalid nodes
+    const validNodes = nodes.filter(node => node && typeof node === 'object');
+    if (validNodes.length === 0) return;
+    
+    // Group nodes by category
+    const nodesByCategory: Record<string, SkillNode[]> = {};
+    
+    validNodes.forEach(node => {
+      if (!node || typeof node !== 'object') return;
+      
+      // Ensure the node has a category
+      const category = (node.category || 'unknown') as string;
+      
+      if (!nodesByCategory[category]) {
+        nodesByCategory[category] = [];
+      }
+      nodesByCategory[category].push(node);
+    });
+    
+    // Calculate positions for each category in a circular arrangement
+    const categories = Object.keys(nodesByCategory);
+    if (categories.length === 0) return;
+    
+    const centerX = width / 2;
+    const centerY = height / 2;
+    const radius = Math.min(width, height) * 0.35; // Use 35% of the smallest dimension
+    
+    categories.forEach((category, categoryIndex) => {
+      const categoryNodes = nodesByCategory[category];
+      if (!categoryNodes || categoryNodes.length === 0) return;
+      
+      const categoryAngle = (2 * Math.PI * categoryIndex) / categories.length;
+      
+      // Position the category nodes in a sub-circle
+      categoryNodes.forEach((node, nodeIndex) => {
+        if (!node) return;
+        
+        const subCircleRadius = radius * 0.5; // Smaller radius for the category sub-circle
+        const nodeAngle = categoryAngle + ((2 * Math.PI * nodeIndex) / categoryNodes.length) * 0.5;
+        
+        // Position relative to category center
+        const categoryX = centerX + radius * Math.cos(categoryAngle);
+        const categoryY = centerY + radius * Math.sin(categoryAngle);
+        
+        // Use a deterministic offset instead of random jitter to avoid hydration errors
+        const offset = ((nodeIndex % 5) - 2) * 3; // Values between -6 and 6
+        
+        // Modify the node position preserving its reference
+        node.x = categoryX + subCircleRadius * Math.cos(nodeAngle) + offset;
+        node.y = categoryY + subCircleRadius * Math.sin(nodeAngle) + offset;
+        
+        // For leaf nodes (nodes with only one connection), position them further outward
+        if (node.isLeaf) {
+          node.x = categoryX + (subCircleRadius * GRAPH_CONFIG.spreadFactor) * Math.cos(nodeAngle);
+          node.y = categoryY + (subCircleRadius * GRAPH_CONFIG.spreadFactor) * Math.sin(nodeAngle);
+        }
+      });
+    });
+  } catch (error) {
+    console.error("Error in positionComponentByCategory:", error);
+  }
+};
+
+const SkillGraph = () => {
   const [selectedCategory, setSelectedCategory] = useState<SkillCategory | null>(null);
   const [mounted, setMounted] = useState(false);
   const [graphData, setGraphData] = useState(skillsData);
   const [dimensions, setDimensions] = useState({ width: 0, height: 0 });
   const [isInitialized, setIsInitialized] = useState(false);
   const [isGraphReady, setIsGraphReady] = useState(false);
-  const graphRef = useRef<ForceGraphMethods | undefined>(undefined);
+  
+  // Use a simple any type for the ref to avoid complex typing issues
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const graphRef = useRef<any>(null);
   const containerRef = useRef<HTMLDivElement>(null);
 
   // Function to reset graph position based on node positions
@@ -407,7 +865,13 @@ export default function SkillGraph() {
     if (!mounted || !isInitialized) return;
 
     if (!selectedCategory) {
-      setGraphData(skillsData);
+      // Detect leaf nodes on a copy of the original data
+      const processedNodes = detectLeafNodes([...skillsData.nodes], skillsData.links);
+      
+      setGraphData({
+        nodes: processedNodes,
+        links: skillsData.links
+      });
     } else {
       // Get primary nodes (selected category)
       const primaryNodes = skillsData.nodes.filter(node => node.category === selectedCategory);
@@ -437,8 +901,11 @@ export default function SkillGraph() {
         connectedNodes.has(node.id)
       );
 
+      // Detect leaf nodes on our filtered set
+      const processedNodes = detectLeafNodes([...relevantNodes], relevantLinks);
+
       setGraphData({
-        nodes: relevantNodes,
+        nodes: processedNodes,
         links: relevantLinks
       });
     }
@@ -485,47 +952,178 @@ export default function SkillGraph() {
 
     fg.d3Force('collision')
       ?.strength(GRAPH_CONFIG.collisionStrength)
-      ?.radius((node: NodeObject) => GRAPH_CONFIG.nodeRadius * (1 + GRAPH_CONFIG.collisionRadiusOffset));
+      ?.radius((node: NodeObject) => {
+        // Increase collision radius for leaf nodes to push them outward
+        const nodeWithLeaf = node as SkillNode;
+        return GRAPH_CONFIG.nodeRadius * (1 + GRAPH_CONFIG.collisionRadiusOffset) * 
+               (nodeWithLeaf.isLeaf ? GRAPH_CONFIG.leafNodeRepulsion : 1);
+      });
 
-    // Reheat the simulation
-    fg.d3ReheatSimulation();
+    // First, detect and tag leaf nodes
+    detectLeafNodes(graphData.nodes, graphData.links);
 
-    // Center the graph
-    requestAnimationFrame(() => {
-      fg.zoomToFit(400, 50);
-    });
-  }, [mounted, graphData, dimensions, isInitialized, calculateLinkDistance]);
+    // Set initial node positions to minimize overlaps
+    if (graphData.nodes.length > 0 && dimensions.width > 0 && dimensions.height > 0) {
+      // Apply initial layout - now with improved component separation
+      setTimeout(() => {
+        try {
+          calculateInitialPositions(graphData.nodes, dimensions.width, dimensions.height);
+          fg.d3ReheatSimulation(); // Reheat after setting positions
+        } catch (error) {
+          console.error("Error calculating initial positions:", error);
+        }
+      }, 100);
+    }
+
+    // Add a custom force to minimize link crossings
+    // This creates a repulsive force between links that would otherwise cross
+    const simulation = fg.d3Force('simulation');
+    if (simulation) {
+      const linkCrossingMinimizationForce = () => {
+        // For each pair of links, calculate if they might cross and apply a small force
+        // to reduce crossing likelihood
+        const links = graphData.links;
+        
+        // Limit the number of link pairs we check to avoid performance issues
+        const maxPairsToCheck = 1000;
+        let pairsChecked = 0;
+        
+        for (let i = 0; i < links.length && pairsChecked < maxPairsToCheck; i++) {
+          for (let j = i + 1; j < links.length && pairsChecked < maxPairsToCheck; j++) {
+            pairsChecked++;
+            
+            const link1 = links[i];
+            const link2 = links[j];
+            
+            // Get source and target nodes for both links
+            const source1 = typeof link1.source === 'object' ? link1.source : null;
+            const target1 = typeof link1.target === 'object' ? link1.target : null;
+            const source2 = typeof link2.source === 'object' ? link2.source : null;
+            const target2 = typeof link2.target === 'object' ? link2.target : null;
+            
+            if (!source1 || !target1 || !source2 || !target2) continue;
+            
+            // Skip if the links share a node (can't cross in that case)
+            if (source1 === source2 || source1 === target2 || 
+                target1 === source2 || target1 === target2) {
+              continue;
+            }
+            
+            // Very simple heuristic for potential crossing:
+            // If the bounding boxes of the links overlap, apply a small force
+            const s1x = (source1 as NodeObject).x || 0;
+            const s1y = (source1 as NodeObject).y || 0;
+            const t1x = (target1 as NodeObject).x || 0;
+            const t1y = (target1 as NodeObject).y || 0;
+            
+            const s2x = (source2 as NodeObject).x || 0;
+            const s2y = (source2 as NodeObject).y || 0;
+            const t2x = (target2 as NodeObject).x || 0;
+            const t2y = (target2 as NodeObject).y || 0;
+            
+            // Calculate bounding boxes
+            const box1 = {
+              minX: Math.min(s1x, t1x),
+              maxX: Math.max(s1x, t1x),
+              minY: Math.min(s1y, t1y),
+              maxY: Math.max(s1y, t1y)
+            };
+            
+            const box2 = {
+              minX: Math.min(s2x, t2x),
+              maxX: Math.max(s2x, t2x),
+              minY: Math.min(s2y, t2y),
+              maxY: Math.max(s2y, t2y)
+            };
+            
+            // Check for overlap in bounding boxes
+            if (box1.minX <= box2.maxX && box1.maxX >= box2.minX &&
+                box1.minY <= box2.maxY && box1.maxY >= box2.minY) {
+              
+              // Apply small repulsive forces to nodes to reduce likelihood of crossing
+              const forceStrength = 0.02; // Reduced from 0.05
+              
+              // Calculate midpoints of links
+              const mid1x = (s1x + t1x) / 2;
+              const mid1y = (s1y + t1y) / 2;
+              const mid2x = (s2x + t2x) / 2;
+              const mid2y = (s2y + t2y) / 2;
+              
+              // Direction vector between midpoints
+              const dx = mid2x - mid1x;
+              const dy = mid2y - mid1y;
+              const dist = Math.sqrt(dx * dx + dy * dy) || 1;
+              
+              // Normalize and apply force
+              const fx = (dx / dist) * forceStrength;
+              const fy = (dy / dist) * forceStrength;
+              
+              // Apply forces to node velocities (more gently)
+              // Use proper type casting to NodeObjectWithVelocity for nodes with vx/vy
+              interface NodeObjectWithVelocity extends NodeObject {
+                vx?: number;
+                vy?: number;
+              }
+              
+              const s1WithVelocity = source1 as NodeObjectWithVelocity;
+              const t1WithVelocity = target1 as NodeObjectWithVelocity;
+              const s2WithVelocity = source2 as NodeObjectWithVelocity;
+              const t2WithVelocity = target2 as NodeObjectWithVelocity;
+              
+              if (s1WithVelocity.vx !== undefined) s1WithVelocity.vx -= fx;
+              if (s1WithVelocity.vy !== undefined) s1WithVelocity.vy -= fy;
+              if (t1WithVelocity.vx !== undefined) t1WithVelocity.vx -= fx;
+              if (t1WithVelocity.vy !== undefined) t1WithVelocity.vy -= fy;
+              
+              if (s2WithVelocity.vx !== undefined) s2WithVelocity.vx += fx;
+              if (s2WithVelocity.vy !== undefined) s2WithVelocity.vy += fy;
+              // Apply force to t2WithVelocity
+              if (t2WithVelocity.vx !== undefined) t2WithVelocity.vx += fx;
+              if (t2WithVelocity.vy !== undefined) t2WithVelocity.vy += fy;
+            }
+          }
+        }
+      };
+      
+      // Register the custom force
+      simulation.force('minimizeCrossings', linkCrossingMinimizationForce);
+    }
+
+    // Center the graph after positioning
+    setTimeout(() => {
+      resetGraphPosition();
+    }, 600);
+    
+  }, [mounted, graphData, dimensions, isInitialized, calculateLinkDistance, resetGraphPosition]);
 
   const handleNodeClick = useCallback((node: NodeObject) => {
-    const skillNode = node as SkillNode;
+    // We can reuse node.x and node.y directly without creating a skillNode variable
     if (graphRef.current) {
       graphRef.current.centerAt(node.x, node.y, 1000);
     }
   }, []);
 
-  // Function to get the appropriate text color based on theme
-  const getTextColor = useCallback(() => {
-    // Always use black text for node labels since they're on colored backgrounds
-    return '#000000';
-  }, []);
-
   // Function to get the appropriate outline color based on theme
   const getOutlineColor = useCallback(() => {
-    if (typeof window !== 'undefined') {
-      return document.documentElement.classList.contains('dark') ? 'rgba(255, 255, 255, 0.2)' : 'rgba(0, 0, 0, 0.2)';
-    }
-    return 'rgba(0, 0, 0, 0.2)'; // Default
+    // Use a safe default for initial render to avoid hydration errors
+    return 'rgba(0, 0, 0, 0.2)';
   }, []);
 
-  // Add an effect to update colors when theme changes
+  // Add an effect to update colors when theme changes or component mounts
   useEffect(() => {
-    const handleThemeChange = () => {
-      if (graphRef.current) {
-        // Force a re-render when theme changes
-        // Since there's no direct refresh method, we'll reheat the simulation
-        graphRef.current.d3ReheatSimulation();
-      }
+    // Reference to the current graph instance
+    const currentGraph = graphRef.current;
+    
+    // Update outline color based on theme
+    const updateOutlineColor = () => {
+      if (!currentGraph) return;
+      
+      // Reheat simulation when theme changes (no need to store outlineColor)
+      currentGraph.d3ReheatSimulation();
     };
+    
+    // Initial update
+    updateOutlineColor();
 
     // Listen for theme changes
     const observer = new MutationObserver((mutations) => {
@@ -534,7 +1132,7 @@ export default function SkillGraph() {
           mutation.type === 'attributes' &&
           mutation.attributeName === 'class'
         ) {
-          handleThemeChange();
+          updateOutlineColor();
         }
       });
     });
@@ -562,7 +1160,7 @@ export default function SkillGraph() {
             backgroundColor="transparent"
             width={dimensions.width}
             height={dimensions.height}
-            nodeCanvasObject={(node: any, ctx, globalScale) => {
+            nodeCanvasObject={(node, ctx) => {
               const skillNode = node as SkillNode;
               const label = skillNode.name;
               
@@ -637,7 +1235,7 @@ export default function SkillGraph() {
             onNodeClick={handleNodeClick}
             cooldownTicks={100}
             d3VelocityDecay={0.2}
-            warmupTicks={50}
+            warmupTicks={GRAPH_CONFIG.initialLayoutIterations}
             onEngineStop={() => {
               // Ensure graph is visible when simulation stops
               if (!isGraphReady) {
@@ -654,7 +1252,7 @@ export default function SkillGraph() {
         <div className="flex flex-col gap-1">
           <div className="flex items-center gap-2 text-xs text-muted-foreground">
             <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-filter">
-              <polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"/>
+              <polygon points="22 3 2 3 10 12.46 10 19 14 21 12.46 22 3"/>
             </svg>
             <span>Click on a category to filter the skill graph, zoom in and out by scrolling, or grab a node and drag it around!</span>
           </div>
@@ -702,4 +1300,6 @@ export default function SkillGraph() {
       </div>
     </div>
   );
-} 
+};
+
+export default SkillGraph; 

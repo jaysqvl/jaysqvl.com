@@ -1,4 +1,3 @@
-import { Card, CardContent } from "@/components/ui/card"
 import SkillGraph from "./SkillGraph"
 
 export default function AboutMe() {
@@ -13,9 +12,9 @@ export default function AboutMe() {
         {/* Introduction Card - 1/3 width on large screens */}
         <div className="bg-card rounded-lg border p-6 shadow-sm">
           <p className="text-muted-foreground">
-            Hey! I'm Jay, a Software Engineer with roots in backend development and AI applications. Currently pursuing
-            my Bachelor's in Computer Science at Simon Fraser University with practical experience in building scalable
-            applications, both mobile and web, with cutting-edge AI integrations. Reach out to me if you'd like to chat
+            Hey! I&apos;m Jay, a Software Engineer with roots in backend development and AI applications. Currently pursuing
+            my Bachelor&apos;s in Computer Science at Simon Fraser University with practical experience in building scalable
+            applications, both mobile and web, with cutting-edge AI integrations. Reach out to me if you&apos;d like to chat
             about any potential collaborations or just to say hi!
           </p>
         </div>

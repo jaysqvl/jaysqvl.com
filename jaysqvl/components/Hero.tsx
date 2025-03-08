@@ -25,17 +25,20 @@ export default function Hero() {
   useEffect(() => {
     if (!nameRef.current) return;
     
+    // Store a reference to the current DOM node to use in the cleanup function
+    const nameElement = nameRef.current;
+    
     const letters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
     let iteration = 0;
     let interval: NodeJS.Timeout | null = null;
     
-    const originalText = nameRef.current.dataset.value || nameRef.current.innerText;
+    const originalText = nameElement.dataset.value || nameElement.innerText;
     
     const scramble = () => {
-      if (!nameRef.current) return;
+      if (!nameElement) return;
       
       interval = setInterval(() => {
-        nameRef.current!.innerText = originalText
+        nameElement.innerText = originalText
           .split("")
           .map((letter, index) => {
             if (index < iteration) {
@@ -63,11 +66,12 @@ export default function Hero() {
       scramble();
     };
     
-    nameRef.current.addEventListener('mouseenter', handleMouseEnter);
+    nameElement.addEventListener('mouseenter', handleMouseEnter);
     
     return () => {
       if (interval) clearInterval(interval);
-      nameRef.current?.removeEventListener('mouseenter', handleMouseEnter);
+      // Use the stored reference in the cleanup function
+      nameElement.removeEventListener('mouseenter', handleMouseEnter);
     };
   }, []);
 
@@ -128,7 +132,7 @@ export default function Hero() {
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.8, delay: 0.3 }}
             >
-              Hi, I'm <span 
+              Hi, I&apos;m <span 
                 ref={nameRef} 
                 data-value="Jay" 
                 className="text-primary cursor-pointer"
@@ -156,7 +160,7 @@ export default function Hero() {
                 <Terminal className="h-4 w-4" />
                 <AlertTitle>Welcome!</AlertTitle>
                 <AlertDescription>
-                  Here's a coffee for your stay ☕<br />
+                  Here&apos;s a coffee for your stay ☕<br />
                   Play around and enjoy!
                 </AlertDescription>
               </Alert>
@@ -170,6 +174,12 @@ export default function Hero() {
               className="flex flex-wrap gap-3 justify-center md:justify-start relative z-30"
             >
               <Button variant="outline" size="sm" asChild className="backdrop-blur-sm bg-background/100 shadow-md isolate">
+                <a href="/resume.pdf" target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-2">
+                  <FileText className="h-4 w-4" />
+                  Resume
+                </a>
+              </Button>
+              <Button variant="outline" size="sm" asChild className="backdrop-blur-sm bg-background/100 shadow-md isolate">
                 <a href="https://github.com/jaysqvl" target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-2">
                   <Github className="h-4 w-4" />
                   GitHub
@@ -179,12 +189,6 @@ export default function Hero() {
                 <a href="https://linkedin.com/in/jaysqvl" target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-2">
                   <Linkedin className="h-4 w-4" />
                   LinkedIn
-                </a>
-              </Button>
-              <Button variant="outline" size="sm" asChild className="backdrop-blur-sm bg-background/100 shadow-md isolate">
-                <a href="/resume.pdf" target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-2">
-                  <FileText className="h-4 w-4" />
-                  Resume
                 </a>
               </Button>
             </motion.div>

@@ -49,7 +49,7 @@ export default function Contact() {
         <div className="flex flex-col justify-center space-y-6">
           <div>
             <p className="text-muted-foreground mb-6">
-              I'm currently open to new opportunities and collaborations. Whether you have a question, a project idea, 
+              I&apos;m currently open to new opportunities and collaborations. Whether you have a question, a project idea, 
               or just want to say hi, feel free to reach out!
             </p>
           
