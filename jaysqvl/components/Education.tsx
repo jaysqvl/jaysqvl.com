@@ -10,6 +10,7 @@ interface EducationItem {
   location: string;
   period: string;
   activities?: string[];
+  relevantCoursework?: string;
   logoSrc?: string;
 }
 
@@ -19,6 +20,7 @@ const educationData: EducationItem[] = [
     degree: "Bachelor of Applied Science, Computer Science - Software Systems",
     location: "Burnaby, BC",
     period: "Sept 2022 – Present",
+    relevantCoursework: "Algorithms II, Computer Architecture & Security, Operating Systems, Computer Networks, Software Engineering, Cloud Computing, Test, Intelligent Systems, Database, UI Design, Mobile App Development",
     logoSrc: "/sfu.jpg"
   },
   {
@@ -26,6 +28,7 @@ const educationData: EducationItem[] = [
     degree: "Bachelor of Science, Computer Science & Mathematics",
     location: "Vancouver, BC",
     period: "Sept 2020 – Aug 2022",
+    relevantCoursework: "Data Structures & Algorithms, Test, Artificial Intelligence, Machine Learning, Deep Learning and Neural Nets, Data-Science, Computer Security, Discrete Mathematics, Linear Algebra and Calculus",
     activities: [
       "UBC CVC Social Club External Relations Executive",
       "Event Planning for ~700 Members",
@@ -88,6 +91,13 @@ export default function Education() {
                     </div>
                   </div>
                 </div>
+                
+                {education.relevantCoursework && (
+                  <div className="mt-4">
+                    <h4 className="font-medium mb-2">Relevant Coursework</h4>
+                    <p className="text-muted-foreground">{education.relevantCoursework}</p>
+                  </div>
+                )}
                 
                 {education.activities && (
                   <div className="mt-4">

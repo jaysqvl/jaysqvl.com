@@ -23,12 +23,12 @@ const experiences: ExperienceItem[] = [
     location: "Vancouver, BC",
     period: "June 2024 – Present",
     description: [
-      "Automated vendor product data entry and processing using a pipe and filter back-end architecture, scaling product ingestion capacity 300x and eliminating manual intervention.",
-      "Developed dockerized, full-stack internal company tools combining React and TailwindCSS with Python to open product processing configuration to non-technical staff.",
-      "Implemented an AI filter layer in the product processing pipeline incorporating OpenAI's batch-processing API, prompt-caching, and prompt engineering techniques to improve SEO cost-effectively.",
-      "Designed and deployed private cloud infrastructure including networking, virtual machines, docker management, and VPN setup, ensuring system reliability and security while reducing cloud operational costs.",
-      "Deployed OffRoadExpert.shop by leveraging Shopify's REST Admin API for back-end operations, front-end hosting, and e-commerce management tools to create a fully custom system.",
-      "Actively developing a personalized front-end to optimize the user experience and align with business requirements."
+      "Automated vendor product ingestion from vendor CSVs and hosting servers, scaling in-store product listings 300x",
+      "Developed a Dockerized React and Tailwind front-end UI for cron scheduling endpoints, viewing logs, and managing configuration, enabling non-technical staff to interact with back-end services.",
+      "Integrated four new REST API endpoints into the company’s existing product ingest and processing pipeline.",
+      "Added LLM layer into product ingest pipeline standardizing web product display metadata for SEO/consistency.",
+      "Facilitated migration to private cloud assisting design hardware and deploy software infra, reducing OPEX 50%.",
+      "Developed custom react components in TypeScript with team for the company’s upcoming front-end overhaul."
     ],
     technologies: ["Python", "Bash", "Docker", "HTML", "CSS", "JavaScript", "Google Cloud Platform (GCP)"],
     link: "https://offroadexpert.shop",
