@@ -76,9 +76,9 @@ export default function Experience() {
           operating history
         </div>
 
-        <div className="mb-10 grid gap-5 lg:grid-cols-[0.72fr_1fr] lg:items-end">
-          <h2 className="section-title">Resume work, written like systems work.</h2>
-          <p className="max-w-2xl leading-7 text-muted-foreground lg:justify-self-end">
+        <div className="mb-10 grid gap-5">
+          <h2 className="experience-title">Resume work, written like systems work.</h2>
+          <p className="max-w-4xl leading-7 text-muted-foreground">
             The thread through the work is practical engineering: take messy inputs, build a repeatable path, give people
             a usable surface, and leave the system easier to run than it was found.
           </p>
@@ -90,7 +90,7 @@ export default function Experience() {
               <div className="grid gap-6 lg:grid-cols-[0.34fr_0.66fr]">
                 <div>
                   <div className="flex items-center gap-3">
-                    <div className="grid size-11 shrink-0 place-items-center overflow-hidden rounded-md border border-border bg-muted">
+                    <div className="company-logo-frame">
                       <LogoOrIcon
                         logoSrc={experience.logoSrc || ''}
                         alt={`${experience.company} logo`}

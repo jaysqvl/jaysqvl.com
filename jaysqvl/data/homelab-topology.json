@@ -1,0 +1,633 @@
+{
+  "version": 1,
+  "title": "Homelab capability map",
+  "nodes": [
+    {
+      "id": "wan",
+      "label": "Internet / WAN",
+      "role": "External",
+      "detail": "The outside edge. Public traffic is only shown as high-level ingress or tunnel paths.",
+      "tags": ["wan", "ingress"],
+      "tone": "amber",
+      "icon": "globe",
+      "layout": {
+        "desktop": { "x": 8, "y": 42, "width": 12 },
+        "compact": { "x": 50, "y": 6, "width": 45 }
+      }
+    },
+    {
+      "id": "cloudflare",
+      "label": "Cloudflare",
+      "role": "Tunnel edge",
+      "detail": "External tunnel edge for the services that make sense behind Cloudflare.",
+      "tags": ["tunnel", "edge"],
+      "tone": "blue",
+      "icon": "cloud",
+      "layout": {
+        "desktop": { "x": 21, "y": 14, "width": 14 },
+        "compact": { "x": 50, "y": 19, "width": 44 }
+      }
+    },
+    {
+      "id": "opnsense",
+      "label": "OPNsense",
+      "role": "Firewall / Router",
+      "detail": "The policy boundary: routing, firewall rules, DNS helpers, protection, and private management access.",
+      "tags": ["routing", "firewall", "policy"],
+      "tone": "mint",
+      "icon": "shield",
+      "layout": {
+        "desktop": { "x": 22, "y": 42, "width": 16 },
+        "compact": { "x": 50, "y": 34, "width": 47 }
+      }
+    },
+    {
+      "id": "crowdsec",
+      "label": "CrowdSec",
+      "role": "Protection",
+      "detail": "Attached to OPNsense as part of the edge protection story.",
+      "tags": ["security", "edge"],
+      "tone": "mint",
+      "icon": "activity",
+      "layout": {
+        "desktop": { "x": 13, "y": 66, "width": 12 },
+        "compact": { "x": 23, "y": 51, "width": 38 }
+      }
+    },
+    {
+      "id": "adguard",
+      "label": "AdGuard DNS",
+      "role": "DNS filtering",
+      "detail": "DNS filtering attached to the firewall/router layer.",
+      "tags": ["dns", "filtering"],
+      "tone": "lavender",
+      "icon": "filter",
+      "layout": {
+        "desktop": { "x": 34, "y": 25, "width": 13 },
+        "compact": { "x": 77, "y": 51, "width": 38 }
+      }
+    },
+    {
+      "id": "unbound",
+      "label": "Unbound",
+      "role": "DNS resolver",
+      "detail": "Local DNS resolution lives with the routing layer.",
+      "tags": ["dns", "resolver"],
+      "tone": "lavender",
+      "icon": "database",
+      "layout": {
+        "desktop": { "x": 36, "y": 45, "width": 12 },
+        "compact": { "x": 23, "y": 65, "width": 38 }
+      }
+    },
+    {
+      "id": "tailscale",
+      "label": "Tailscale",
+      "role": "Management VPN",
+      "detail": "Private access to the management network. Not an app publishing path.",
+      "tags": ["vpn", "management"],
+      "tone": "blue",
+      "icon": "key",
+      "layout": {
+        "desktop": { "x": 34, "y": 60, "width": 13 },
+        "compact": { "x": 77, "y": 65, "width": 38 }
+      }
+    },
+    {
+      "id": "unifi-hardware",
+      "label": "UniFi Hardware",
+      "role": "Wi-Fi / Switching",
+      "detail": "The physical network layer: wireless, switching, and segmented LAN access.",
+      "tags": ["wifi", "switching", "lan"],
+      "tone": "blue",
+      "icon": "wifi",
+      "layout": {
+        "desktop": { "x": 39, "y": 84, "width": 15 },
+        "compact": { "x": 50, "y": 80, "width": 46 }
+      }
+    },
+    {
+      "id": "home-server",
+      "label": "Home Server",
+      "role": "Compute / Storage",
+      "detail": "The main hub for Docker, VMs, NAS duties, backups, photos, AI experiments, and practical tools.",
+      "tags": ["server", "compute", "storage"],
+      "tone": "lavender",
+      "icon": "server",
+      "layout": {
+        "desktop": { "x": 52, "y": 42, "width": 17 },
+        "compact": { "x": 50, "y": 96, "width": 48 }
+      }
+    },
+    {
+      "id": "raspberry-pi",
+      "label": "Raspberry Pi",
+      "role": "Isolated node",
+      "detail": "A separate small compute node on the network with its own lightweight services.",
+      "tags": ["pi", "docker", "scripts"],
+      "tone": "amber",
+      "icon": "cpu",
+      "layout": {
+        "desktop": { "x": 53, "y": 95, "width": 14 },
+        "compact": { "x": 50, "y": 112, "width": 46 }
+      }
+    },
+    {
+      "id": "pi-services",
+      "label": "Pi Services",
+      "role": "Small workloads",
+      "detail": "Lightweight Docker, edge helpers, sensors, and scripts without making the Pi look like a child of the server.",
+      "tags": ["lightweight", "helpers", "scripts"],
+      "tone": "amber",
+      "icon": "boxes",
+      "layout": {
+        "desktop": { "x": 62, "y": 109, "width": 14 },
+        "compact": { "x": 77, "y": 128, "width": 40 }
+      }
+    },
+    {
+      "id": "docker-services",
+      "label": "Docker Services",
+      "role": "Containers",
+      "detail": "The main application layer, grouped by what the services do rather than by raw container names.",
+      "tags": ["docker", "apps", "tools"],
+      "tone": "mint",
+      "icon": "boxes",
+      "layout": {
+        "desktop": { "x": 66, "y": 29, "width": 15 },
+        "compact": { "x": 27, "y": 146, "width": 42 }
+      }
+    },
+    {
+      "id": "vm-services",
+      "label": "VM Services",
+      "role": "Virtualized layer",
+      "detail": "Virtualized services and lab systems that deserve their own operating environment.",
+      "tags": ["vms", "lab", "services"],
+      "tone": "blue",
+      "icon": "panel",
+      "layout": {
+        "desktop": { "x": 66, "y": 54, "width": 15 },
+        "compact": { "x": 73, "y": 146, "width": 42 }
+      }
+    },
+    {
+      "id": "storage",
+      "label": "NAS + Backups",
+      "role": "Storage base",
+      "detail": "Files, backups, libraries, and the storage layer everything else depends on.",
+      "tags": ["nas", "backup", "files"],
+      "tone": "amber",
+      "icon": "hard-drive",
+      "layout": {
+        "desktop": { "x": 68, "y": 87, "width": 15 },
+        "compact": { "x": 50, "y": 162, "width": 46 }
+      }
+    },
+    {
+      "id": "npm",
+      "label": "NPM Reverse Proxy",
+      "role": "Docker service",
+      "detail": "Nginx Proxy Manager runs on the home server and handles selected reverse-proxy ingress.",
+      "tags": ["nginx", "proxy", "docker"],
+      "tone": "mint",
+      "icon": "route",
+      "layout": {
+        "desktop": { "x": 81, "y": 9, "width": 14 },
+        "compact": { "x": 24, "y": 178, "width": 40 }
+      }
+    },
+    {
+      "id": "cloudflared",
+      "label": "Cloudflared",
+      "role": "Docker tunnel",
+      "detail": "Tunnel connector hosted inside the server-side container stack.",
+      "tags": ["cloudflare", "tunnel", "docker"],
+      "tone": "blue",
+      "icon": "cloud",
+      "layout": {
+        "desktop": { "x": 81, "y": 30, "width": 14 },
+        "compact": { "x": 76, "y": 178, "width": 40 }
+      }
+    },
+    {
+      "id": "personal-cloud",
+      "label": "Personal Cloud + Photos",
+      "role": "Owned cloud habits",
+      "detail": "Photo library, personal storage, search, and the pieces that replace another subscription cloud habit.",
+      "tags": ["photos", "library", "search"],
+      "tone": "lavender",
+      "icon": "image",
+      "layout": {
+        "desktop": { "x": 84, "y": 45, "width": 15 },
+        "compact": { "x": 24, "y": 194, "width": 40 }
+      }
+    },
+    {
+      "id": "ai-sandbox",
+      "label": "AI Sandbox",
+      "role": "Local experiments",
+      "detail": "Local LLMs, web UI experiments, transcription, retrieval, and prototype workflows.",
+      "tags": ["llms", "web ui", "transcription"],
+      "tone": "blue",
+      "icon": "brain",
+      "layout": {
+        "desktop": { "x": 85, "y": 58, "width": 14 },
+        "compact": { "x": 76, "y": 194, "width": 40 }
+      }
+    },
+    {
+      "id": "ops-dashboards",
+      "label": "Ops + Dashboards",
+      "role": "Control surfaces",
+      "detail": "Monitoring, status pages, admin homepages, and visibility tools.",
+      "tags": ["monitoring", "status", "admin"],
+      "tone": "mint",
+      "icon": "chart",
+      "layout": {
+        "desktop": { "x": 91, "y": 71, "width": 14 },
+        "compact": { "x": 24, "y": 210, "width": 40 }
+      }
+    },
+    {
+      "id": "automation",
+      "label": "Automation + Notifications",
+      "role": "Events",
+      "detail": "Notifications, automations, and small event-driven routines.",
+      "tags": ["events", "notify", "scripts"],
+      "tone": "amber",
+      "icon": "bell",
+      "layout": {
+        "desktop": { "x": 91, "y": 86, "width": 16 },
+        "compact": { "x": 76, "y": 210, "width": 40 }
+      }
+    },
+    {
+      "id": "camera-smart",
+      "label": "Camera + Smart Devices",
+      "role": "Device services",
+      "detail": "Camera events and device integrations without publishing private device details.",
+      "tags": ["cameras", "events", "devices"],
+      "tone": "lavender",
+      "icon": "camera",
+      "layout": {
+        "desktop": { "x": 91, "y": 101, "width": 15 },
+        "compact": { "x": 24, "y": 226, "width": 40 }
+      }
+    },
+    {
+      "id": "utility-tools",
+      "label": "Utility Tools",
+      "role": "Small tools",
+      "detail": "Converters, speed tests, subscription tracking, and other useful odds and ends.",
+      "tags": ["convert", "speed test", "subscriptions"],
+      "tone": "amber",
+      "icon": "wrench",
+      "layout": {
+        "desktop": { "x": 76, "y": 109, "width": 13 },
+        "compact": { "x": 76, "y": 226, "width": 40 }
+      }
+    },
+    {
+      "id": "unifi-os",
+      "label": "UniFi OS Server",
+      "role": "VM service",
+      "detail": "The UniFi controller lives as a VM service; the Wi-Fi hardware is a separate layer.",
+      "tags": ["unifi", "vm"],
+      "tone": "blue",
+      "icon": "wifi",
+      "layout": {
+        "desktop": { "x": 52, "y": 68, "width": 14 },
+        "compact": { "x": 24, "y": 242, "width": 40 }
+      }
+    },
+    {
+      "id": "home-assistant",
+      "label": "Home Assistant",
+      "role": "Smart home",
+      "detail": "Smart-home orchestration shown as a high-level capability, not a device inventory.",
+      "tags": ["home", "automation"],
+      "tone": "lavender",
+      "icon": "home",
+      "layout": {
+        "desktop": { "x": 91, "y": 121, "width": 14 },
+        "compact": { "x": 76, "y": 242, "width": 40 }
+      }
+    },
+    {
+      "id": "lab-vms",
+      "label": "Lab VMs",
+      "role": "Sandbox systems",
+      "detail": "Experiment hosts for testing, breaking, fixing, and learning without polluting the main stack.",
+      "tags": ["lab", "testing"],
+      "tone": "blue",
+      "icon": "terminal",
+      "layout": {
+        "desktop": { "x": 76, "y": 74, "width": 12 },
+        "compact": { "x": 50, "y": 258, "width": 46 }
+      }
+    }
+  ],
+  "links": [
+    {
+      "id": "wan-opnsense",
+      "source": "wan",
+      "target": "opnsense",
+      "label": "edge flow",
+      "direction": "both",
+      "tone": "amber",
+      "layout": {
+        "desktop": { "labelX": 15, "labelY": 37 },
+        "compact": { "labelX": 50, "labelY": 18 }
+      }
+    },
+    {
+      "id": "opnsense-unifi",
+      "source": "opnsense",
+      "target": "unifi-hardware",
+      "label": "lan / vlans",
+      "direction": "both",
+      "tone": "blue",
+      "layout": {
+        "desktop": { "points": [[22, 42], [33, 42], [33, 84], [39, 84]], "labelX": 32, "labelY": 62 },
+        "compact": { "labelX": 50, "labelY": 72 }
+      }
+    },
+    {
+      "id": "opnsense-server",
+      "source": "opnsense",
+      "target": "home-server",
+      "label": "server lan",
+      "direction": "both",
+      "tone": "lavender",
+      "layout": {
+        "desktop": { "labelX": 37, "labelY": 38 },
+        "compact": { "labelX": 50, "labelY": 85 }
+      }
+    },
+    {
+      "id": "opnsense-pi",
+      "source": "opnsense",
+      "target": "raspberry-pi",
+      "label": "isolated lan",
+      "direction": "both",
+      "tone": "amber",
+      "layout": {
+        "desktop": { "points": [[22, 42], [31, 98], [53, 95]], "labelX": 36, "labelY": 90 },
+        "compact": { "points": [[50, 34], [38, 108], [50, 112]], "labelX": 34, "labelY": 101 }
+      }
+    },
+    {
+      "id": "opnsense-crowdsec",
+      "source": "opnsense",
+      "target": "crowdsec",
+      "label": "protect",
+      "direction": "none",
+      "tone": "mint",
+      "layout": {
+        "desktop": { "labelX": 17, "labelY": 55 },
+        "compact": { "labelX": 36, "labelY": 44 }
+      }
+    },
+    {
+      "id": "opnsense-adguard",
+      "source": "opnsense",
+      "target": "adguard",
+      "label": "dns",
+      "direction": "none",
+      "tone": "lavender",
+      "layout": {
+        "desktop": { "labelX": 27, "labelY": 34 },
+        "compact": { "labelX": 64, "labelY": 44 }
+      }
+    },
+    {
+      "id": "opnsense-unbound",
+      "source": "opnsense",
+      "target": "unbound",
+      "label": "resolve",
+      "direction": "none",
+      "tone": "lavender",
+      "layout": {
+        "desktop": { "labelX": 30, "labelY": 44 },
+        "compact": { "labelX": 36, "labelY": 58 }
+      }
+    },
+    {
+      "id": "opnsense-tailscale",
+      "source": "opnsense",
+      "target": "tailscale",
+      "label": "mgmt vpn",
+      "direction": "both",
+      "tone": "blue",
+      "layout": {
+        "desktop": { "labelX": 28, "labelY": 54 },
+        "compact": { "labelX": 64, "labelY": 58 }
+      }
+    },
+    {
+      "id": "server-docker",
+      "source": "home-server",
+      "target": "docker-services",
+      "label": "containers",
+      "direction": "both",
+      "tone": "mint",
+      "layout": {
+        "desktop": { "labelX": 58, "labelY": 33 },
+        "compact": { "labelX": 36, "labelY": 123 }
+      }
+    },
+    {
+      "id": "server-vms",
+      "source": "home-server",
+      "target": "vm-services",
+      "label": "virtualize",
+      "direction": "both",
+      "tone": "blue",
+      "layout": {
+        "desktop": { "labelX": 58, "labelY": 51 },
+        "compact": { "labelX": 64, "labelY": 123 }
+      }
+    },
+    {
+      "id": "server-storage",
+      "source": "home-server",
+      "target": "storage",
+      "label": "storage base",
+      "direction": "both",
+      "tone": "amber",
+      "layout": {
+        "desktop": { "labelX": 60, "labelY": 70 },
+        "compact": { "labelX": 50, "labelY": 136 }
+      }
+    },
+    {
+      "id": "pi-pi-services",
+      "source": "raspberry-pi",
+      "target": "pi-services",
+      "label": "own stack",
+      "direction": "both",
+      "tone": "amber",
+      "layout": {
+        "desktop": { "labelX": 58, "labelY": 103 },
+        "compact": { "labelX": 65, "labelY": 120 }
+      }
+    },
+    {
+      "id": "docker-npm",
+      "source": "docker-services",
+      "target": "npm",
+      "label": "hosted proxy",
+      "direction": "both",
+      "tone": "mint",
+      "layout": {
+        "desktop": { "labelX": 73, "labelY": 20 },
+        "compact": { "labelX": 25, "labelY": 160 }
+      }
+    },
+    {
+      "id": "docker-cloudflared",
+      "source": "docker-services",
+      "target": "cloudflared",
+      "label": "tunnel connector",
+      "direction": "both",
+      "tone": "blue",
+      "layout": {
+        "desktop": { "labelX": 73, "labelY": 27 },
+        "compact": { "labelX": 70, "labelY": 160 }
+      }
+    },
+    {
+      "id": "cloudflare-cloudflared",
+      "source": "cloudflare",
+      "target": "cloudflared",
+      "label": "tunnel",
+      "direction": "both",
+      "tone": "blue",
+      "layout": {
+        "desktop": { "points": [[21, 14], [48, 14], [48, 25], [81, 26]], "labelX": 51, "labelY": 17 },
+        "compact": { "points": [[50, 19], [86, 150], [76, 178]], "labelX": 84, "labelY": 130 }
+      }
+    },
+    {
+      "id": "npm-ingress",
+      "source": "opnsense",
+      "target": "npm",
+      "label": "reverse proxy ingress",
+      "direction": "both",
+      "tone": "mint",
+      "layout": {
+        "desktop": { "points": [[22, 42], [52, 10], [81, 13]], "labelX": 53, "labelY": 11 },
+        "compact": { "points": [[50, 34], [13, 130], [24, 178]], "labelX": 16, "labelY": 118 }
+      }
+    },
+    {
+      "id": "docker-personal-cloud",
+      "source": "docker-services",
+      "target": "personal-cloud",
+      "label": "photos",
+      "direction": "both",
+      "tone": "lavender",
+      "layout": {
+        "desktop": { "labelX": 76, "labelY": 35 },
+        "compact": { "labelX": 24, "labelY": 186 }
+      }
+    },
+    {
+      "id": "docker-ai",
+      "source": "docker-services",
+      "target": "ai-sandbox",
+      "label": "llm lab",
+      "direction": "both",
+      "tone": "blue",
+      "layout": {
+        "desktop": { "labelX": 77, "labelY": 43 },
+        "compact": { "labelX": 66, "labelY": 186 }
+      }
+    },
+    {
+      "id": "docker-ops",
+      "source": "docker-services",
+      "target": "ops-dashboards",
+      "label": "ops",
+      "direction": "both",
+      "tone": "mint",
+      "layout": {
+        "desktop": { "labelX": 78, "labelY": 49 },
+        "compact": { "labelX": 26, "labelY": 202 }
+      }
+    },
+    {
+      "id": "docker-automation",
+      "source": "docker-services",
+      "target": "automation",
+      "label": "events",
+      "direction": "both",
+      "tone": "amber",
+      "layout": {
+        "desktop": { "labelX": 78, "labelY": 57 },
+        "compact": { "labelX": 69, "labelY": 202 }
+      }
+    },
+    {
+      "id": "docker-camera-smart",
+      "source": "docker-services",
+      "target": "camera-smart",
+      "label": "devices",
+      "direction": "both",
+      "tone": "lavender",
+      "layout": {
+        "desktop": { "points": [[66, 29], [76, 87], [91, 95]], "labelX": 77, "labelY": 86 },
+        "compact": { "labelX": 25, "labelY": 218 }
+      }
+    },
+    {
+      "id": "docker-utilities",
+      "source": "docker-services",
+      "target": "utility-tools",
+      "label": "tools",
+      "direction": "both",
+      "tone": "amber",
+      "layout": {
+        "desktop": { "points": [[66, 29], [70, 94], [76, 109]], "labelX": 70, "labelY": 91 },
+        "compact": { "labelX": 67, "labelY": 218 }
+      }
+    },
+    {
+      "id": "vms-unifi-os",
+      "source": "vm-services",
+      "target": "unifi-os",
+      "label": "controller",
+      "direction": "both",
+      "tone": "blue",
+      "layout": {
+        "desktop": { "labelX": 58, "labelY": 62 },
+        "compact": { "labelX": 30, "labelY": 234 }
+      }
+    },
+    {
+      "id": "vms-home-assistant",
+      "source": "vm-services",
+      "target": "home-assistant",
+      "label": "smart home",
+      "direction": "both",
+      "tone": "lavender",
+      "layout": {
+        "desktop": { "points": [[66, 54], [80, 108], [91, 116]], "labelX": 78, "labelY": 102 },
+        "compact": { "labelX": 71, "labelY": 234 }
+      }
+    },
+    {
+      "id": "vms-lab-vms",
+      "source": "vm-services",
+      "target": "lab-vms",
+      "label": "sandbox",
+      "direction": "both",
+      "tone": "blue",
+      "layout": {
+        "desktop": { "labelX": 70, "labelY": 64 },
+        "compact": { "labelX": 50, "labelY": 250 }
+      }
+    }
+  ]
+}

@@ -13,8 +13,15 @@ const stack = [
   'NAS',
   'Personal Cloud',
   'Nginx Proxy Manager',
+  'Cloudflare Tunnel',
+  'Tailscale',
   'OPNsense',
+  'CrowdSec',
+  'AdGuard DNS',
+  'Unbound',
   'UniFi',
+  'Raspberry Pi',
+  'VM Services',
   'Smart Home',
   'AI Sandbox',
   'GCP',
@@ -31,34 +38,36 @@ export default function AboutMe() {
           system design
         </div>
 
-        <div className="grid gap-8 lg:grid-cols-[0.76fr_1.24fr] lg:items-start">
-          <div>
+        <div className="grid gap-8 lg:grid-cols-[0.72fr_1fr] lg:items-start">
+          <div className="max-w-2xl">
             <h2 className="section-title">A server that actually does things.</h2>
-            <p className="mt-5 max-w-xl text-lg leading-8 text-muted-foreground">
+            <p className="mt-5 text-lg leading-8 text-muted-foreground">
               My homelab earns its keep: photo storage instead of another cloud bill, NAS duty, Docker apps, backups,
               small AI experiments, and smart-home wiring that behaves like software.
             </p>
-            <p className="mt-4 max-w-xl leading-7 text-muted-foreground">
-              The public version is deliberately high level: OPNsense at the edge, UniFi for the network, one server at
-              the center, and a few cloud handoffs where they make sense.
+            <p className="mt-4 leading-7 text-muted-foreground">
+              The public version is deliberately high level: OPNsense at the edge, UniFi for the network, a main server,
+              an isolated Pi, and a few proxy paths where they make sense.
             </p>
+          </div>
 
-            <div className="mt-7 rounded-md border border-border bg-card/80 p-5">
-              <div className="flex items-start gap-3">
-                <div className="grid size-10 shrink-0 place-items-center rounded-md border border-border bg-muted">
-                  <Server className="size-5" />
-                </div>
-                <div>
-                  <h3 className="text-xl font-semibold">Broad strokes, real shape.</h3>
-                  <p className="mt-2 leading-7 text-muted-foreground">
-                    The interesting part is how the pieces talk to each other: routing, storage, containers,
-                    automation, and a proxy edge. The private names and numbers stay off the page.
-                  </p>
-                </div>
+          <div className="rounded-md border border-border bg-card/80 p-5">
+            <div className="flex items-start gap-3">
+              <div className="grid size-10 shrink-0 place-items-center rounded-md border border-border bg-muted">
+                <Server className="size-5" />
+              </div>
+              <div>
+                <h3 className="text-xl font-semibold">Broad strokes, real shape.</h3>
+                <p className="mt-2 leading-7 text-muted-foreground">
+                  The interesting part is how the pieces talk to each other: routing, storage, containers, automation,
+                  VMs, management VPN, and proxy paths. The private names and numbers stay off the page.
+                </p>
               </div>
             </div>
           </div>
+        </div>
 
+        <div className="mt-10">
           <HomelabMap />
         </div>
 

@@ -25,7 +25,7 @@ export default function LogoOrIcon({ logoSrc, alt, icon, className = "", fit = '
         alt={alt}
         width={24}
         height={24}
-        className={`h-full w-full ${fit === 'contain' ? 'object-contain p-1' : 'rounded-full object-cover'}`}
+        className={`h-full w-full ${fit === 'contain' ? 'object-contain' : 'rounded-full object-cover'}`}
         onError={() => setImgError(true)}
         priority
       />

@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import "@xyflow/react/dist/style.css";
 import "./globals.css";
 import { ThemeProvider } from "@/components/theme-provider";
 import Navbar from "@/components/Navbar";
@@ -15,17 +16,7 @@ export const metadata: Metadata = {
         sizes: '32x32',
         type: 'image/x-icon',
       },
-      {
-        url: '/icon.png',
-        sizes: '192x192',
-        type: 'image/png',
-      },
     ],
-    apple: {
-      url: '/apple-touch-icon.png',
-      sizes: '180x180',
-      type: 'image/png',
-    },
   },
 };
 
