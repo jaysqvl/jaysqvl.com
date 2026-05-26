@@ -17,9 +17,24 @@ interface ExperienceItem {
 const experiences: ExperienceItem[] = [
   {
     role: 'Software Engineer',
+    company: '2K',
+    location: 'Vancouver, BC',
+    period: 'Present',
+    summary:
+      'Software engineering at 2K in Vancouver. The work details stay off the public portfolio, but the role belongs here: production software inside a real game company.',
+    outcomes: [
+      'Working in a professional game-development engineering environment.',
+      'Keeping project specifics private while still showing the current 2K chapter on the site.',
+      'Bringing systems, tooling, automation, and backend instincts into a larger software organization.',
+    ],
+    technologies: ['Software Engineering', 'Games', 'Tooling', 'Production Systems'],
+    link: 'https://www.2k.com',
+  },
+  {
+    role: 'Software Engineer',
     company: 'OffroadExpert',
     location: 'Vancouver, BC',
-    period: 'June 2024 - Present',
+    period: 'June 2024 - before 2K',
     summary:
       'Built the less glamorous parts that make a business move faster: product ingestion, cron controls, API integrations, cloud migration support, and React tooling for internal workflows.',
     outcomes: [

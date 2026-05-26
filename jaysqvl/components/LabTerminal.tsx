@@ -11,28 +11,28 @@ export interface TerminalLine {
 
 const terminalLines: TerminalLine[] = [
   {
-    command: 'sync photos -> personal-cloud',
-    output: 'phone library mirrored to server-backed storage',
+    command: 'rsync camera-roll /server/photos',
+    output: 'personal photo library lands on owned storage',
     tone: 'mint',
   },
   {
-    command: 'route https via npm-proxy',
-    output: 'Nginx Proxy Manager handles the public-safe edge',
+    command: 'npm route add lab-tools',
+    output: 'Nginx Proxy Manager keeps the public edge tidy',
     tone: 'blue',
   },
   {
-    command: 'compose up lab-tools',
-    output: 'Docker services staged for notes, automations, dashboards',
+    command: 'docker compose up tools notes automations',
+    output: 'small services boot where experiments can get messy',
     tone: 'lavender',
   },
   {
-    command: 'index notes for ai-sandbox',
-    output: 'local experiments queued for retrieval workflows',
+    command: 'index notes -> ai-sandbox',
+    output: 'private docs become retrieval playground material',
     tone: 'amber',
   },
   {
-    command: 'wake smart-home bridge',
-    output: 'events handed to the automation layer',
+    command: 'tail smart-home/events',
+    output: 'home automations show up as plain old system events',
     tone: 'mint',
   },
 ];
@@ -63,7 +63,7 @@ export default function LabTerminal() {
   const activeLine = terminalLines[activeIndex];
 
   return (
-    <div className="lab-terminal" aria-label="Public-safe homelab terminal animation">
+    <div className="lab-terminal" aria-label="Homelab terminal animation">
       <div className="lab-terminal__bar" aria-hidden="true">
         <span />
         <span />

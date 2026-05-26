@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import { motion, useReducedMotion } from 'framer-motion';
 import {
   BrainCircuit,
@@ -30,202 +30,169 @@ export interface LabLink {
   label?: string;
 }
 
-interface PositionedLabNode extends LabNode {
-  x: number;
-  y: number;
+interface TopologyNode extends LabNode {
+  area: string;
   icon: LucideIcon;
 }
 
-const labNodes: PositionedLabNode[] = [
+const labNodes: TopologyNode[] = [
   {
     id: 'edge',
     label: 'Edge',
     role: 'OPNsense',
-    detail: 'Public-safe routing, firewall policy, VPN paths, and the first line between home systems and the internet.',
+    detail: 'Firewall, routes, VPN paths, and the front door for anything leaving or entering the house.',
     tags: ['firewall', 'routing', 'vpn'],
     tone: 'mint',
-    x: 11,
-    y: 50,
+    area: 'edge',
     icon: ShieldCheck,
   },
   {
     id: 'network',
     label: 'Network',
     role: 'UniFi',
-    detail: 'Switching and Wi-Fi for trusted devices, guest access, IoT, lab gear, and server traffic without naming private segments.',
+    detail: 'Switching and Wi-Fi for trusted devices, guests, IoT gear, lab boxes, and server traffic.',
     tags: ['switching', 'wifi', 'segmentation'],
     tone: 'blue',
-    x: 30,
-    y: 28,
+    area: 'network',
     icon: Wifi,
   },
   {
     id: 'server',
-    label: 'Home Server',
-    role: 'Compute + storage base',
-    detail: 'The raw workhorse: NAS, containers, personal cloud replacement, AI experiments, automations, and backups.',
+    label: 'Server',
+    role: 'The workhorse',
+    detail: 'NAS, Docker host, photo storage, backups, AI experiments, smart-home glue, and random weekend ideas.',
     tags: ['server', 'nas', 'compute'],
     tone: 'lavender',
-    x: 50,
-    y: 52,
+    area: 'server',
     icon: Server,
   },
   {
     id: 'storage',
     label: 'Storage',
-    role: 'NAS + photo library',
-    detail: 'Central storage for files, backups, and a self-owned photo workflow that stands in for iCloud-style storage.',
-    tags: ['nas', 'photos', 'backups'],
+    role: 'NAS + photos',
+    detail: 'Central file storage and a self-owned photo workflow that replaces a chunk of subscription cloud dependence.',
+    tags: ['photos', 'files', 'backups'],
     tone: 'amber',
-    x: 70,
-    y: 28,
+    area: 'storage',
     icon: HardDrive,
   },
   {
     id: 'containers',
     label: 'Containers',
-    role: 'Docker services',
-    detail: 'Small services, internal tools, dashboards, scripts, and repeatable environments for experiments.',
-    tags: ['docker', 'tools', 'automation'],
+    role: 'Docker stack',
+    detail: 'Small apps, notes, dashboards, private tools, and scripts that are easier to run when they live beside the data.',
+    tags: ['docker', 'tools', 'jobs'],
     tone: 'mint',
-    x: 70,
-    y: 73,
+    area: 'containers',
     icon: Boxes,
   },
   {
     id: 'ai',
     label: 'AI Sandbox',
     role: 'Local experiments',
-    detail: 'A place to test retrieval flows, agents, small model-backed utilities, and private prototyping ideas.',
+    detail: 'A place for retrieval tests, agents, document indexing, and prototypes before they deserve a real deployment.',
     tags: ['rag', 'agents', 'prototypes'],
     tone: 'blue',
-    x: 88,
-    y: 56,
+    area: 'ai',
     icon: BrainCircuit,
   },
   {
     id: 'home',
     label: 'Smart Home',
     role: 'Automation layer',
-    detail: 'Home events, device integrations, and small automations connected through the same server-first mindset.',
-    tags: ['events', 'devices', 'scripts'],
+    detail: 'Device events, routines, and house logic treated like software instead of a mystery app drawer.',
+    tags: ['events', 'devices', 'routines'],
     tone: 'lavender',
-    x: 48,
-    y: 83,
+    area: 'home',
     icon: Home,
   },
   {
     id: 'cloud',
-    label: 'Cloud',
-    role: 'Public handoff',
-    detail: 'Vercel, GCP, Firebase, GitHub, and Nginx Proxy Manager for the public-facing pieces that should leave the house.',
-    tags: ['vercel', 'gcp', 'npm proxy'],
+    label: 'Cloud Edge',
+    role: 'Nginx Proxy Manager',
+    detail: 'The public-facing handoff for the few services that should be reachable, alongside Vercel, GCP, and Firebase work.',
+    tags: ['npm proxy', 'vercel', 'gcp'],
     tone: 'amber',
-    x: 90,
-    y: 21,
+    area: 'cloud',
     icon: Cloud,
   },
 ];
 
 const labLinks: LabLink[] = [
   { source: 'edge', target: 'network', label: 'lan' },
-  { source: 'network', target: 'server', label: 'trusted' },
+  { source: 'network', target: 'server', label: 'wired core' },
   { source: 'server', target: 'storage', label: 'files' },
   { source: 'server', target: 'containers', label: 'compose' },
   { source: 'containers', target: 'ai', label: 'experiments' },
   { source: 'containers', target: 'home', label: 'events' },
   { source: 'containers', target: 'cloud', label: 'proxy' },
-  { source: 'storage', target: 'cloud', label: 'selected sync' },
+  { source: 'storage', target: 'cloud', label: 'selective sync' },
 ];
 
 const nodesById = new Map(labNodes.map((node) => [node.id, node]));
 
 export default function HomelabMap() {
   const reduceMotion = useReducedMotion();
-  const [activeId, setActiveId] = useState(labNodes[2].id);
+  const [activeId, setActiveId] = useState('server');
   const activeNode = nodesById.get(activeId) || labNodes[2];
   const ActiveIcon = activeNode.icon;
 
+  const activeLinks = useMemo(
+    () => labLinks.filter((link) => link.source === activeId || link.target === activeId),
+    [activeId]
+  );
+
+  const connectedIds = useMemo(() => {
+    const ids = new Set([activeId]);
+    activeLinks.forEach((link) => {
+      ids.add(link.source);
+      ids.add(link.target);
+    });
+    return ids;
+  }, [activeId, activeLinks]);
+
   return (
-    <div className="homelab-map">
-      <div className="homelab-map__stage" aria-label="Interactive high-level homelab system map">
-        <svg className="homelab-map__links" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true">
-          {labLinks.map((link) => {
-            const source = nodesById.get(link.source);
-            const target = nodesById.get(link.target);
-
-            if (!source || !target) {
-              return null;
-            }
-
-            const isActive = activeId === source.id || activeId === target.id;
-
-            return (
-              <g key={`${link.source}-${link.target}`}>
-                <line
-                  x1={source.x}
-                  y1={source.y}
-                  x2={target.x}
-                  y2={target.y}
-                  className={isActive ? 'homelab-map__link homelab-map__link--active' : 'homelab-map__link'}
-                />
-                {!reduceMotion && isActive && (
-                  <motion.circle
-                    r="0.9"
-                    className={`homelab-map__packet homelab-map__packet--${activeNode.tone}`}
-                    initial={{ cx: source.x, cy: source.y, opacity: 0 }}
-                    animate={{ cx: target.x, cy: target.y, opacity: [0, 1, 1, 0] }}
-                    transition={{ duration: 1.8, repeat: Infinity, ease: 'easeInOut' }}
-                  />
-                )}
-              </g>
-            );
-          })}
-        </svg>
-
+    <div className="homelab-map" aria-label="High-level homelab topology">
+      <div className="homelab-map__topology">
         {labNodes.map((node) => {
           const Icon = node.icon;
           const isActive = activeId === node.id;
+          const isConnected = connectedIds.has(node.id);
 
           return (
             <button
               key={node.id}
               type="button"
-              className={`homelab-map__node homelab-map__node--${node.tone} ${
-                isActive ? 'homelab-map__node--active' : ''
-              }`}
-              style={{ left: `${node.x}%`, top: `${node.y}%` }}
+              className={`homelab-map__card homelab-map__card--${node.area} homelab-map__node--${node.tone} ${
+                isActive ? 'homelab-map__card--active' : ''
+              } ${isConnected ? 'homelab-map__card--connected' : ''}`}
               onMouseEnter={() => setActiveId(node.id)}
               onFocus={() => setActiveId(node.id)}
               onClick={() => setActiveId(node.id)}
               aria-pressed={isActive}
             >
-              <Icon className="size-4" />
-              <span>{node.label}</span>
+              <span className="homelab-map__card-top">
+                <span className="homelab-map__card-icon">
+                  <Icon className="size-4" />
+                </span>
+                <span className="font-mono text-[10px] uppercase tracking-[0.18em] text-muted-foreground">
+                  {node.role}
+                </span>
+              </span>
+              <span className="mt-4 block text-left text-xl font-semibold">{node.label}</span>
+              <span className="mt-3 block text-left text-sm leading-6 text-muted-foreground">{node.detail}</span>
             </button>
           );
         })}
-      </div>
 
-      <div className="homelab-map__mobile-list">
-        {labNodes.map((node) => {
-          const Icon = node.icon;
-          const isActive = activeId === node.id;
-
-          return (
-            <button
-              key={node.id}
-              type="button"
-              className={`homelab-map__mobile-node homelab-map__node--${node.tone} ${
-                isActive ? 'homelab-map__mobile-node--active' : ''
-              }`}
-              onClick={() => setActiveId(node.id)}
-            >
-              <Icon className="size-4" />
-              <span>{node.label}</span>
-            </button>
-          );
-        })}
+        <div className="homelab-map__flow">
+          <span className="homelab-map__flow-label">
+            {activeLinks.length > 0 ? activeLinks.map((link) => link.label).join(' / ') : 'selected node'}
+          </span>
+          <span className="homelab-map__flow-line">
+            {!reduceMotion && <span className={`homelab-map__flow-packet homelab-map__node--${activeNode.tone}`} />}
+          </span>
+        </div>
       </div>
 
       <motion.aside
@@ -256,9 +223,10 @@ export default function HomelabMap() {
         </div>
 
         <div className="mt-6 rounded-md border border-border bg-muted/34 p-4">
-          <p className="font-mono text-xs uppercase tracking-[0.18em] text-muted-foreground">public-safe boundary</p>
+          <p className="font-mono text-xs uppercase tracking-[0.18em] text-muted-foreground">what is not shown</p>
           <p className="mt-2 text-sm leading-6 text-muted-foreground">
-            This is a capability map, not a live network diagram. No hostnames, IPs, secrets, or private service details.
+            Hostnames, IPs, exact dashboards, and private service details. The point is the shape of the system, not a map
+            of the house.
           </p>
         </div>
       </motion.aside>

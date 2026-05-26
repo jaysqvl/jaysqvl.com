@@ -33,15 +33,14 @@ export default function AboutMe() {
 
         <div className="grid gap-8 lg:grid-cols-[0.76fr_1.24fr] lg:items-start">
           <div>
-            <h2 className="section-title">A home server with a real job.</h2>
+            <h2 className="section-title">A server that actually does things.</h2>
             <p className="mt-5 max-w-xl text-lg leading-8 text-muted-foreground">
-              My homelab is less about blinking lights for their own sake and more about owning useful systems: a NAS,
-              photo storage that replaces iCloud-style dependence, Docker services, AI experiments, smart-home
-              automation, and a clean public edge through Nginx Proxy Manager.
+              My homelab replaces a few paid-cloud habits: it holds files and photos, runs Docker apps, backs up the
+              boring stuff, hosts little AI experiments, and ties into smart-home work.
             </p>
             <p className="mt-4 max-w-xl leading-7 text-muted-foreground">
-              The public version stays intentionally high-level. It shows what the server does, how the pieces relate,
-              and how I think about systems without exposing hostnames, IPs, private dashboards, or internal topology.
+              I am not publishing addresses, firewall rules, or dashboard names here. The useful part is the shape:
+              edge, UniFi, server, storage, containers, AI, automations, and the few cloud handoffs that make sense.
             </p>
 
             <div className="mt-7 rounded-md border border-border bg-card/80 p-5">
@@ -50,10 +49,10 @@ export default function AboutMe() {
                   <Server className="size-5" />
                 </div>
                 <div>
-                  <h3 className="text-xl font-semibold">Server-first, privacy-aware.</h3>
+                  <h3 className="text-xl font-semibold">Not a dashboard. A sketch.</h3>
                   <p className="mt-2 leading-7 text-muted-foreground">
-                    The interesting part is the shape: edge, network, server, storage, containers, AI, smart home, and
-                    cloud handoff. The sensitive parts stay off the page.
+                    It should look like the system without leaking the system. Enough topology to show taste; not enough
+                    detail to invite trouble.
                   </p>
                 </div>
               </div>
@@ -65,7 +64,7 @@ export default function AboutMe() {
 
         <div className="mt-10 border-t border-border pt-6">
           <p className="mb-3 font-mono text-xs uppercase tracking-[0.2em] text-muted-foreground">
-            public-safe stack labels
+            stack notes
           </p>
           <div className="flex flex-wrap gap-2">
             {stack.map((item) => (

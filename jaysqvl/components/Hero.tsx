@@ -83,12 +83,12 @@ export default function Hero() {
                     fill
                     priority
                     sizes="56px"
-                    className="object-cover grayscale"
+                    className="object-cover"
                   />
                 </div>
                 <div>
                   <p className="font-mono text-xs uppercase tracking-[0.18em] text-muted-foreground">public profile</p>
-                  <p className="mt-1 text-lg font-semibold">SWE @ 2K Games</p>
+                  <p className="mt-1 text-lg font-semibold">Software Engineer @ 2K</p>
                 </div>
               </div>
               <a
@@ -106,7 +106,7 @@ export default function Hero() {
               <div className="mb-5 flex items-center justify-between">
                 <div>
                   <p className="font-mono text-xs uppercase tracking-[0.18em] text-muted-foreground">server console</p>
-                  <h2 className="mt-1 text-2xl font-semibold">Home server, public-safe edition.</h2>
+                  <h2 className="mt-1 text-2xl font-semibold">A server doing real work.</h2>
                 </div>
                 <Terminal className="size-5 text-muted-foreground" />
               </div>
@@ -118,8 +118,8 @@ export default function Hero() {
                   capabilities, not telemetry
                 </p>
                 <p className="mt-2 text-sm leading-6 text-muted-foreground">
-                  NAS, personal cloud, Docker services, AI experiments, smart-home automations, and Nginx Proxy Manager
-                  routing. No private uptime, hostnames, IPs, or internal diagrams.
+                  Photo storage, NAS duty, Docker services, AI experiments, smart-home hooks, and Nginx Proxy Manager
+                  routes. The private bits stay private.
                 </p>
               </div>
             </div>
