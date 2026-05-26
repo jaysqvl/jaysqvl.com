@@ -1,49 +1,19 @@
 import Image from 'next/image';
 import {
   ArrowDownRight,
-  Boxes,
-  Cloud,
   FileText,
   Github,
   Linkedin,
-  Router,
-  ShieldCheck,
   Terminal,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import LabTerminal from '@/components/LabTerminal';
 
 const signals = [
   'Backend systems',
   'AI tooling',
   'Cloud workflows',
   'Homelab infra',
-];
-
-const labNodes = [
-  {
-    label: 'OPNsense edge',
-    detail: 'Routing, firewall rules, VPNs',
-    icon: ShieldCheck,
-    tone: 'bg-mint',
-  },
-  {
-    label: 'UniFi network',
-    detail: 'Switching, Wi-Fi, clean segmentation',
-    icon: Router,
-    tone: 'bg-blue',
-  },
-  {
-    label: 'Docker services',
-    detail: 'Small tools, APIs, automations',
-    icon: Boxes,
-    tone: 'bg-lavender',
-  },
-  {
-    label: 'Cloud handoff',
-    detail: 'GCP, Firebase, Vercel, migrations',
-    icon: Cloud,
-    tone: 'bg-amber',
-  },
 ];
 
 export default function Hero() {
@@ -135,36 +105,21 @@ export default function Hero() {
             <div className="p-4 sm:p-5">
               <div className="mb-5 flex items-center justify-between">
                 <div>
-                  <p className="font-mono text-xs uppercase tracking-[0.18em] text-muted-foreground">lab sketch</p>
-                  <h2 className="mt-1 text-2xl font-semibold">Quiet systems, useful tools.</h2>
+                  <p className="font-mono text-xs uppercase tracking-[0.18em] text-muted-foreground">server console</p>
+                  <h2 className="mt-1 text-2xl font-semibold">Home server, public-safe edition.</h2>
                 </div>
                 <Terminal className="size-5 text-muted-foreground" />
               </div>
 
-              <div className="lab-diagram">
-                {labNodes.map((node, index) => {
-                  const Icon = node.icon;
-
-                  return (
-                    <div key={node.label} className={`lab-node ${index % 2 === 0 ? 'translate-y-3' : ''}`}>
-                      <span className={`status-dot ${node.tone}`} />
-                      <Icon className="size-5 text-foreground" />
-                      <div>
-                        <p className="text-sm font-semibold">{node.label}</p>
-                        <p className="mt-1 text-xs leading-5 text-muted-foreground">{node.detail}</p>
-                      </div>
-                    </div>
-                  );
-                })}
-              </div>
+              <LabTerminal />
 
               <div className="mt-6 rounded-md border border-border bg-muted/40 p-4">
                 <p className="font-mono text-xs uppercase tracking-[0.18em] text-muted-foreground">
-                  selected stack, not telemetry
+                  capabilities, not telemetry
                 </p>
                 <p className="mt-2 text-sm leading-6 text-muted-foreground">
-                  Static notes on networking, self-hosted services, automations, and migrations. No private uptime,
-                  hostnames, IPs, or internal diagrams.
+                  NAS, personal cloud, Docker services, AI experiments, smart-home automations, and Nginx Proxy Manager
+                  routing. No private uptime, hostnames, IPs, or internal diagrams.
                 </p>
               </div>
             </div>
