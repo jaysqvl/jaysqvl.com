@@ -12,6 +12,7 @@ interface ExperienceItem {
   technologies: string[];
   link?: string;
   logoSrc?: string;
+  logoFit?: 'cover' | 'contain';
 }
 
 const experiences: ExperienceItem[] = [
@@ -29,6 +30,8 @@ const experiences: ExperienceItem[] = [
     ],
     technologies: ['Software Engineering', 'Games', 'Tooling', 'Production Systems'],
     link: 'https://www.2k.com',
+    logoSrc: '/2k-logo.png',
+    logoFit: 'contain',
   },
   {
     role: 'Software Engineer',
@@ -92,6 +95,7 @@ export default function Experience() {
                         logoSrc={experience.logoSrc || ''}
                         alt={`${experience.company} logo`}
                         icon={<BriefcaseBusiness className="size-5" />}
+                        fit={experience.logoFit}
                       />
                     </div>
                     <div>

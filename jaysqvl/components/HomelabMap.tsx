@@ -1,12 +1,12 @@
 'use client';
 
-import { useMemo, useState, type KeyboardEvent } from 'react';
-import { motion, useReducedMotion } from 'framer-motion';
+import { useEffect, useMemo, useState, type CSSProperties, type KeyboardEvent } from 'react';
 import { BrainCircuit, Boxes, Cloud, HardDrive, Home, Server, ShieldCheck, Wifi, type LucideIcon } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 
 type LabNodeId = 'edge' | 'network' | 'server' | 'storage' | 'containers' | 'ai' | 'home' | 'cloud';
 type LabTone = 'mint' | 'blue' | 'lavender' | 'amber';
+type GraphVariant = 'desktop' | 'compact';
 
 export interface LabNode {
   id: LabNodeId;
@@ -18,7 +18,6 @@ export interface LabNode {
   x: number;
   y: number;
   width: number;
-  height: number;
 }
 
 export interface LabLink {
@@ -46,10 +45,9 @@ const labNodes: LabNode[] = [
     detail: 'Firewall, routes, VPN paths, and the front door for anything leaving or entering the house.',
     tags: ['firewall', 'routing', 'vpn'],
     tone: 'mint',
-    x: 95,
-    y: 255,
+    x: 10,
+    y: 48,
     width: 142,
-    height: 72,
   },
   {
     id: 'network',
@@ -58,10 +56,9 @@ const labNodes: LabNode[] = [
     detail: 'Switching and Wi-Fi for trusted devices, guests, IoT gear, lab boxes, and server traffic.',
     tags: ['switching', 'wifi', 'segmentation'],
     tone: 'blue',
-    x: 282,
-    y: 160,
+    x: 29,
+    y: 28,
     width: 150,
-    height: 72,
   },
   {
     id: 'server',
@@ -70,10 +67,9 @@ const labNodes: LabNode[] = [
     detail: 'NAS, Docker host, photo storage, backups, AI experiments, smart-home glue, and random weekend ideas.',
     tags: ['server', 'nas', 'compute'],
     tone: 'lavender',
-    x: 470,
-    y: 275,
-    width: 168,
-    height: 82,
+    x: 48,
+    y: 50,
+    width: 172,
   },
   {
     id: 'storage',
@@ -82,10 +78,9 @@ const labNodes: LabNode[] = [
     detail: 'Central file storage and a self-owned photo workflow that replaces a chunk of subscription cloud dependence.',
     tags: ['photos', 'files', 'backups'],
     tone: 'amber',
-    x: 675,
-    y: 130,
+    x: 69,
+    y: 23,
     width: 152,
-    height: 72,
   },
   {
     id: 'containers',
@@ -94,10 +89,9 @@ const labNodes: LabNode[] = [
     detail: 'Small apps, notes, dashboards, private tools, and scripts that are easier to run when they live beside the data.',
     tags: ['docker', 'tools', 'jobs'],
     tone: 'mint',
-    x: 690,
-    y: 310,
+    x: 70,
+    y: 57,
     width: 164,
-    height: 78,
   },
   {
     id: 'ai',
@@ -106,10 +100,9 @@ const labNodes: LabNode[] = [
     detail: 'A place for retrieval tests, agents, document indexing, and prototypes before they deserve a real deployment.',
     tags: ['rag', 'agents', 'prototypes'],
     tone: 'blue',
-    x: 855,
-    y: 245,
+    x: 88,
+    y: 46,
     width: 150,
-    height: 72,
   },
   {
     id: 'home',
@@ -118,10 +111,9 @@ const labNodes: LabNode[] = [
     detail: 'Device events, routines, and house logic treated like software instead of a mystery app drawer.',
     tags: ['events', 'devices', 'routines'],
     tone: 'lavender',
-    x: 685,
-    y: 470,
+    x: 70,
+    y: 82,
     width: 150,
-    height: 72,
   },
   {
     id: 'cloud',
@@ -130,22 +122,21 @@ const labNodes: LabNode[] = [
     detail: 'The public-facing handoff for the few services that should be reachable, alongside Vercel, GCP, and Firebase work.',
     tags: ['nginx proxy manager', 'vercel', 'gcp'],
     tone: 'amber',
-    x: 835,
-    y: 78,
+    x: 86,
+    y: 13,
     width: 156,
-    height: 72,
   },
 ];
 
-const compactNodeLayout: Record<LabNodeId, Pick<LabNode, 'x' | 'y' | 'width' | 'height'>> = {
-  cloud: { x: 195, y: 64, width: 150, height: 66 },
-  edge: { x: 92, y: 168, width: 128, height: 64 },
-  network: { x: 266, y: 168, width: 132, height: 64 },
-  server: { x: 195, y: 292, width: 160, height: 76 },
-  storage: { x: 94, y: 424, width: 132, height: 64 },
-  containers: { x: 266, y: 424, width: 142, height: 68 },
-  ai: { x: 94, y: 570, width: 132, height: 64 },
-  home: { x: 266, y: 570, width: 132, height: 64 },
+const compactNodeLayout: Record<LabNodeId, Pick<LabNode, 'x' | 'y' | 'width'>> = {
+  cloud: { x: 50, y: 9, width: 144 },
+  edge: { x: 24, y: 24, width: 126 },
+  network: { x: 76, y: 24, width: 130 },
+  server: { x: 50, y: 43, width: 154 },
+  storage: { x: 24, y: 62, width: 126 },
+  containers: { x: 76, y: 62, width: 136 },
+  ai: { x: 24, y: 84, width: 126 },
+  home: { x: 76, y: 84, width: 126 },
 };
 
 const compactLabNodes: LabNode[] = labNodes.map((node) => ({
@@ -166,8 +157,125 @@ const labLinks: LabLink[] = [
 
 const nodesById = new Map(labNodes.map((node) => [node.id, node]));
 
+interface GraphViewProps {
+  activeId: LabNodeId;
+  connectedIds: Set<LabNodeId>;
+  nodes: LabNode[];
+  onSelect: (nodeId: LabNodeId) => void;
+  variant: GraphVariant;
+}
+
+function GraphView({ activeId, connectedIds, nodes, onSelect, variant }: GraphViewProps) {
+  const graphNodesById = useMemo(() => new Map(nodes.map((node) => [node.id, node])), [nodes]);
+
+  const handleNodeKeyDown = (event: KeyboardEvent<HTMLButtonElement>, nodeId: LabNodeId) => {
+    if (event.key === 'Enter' || event.key === ' ') {
+      event.preventDefault();
+      onSelect(nodeId);
+    }
+  };
+
+  return (
+    <div className={`homelab-graph homelab-graph--${variant}`}>
+      <svg className="homelab-graph__lines" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true">
+        {labLinks.map((link) => {
+          const source = graphNodesById.get(link.source);
+          const target = graphNodesById.get(link.target);
+
+          if (!source || !target) {
+            return null;
+          }
+
+          const isActive = activeId === source.id || activeId === target.id;
+
+          return (
+            <line
+              key={`${variant}-${link.source}-${link.target}`}
+              x1={source.x}
+              y1={source.y}
+              x2={target.x}
+              y2={target.y}
+              className={isActive ? 'homelab-graph__link homelab-graph__link--active' : 'homelab-graph__link'}
+            />
+          );
+        })}
+      </svg>
+
+      {labLinks.map((link) => {
+        const source = graphNodesById.get(link.source);
+        const target = graphNodesById.get(link.target);
+
+        if (!source || !target) {
+          return null;
+        }
+
+        const labelStyle = {
+          left: `${(source.x + target.x) / 2}%`,
+          top: `${(source.y + target.y) / 2}%`,
+        } satisfies CSSProperties;
+
+        return (
+          <span key={`${variant}-${link.source}-${link.target}-label`} className="homelab-graph__link-label" style={labelStyle}>
+            {link.label}
+          </span>
+        );
+      })}
+
+      {nodes.map((node) => {
+        const Icon = iconMap[node.id];
+        const isActive = activeId === node.id;
+        const isConnected = connectedIds.has(node.id);
+        const nodeStyle = {
+          left: `${node.x}%`,
+          top: `${node.y}%`,
+          width: node.width,
+        } satisfies CSSProperties;
+
+        return (
+          <button
+            key={`${variant}-${node.id}`}
+            type="button"
+            className={`homelab-graph__node homelab-graph__node--${node.tone} ${
+              isActive ? 'homelab-graph__node--active' : ''
+            } ${isConnected ? 'homelab-graph__node--connected' : ''}`}
+            style={nodeStyle}
+            aria-pressed={isActive}
+            onClick={() => onSelect(node.id)}
+            onFocus={() => onSelect(node.id)}
+            onMouseEnter={() => onSelect(node.id)}
+            onKeyDown={(event) => handleNodeKeyDown(event, node.id)}
+          >
+            <span className="homelab-graph__node-icon">
+              <Icon className="size-4" aria-hidden="true" />
+            </span>
+            <span className="homelab-graph__role">{node.role}</span>
+            <span className="homelab-graph__label">{node.label}</span>
+          </button>
+        );
+      })}
+    </div>
+  );
+}
+
+function useGraphVariant() {
+  const [variant, setVariant] = useState<GraphVariant>('desktop');
+
+  useEffect(() => {
+    const query = window.matchMedia('(max-width: 767px)');
+    const syncVariant = () => setVariant(query.matches ? 'compact' : 'desktop');
+
+    syncVariant();
+    query.addEventListener('change', syncVariant);
+
+    return () => query.removeEventListener('change', syncVariant);
+  }, []);
+
+  return variant;
+}
+
 export default function HomelabMap() {
-  const reduceMotion = useReducedMotion();
+  const variant = useGraphVariant();
+  const graphNodes = variant === 'compact' ? compactLabNodes : labNodes;
   const [activeId, setActiveId] = useState<LabNodeId>('server');
   const activeNode = nodesById.get(activeId) || labNodes[2];
   const ActiveIcon = iconMap[activeNode.id];
@@ -178,151 +286,23 @@ export default function HomelabMap() {
   );
 
   const connectedIds = useMemo(() => {
-    const ids = new Set([activeId]);
+    const ids = new Set<LabNodeId>([activeId]);
+
     activeLinks.forEach((link) => {
       ids.add(link.source);
       ids.add(link.target);
     });
+
     return ids;
   }, [activeId, activeLinks]);
-
-  const handleNodeKeyDown = (event: KeyboardEvent<SVGGElement>, nodeId: LabNodeId) => {
-    if (event.key === 'Enter' || event.key === ' ') {
-      event.preventDefault();
-      setActiveId(nodeId);
-    }
-  };
-
-  const renderGraph = (nodes: LabNode[], variant: 'desktop' | 'compact', viewBox: string, width: number, height: number) => {
-    const graphNodesById = new Map(nodes.map((node) => [node.id, node]));
-
-    return (
-      <svg
-        className={`homelab-graph homelab-graph--${variant}`}
-        viewBox={viewBox}
-        role="img"
-        aria-labelledby={`homelab-graph-title-${variant}`}
-      >
-        <title id={`homelab-graph-title-${variant}`}>Homelab topology graph</title>
-
-        <defs>
-          <pattern id={`homelab-grid-${variant}`} width="32" height="32" patternUnits="userSpaceOnUse">
-            <path d="M 32 0 L 0 0 0 32" className="homelab-graph__grid-line" fill="none" />
-          </pattern>
-        </defs>
-
-        <rect width={width} height={height} rx="12" className="homelab-graph__background" />
-        <rect width={width} height={height} rx="12" fill={`url(#homelab-grid-${variant})`} opacity="0.75" />
-
-        <g className="homelab-graph__links">
-          {labLinks.map((link) => {
-            const source = graphNodesById.get(link.source);
-            const target = graphNodesById.get(link.target);
-
-            if (!source || !target) {
-              return null;
-            }
-
-            const isActive = activeId === source.id || activeId === target.id;
-            const midX = (source.x + target.x) / 2;
-            const midY = (source.y + target.y) / 2;
-
-            return (
-              <g key={`${variant}-${link.source}-${link.target}`}>
-                <line
-                  x1={source.x}
-                  y1={source.y}
-                  x2={target.x}
-                  y2={target.y}
-                  className={isActive ? 'homelab-graph__link homelab-graph__link--active' : 'homelab-graph__link'}
-                />
-                <text x={midX} y={midY - 7} className="homelab-graph__link-label">
-                  {link.label}
-                </text>
-                {!reduceMotion && isActive && (
-                  <motion.circle
-                    r="5"
-                    className={`homelab-graph__packet homelab-graph__node--${activeNode.tone}`}
-                    initial={{ cx: source.x, cy: source.y, opacity: 0 }}
-                    animate={{ cx: target.x, cy: target.y, opacity: [0, 1, 1, 0] }}
-                    transition={{ duration: 1.6, repeat: Infinity, ease: 'easeInOut' }}
-                  />
-                )}
-              </g>
-            );
-          })}
-        </g>
-
-        <g className="homelab-graph__nodes">
-          {nodes.map((node) => {
-            const Icon = iconMap[node.id];
-            const isActive = activeId === node.id;
-            const isConnected = connectedIds.has(node.id);
-
-            return (
-              <g
-                key={`${variant}-${node.id}`}
-                className={`homelab-graph__node homelab-graph__node--${node.tone} ${
-                  isActive ? 'homelab-graph__node--active' : ''
-                } ${isConnected ? 'homelab-graph__node--connected' : ''}`}
-                tabIndex={0}
-                role="button"
-                aria-pressed={isActive}
-                aria-label={`${node.label}: ${node.role}`}
-                onMouseEnter={() => setActiveId(node.id)}
-                onFocus={() => setActiveId(node.id)}
-                onClick={() => setActiveId(node.id)}
-                onKeyDown={(event) => handleNodeKeyDown(event, node.id)}
-              >
-                <rect
-                  x={node.x - node.width / 2}
-                  y={node.y - node.height / 2}
-                  width={node.width}
-                  height={node.height}
-                  rx="12"
-                  className="homelab-graph__node-shell"
-                />
-                <circle
-                  cx={node.x - node.width / 2 + 22}
-                  cy={node.y - node.height / 2 + 22}
-                  r="10"
-                  className="homelab-graph__tone"
-                />
-                <Icon
-                  x={node.x - node.width / 2 + 14}
-                  y={node.y - node.height / 2 + 14}
-                  width={16}
-                  height={16}
-                  className="homelab-graph__icon"
-                />
-                <text x={node.x - node.width / 2 + 42} y={node.y - node.height / 2 + 24} className="homelab-graph__role">
-                  {node.role}
-                </text>
-                <text x={node.x - node.width / 2 + 18} y={node.y + 18} className="homelab-graph__label">
-                  {node.label}
-                </text>
-              </g>
-            );
-          })}
-        </g>
-      </svg>
-    );
-  };
 
   return (
     <div className="homelab-map" aria-label="High-level homelab topology graph">
       <div className="homelab-map__canvas">
-        {renderGraph(labNodes, 'desktop', '0 0 980 560', 980, 560)}
-        {renderGraph(compactLabNodes, 'compact', '0 0 390 660', 390, 660)}
+        <GraphView activeId={activeId} connectedIds={connectedIds} nodes={graphNodes} onSelect={setActiveId} variant={variant} />
       </div>
 
-      <motion.aside
-        key={activeNode.id}
-        className="homelab-map__detail"
-        initial={reduceMotion ? false : { opacity: 0, y: 8 }}
-        animate={reduceMotion ? undefined : { opacity: 1, y: 0 }}
-        transition={{ duration: 0.22, ease: 'easeOut' }}
-      >
+      <aside className="homelab-map__detail">
         <div className="flex items-center gap-3">
           <span className={`homelab-map__detail-icon homelab-graph__node--${activeNode.tone}`}>
             <ActiveIcon className="size-5" />
@@ -349,7 +329,7 @@ export default function HomelabMap() {
             No hostnames, IPs, exact dashboards, or service internals. Just the public shape of the setup.
           </p>
         </div>
-      </motion.aside>
+      </aside>
     </div>
   );
 }

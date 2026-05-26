@@ -88,7 +88,12 @@ export default function Hero() {
                 </div>
                 <div>
                   <p className="font-mono text-xs uppercase tracking-[0.18em] text-muted-foreground">public profile</p>
-                  <p className="mt-1 text-lg font-semibold">Software Engineer @ 2K</p>
+                  <div className="mt-1 flex items-center gap-2">
+                    <span className="relative grid size-7 shrink-0 place-items-center overflow-hidden rounded-md border border-border bg-black">
+                      <Image src="/2k-logo.png" alt="2K logo" fill sizes="28px" className="object-contain p-0.5" />
+                    </span>
+                    <p className="text-lg font-semibold">Software Engineer @ 2K</p>
+                  </div>
                 </div>
               </div>
               <a

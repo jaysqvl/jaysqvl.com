@@ -8,12 +8,12 @@ interface LogoOrIconProps {
   alt: string;
   icon: React.ReactNode;
   className?: string;
+  fit?: 'cover' | 'contain';
 }
 
-export default function LogoOrIcon({ logoSrc, alt, icon, className = "" }: LogoOrIconProps) {
+export default function LogoOrIcon({ logoSrc, alt, icon, className = "", fit = 'cover' }: LogoOrIconProps) {
   const [imgError, setImgError] = useState<boolean>(false);
 
-  // Simple approach - just render the image and handle the error
   if (!logoSrc || imgError) {
     return <>{icon}</>;
   }
@@ -25,10 +25,10 @@ export default function LogoOrIcon({ logoSrc, alt, icon, className = "" }: LogoO
         alt={alt}
         width={24}
         height={24}
-        className="w-full h-full object-cover rounded-full"
+        className={`h-full w-full ${fit === 'contain' ? 'object-contain p-1' : 'rounded-full object-cover'}`}
         onError={() => setImgError(true)}
         priority
       />
     </div>
   );
-} 
+}
