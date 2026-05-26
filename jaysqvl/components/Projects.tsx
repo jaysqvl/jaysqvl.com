@@ -1,180 +1,151 @@
-'use client';
-
-import { useState, useEffect } from 'react';
-import { motion } from 'framer-motion';
-import { Github, ExternalLink } from 'lucide-react';
+import { ArrowUpRight, Code2, Github } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import dynamic from 'next/dynamic';
-
-// Import GitHubCallout with no SSR to avoid hydration errors
-const GitHubCallout = dynamic(() => import('./GitHubCallout'), { ssr: false });
 
 interface ProjectItem {
   title: string;
+  type: string;
   description: string;
   technologies: string[];
-  image?: string;
-  github?: string;
+  github: string;
   demo?: string;
-  featured?: boolean;
 }
 
-const projectsData: ProjectItem[] = [
+const projects: ProjectItem[] = [
   {
-    title: "ExpensAI",
-    description: "An AI-powered spending and financial management app that validates base64-encoded images, utilizes OpenAI's Vision API for classification, and generates personalized insights from transaction history.",
-    technologies: ["Kotlin", "Python", "Google Cloud (GCP)", "Firebase", "OpenAI API"],
-    github: "https://github.com/jaysqvl/",
-    featured: true
+    title: 'ExpensAI',
+    type: 'Android + AI finance tool',
+    description:
+      'Expense tracking app with receipt scanning, Firebase-backed sync, OpenAI Vision classification, and cloud functions for image/text processing.',
+    technologies: ['Kotlin', 'Firebase', 'GCP', 'OpenAI Vision'],
+    github: 'https://github.com/jaysqvl/ExpensAI',
   },
   {
-    title: "Cardiolo",
-    description: "Cardio stats tracking app with trained automatic activity classification using WEKA, integrated with Google Maps API to track activity routes, and featuring dynamic UI with co-routines and threading.",
-    technologies: ["Kotlin", "Weka", "Google Cloud (GCP)", "Google Maps API"],
-    github: "https://github.com/jaysqvl/",
-    featured: true
+    title: 'Impersonator',
+    type: 'Document chatbot',
+    description:
+      'PDF-grounded chatbot using LangChain, vector stores, Docker, and a Streamlit interface for querying document collections.',
+    technologies: ['Python', 'LangChain', 'Docker', 'Supabase'],
+    github: 'https://github.com/jaysqvl/impersonator',
   },
   {
-    title: "Jaysqvl.com",
-    description: "Portfolio website built with React.js and Next.js, deployed on Vercel, with automated deployment using GitHub Actions.",
-    technologies: ["HTML", "CSS", "JavaScript", "React.js", "Next.js", "Vercel", "GitHub Actions"],
-    github: "https://github.com/jaysqvl/jaysqvl.com",
-    demo: "https://jaysqvl.com",
-    featured: true
+    title: 'Buntzen Pass Bot',
+    type: 'Practical automation',
+    description:
+      'A Selenium/NTP automation project for reserving park passes at the exact release window, built from a real family problem.',
+    technologies: ['Python', 'Selenium', 'NTP', 'Automation'],
+    github: 'https://github.com/jaysqvl/buntzen-pass-bot',
   },
   {
-    title: "Impersonator",
-    description: "Full-stack PDF ChatBot with polymorphic back-end supporting multiple LLMs, streamlined development environment via Dockerization, and front-end using Streamlit.",
-    technologies: ["Python", "Langchain", "Docker", "Supabase", "Streamlit"],
-    github: "https://github.com/jaysqvl/",
-    featured: true
+    title: 'Wi-Fi QR Generator',
+    type: 'Homelab utility',
+    description:
+      'Interactive shell utility for generating Wi-Fi QR codes across WPA/WEP/open networks with validation and multiple output formats.',
+    technologies: ['Shell', 'qrencode', 'PNG/SVG', 'CLI'],
+    github: 'https://github.com/jaysqvl/wifi-qrcode-generator',
   },
   {
-    title: "Decode",
-    description: "Chrome extension for evaluating product sustainability while shopping, with an API that scrapes product pages, calculates sustainability scores, and returns insights.",
-    technologies: ["HTML", "CSS", "JavaScript", "Python"],
-    github: "https://github.com/jaysqvl/",
+    title: 'SnapScreen.ai',
+    type: 'Resume screening platform',
+    description:
+      'Open-source platform prototype for student hiring workflows with authentication, dashboard UI, and planned service-backed document handling.',
+    technologies: ['Java', 'Spring', 'Firebase', 'Postgres'],
+    github: 'https://github.com/jaysqvl/snapscreen.ai',
   },
   {
-    title: "Divide and Conquer",
-    description: "Socket-based rendition of the classic game with a token-based packet messaging system to reduce client-to-client latency 5x and server-side asynchronous client handling.",
-    technologies: ["Java", "Sockets", "Java Swing"],
-    github: "https://github.com/jaysqvl/",
+    title: 'Divide and Conquer',
+    type: 'Networked game',
+    description:
+      'Java socket-based multiplayer drawing/territory game with a multithreaded server and packet-based client communication.',
+    technologies: ['Java', 'Sockets', 'Swing', 'Threads'],
+    github: 'https://github.com/jaysqvl/divide-and-conquer-socket-program',
   },
   {
-    title: "PeerAdvice",
-    description: "Full-stack peer-to-peer UBC advising platform with Flask-based back-end featuring GET and POST API endpoints, integrated with Google Authentication and Calendly.",
-    technologies: ["HTML", "CSS", "JavaScript", "Flask", "PostgreSQL", "Firebase"],
-    github: "https://github.com/jaysqvl/",
+    title: 'Jaysqvl.com',
+    type: 'Portfolio system',
+    description:
+      'This site: a rollback-safe Next.js portfolio on Vercel, now redesigned around work, projects, and homelab texture.',
+    technologies: ['Next.js', 'TypeScript', 'Tailwind', 'Vercel'],
+    github: 'https://github.com/jaysqvl/jaysqvl.com',
+    demo: 'https://jaysqvl.com',
   },
   {
-    title: "Hercules",
-    description: "Gamified workout mobile-app developed using Java Android Library with optimized back-end data structures, reducing run-time memory usage by over 200%.",
-    technologies: ["Java", "Android"],
-    github: "https://github.com/jaysqvl/",
-  }
+    title: 'Cardiolo',
+    type: 'Mobile activity tracking',
+    description:
+      'Cardio tracking app with automatic activity classification, Google Maps route views, and asynchronous Android UI flows.',
+    technologies: ['Kotlin', 'Weka', 'Google Maps', 'Android'],
+    github: 'https://github.com/jaysqvl/Cardiolo',
+  },
 ];
 
 export default function Projects() {
-  const [showAll, setShowAll] = useState(false);
-  const [isMounted, setIsMounted] = useState(false);
-  
-  // Set mounted state to handle client-side only rendering
-  useEffect(() => {
-    setIsMounted(true);
-  }, []);
-  
-  // Filter projects to show only featured ones initially
-  const displayedProjects = showAll 
-    ? projectsData 
-    : projectsData.filter(project => project.featured);
-
   return (
-    <section id="projects" className="w-full max-w-7xl mx-auto px-4 py-16 md:py-24">
-      <div className="space-y-2 mb-8">
-        <h2 className="text-3xl font-bold tracking-tight">Projects</h2>
-        <div className="w-20 h-1 bg-primary rounded"></div>
-      </div>
-      
-      <div className="space-y-4">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 w-full max-w-6xl">
-          {displayedProjects.map((project, index) => (
-            <motion.div
-              key={index}
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.5, delay: (index % 3) * 0.1 }}
-              className="bg-card border rounded-lg overflow-hidden shadow-sm hover:shadow-md transition-shadow flex flex-col h-full"
-            >
-              <div className="p-6 flex flex-col h-full">
-                <div className="flex justify-between items-start mb-4">
-                  <h3 className="text-xl font-semibold">{project.title}</h3>
-                  <div className="flex gap-2">
-                    {project.github && (
-                      <a 
-                        href={project.github} 
-                        target="_blank" 
-                        rel="noopener noreferrer"
-                        className="text-muted-foreground hover:text-primary transition-colors"
-                        aria-label={`GitHub repository for ${project.title}`}
-                      >
-                        <Github className="h-5 w-5" />
-                      </a>
-                    )}
-                    {project.demo && (
-                      <a 
-                        href={project.demo} 
-                        target="_blank" 
-                        rel="noopener noreferrer"
-                        className="text-muted-foreground hover:text-primary transition-colors"
-                        aria-label={`Live demo for ${project.title}`}
-                      >
-                        <ExternalLink className="h-5 w-5" />
-                      </a>
-                    )}
-                  </div>
-                </div>
-                
-                <p className="text-muted-foreground line-clamp-3 mb-4">{project.description}</p>
-                
-                {/* Spacer to push badges to bottom */}
-                <div className="flex-grow"></div>
-                
-                <div className="flex flex-wrap gap-2">
-                  {project.technologies.map((tech, i) => (
-                    <Badge key={i} variant="outline" className="bg-primary/5">{tech}</Badge>
+    <section id="projects" className="section-band">
+      <div className="section-shell">
+        <div className="mb-10 flex flex-col gap-5 sm:flex-row sm:items-end sm:justify-between">
+          <div>
+            <div className="section-kicker">
+              <Code2 className="size-4" />
+              selected work
+            </div>
+            <h2 className="section-title">Projects that feel like tools, not thumbnails.</h2>
+          </div>
+          <Button asChild variant="outline" className="w-fit gap-2">
+            <a href="https://github.com/jaysqvl?tab=repositories" target="_blank" rel="noopener noreferrer">
+              <Github className="size-4" />
+              More on GitHub
+            </a>
+          </Button>
+        </div>
+
+        <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-4">
+          {projects.map((project) => (
+            <article key={project.title} className="project-card">
+              <div>
+                <p className="font-mono text-[11px] uppercase tracking-[0.18em] text-muted-foreground">
+                  {project.type}
+                </p>
+                <h3 className="mt-3 text-2xl font-semibold">{project.title}</h3>
+                <p className="mt-4 leading-7 text-muted-foreground">{project.description}</p>
+              </div>
+
+              <div>
+                <div className="mb-5 flex flex-wrap gap-2">
+                  {project.technologies.map((tech) => (
+                    <Badge key={tech} variant="outline" className="badge-soft">
+                      {tech}
+                    </Badge>
                   ))}
                 </div>
+
+                <div className="flex items-center gap-2">
+                  <a
+                    href={project.github}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center gap-2 rounded-md border border-border px-3 py-2 text-sm transition-colors hover:bg-muted"
+                  >
+                    <Github className="size-4" />
+                    Code
+                  </a>
+                  {project.demo && (
+                    <a
+                      href={project.demo}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="inline-flex items-center gap-2 rounded-md border border-border px-3 py-2 text-sm transition-colors hover:bg-muted"
+                    >
+                      Live
+                      <ArrowUpRight className="size-4" />
+                    </a>
+                  )}
+                </div>
               </div>
-            </motion.div>
+            </article>
           ))}
-          
-          {/* GitHub Callout - only show when all projects are displayed and client-side rendered */}
-          {showAll && isMounted && (
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5 }}
-            >
-              <GitHubCallout />
-            </motion.div>
-          )}
-        </div>
-        
-        {/* Show More/Less Button */}
-        <div className="flex justify-center mt-8">
-          <Button 
-            variant="outline" 
-            size="lg"
-            onClick={() => setShowAll(!showAll)}
-            className="gap-2"
-          >
-            {showAll ? 'Show Less' : 'Show More Projects'}
-          </Button>
         </div>
       </div>
     </section>
   );
-} 
+}

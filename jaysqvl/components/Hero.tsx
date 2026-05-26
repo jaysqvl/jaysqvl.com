@@ -1,237 +1,176 @@
-'use client';
-
-import { motion } from 'framer-motion';
-import { ArrowDown, FileText, Github, Linkedin, Terminal } from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import { Alert, AlertTitle, AlertDescription } from "@/components/ui/alert";
-import ParticleBackground from './ParticleBackground';
-import { useRef, useState, useEffect } from 'react';
 import Image from 'next/image';
+import {
+  ArrowDownRight,
+  Boxes,
+  Cloud,
+  FileText,
+  Github,
+  Linkedin,
+  Router,
+  ShieldCheck,
+  Terminal,
+} from 'lucide-react';
+import { Button } from '@/components/ui/button';
+
+const signals = [
+  'Backend systems',
+  'AI tooling',
+  'Cloud workflows',
+  'Homelab infra',
+];
+
+const labNodes = [
+  {
+    label: 'OPNsense edge',
+    detail: 'Routing, firewall rules, VPNs',
+    icon: ShieldCheck,
+    tone: 'bg-mint',
+  },
+  {
+    label: 'UniFi network',
+    detail: 'Switching, Wi-Fi, clean segmentation',
+    icon: Router,
+    tone: 'bg-blue',
+  },
+  {
+    label: 'Docker services',
+    detail: 'Small tools, APIs, automations',
+    icon: Boxes,
+    tone: 'bg-lavender',
+  },
+  {
+    label: 'Cloud handoff',
+    detail: 'GCP, Firebase, Vercel, migrations',
+    icon: Cloud,
+    tone: 'bg-amber',
+  },
+];
 
 export default function Hero() {
-  const [isHovered, setIsHovered] = useState(false);
-  const [imageLoaded, setImageLoaded] = useState(false);
-  const nameRef = useRef<HTMLSpanElement>(null);
-  
-  // Function to scroll to the about section
-  const scrollToAbout = () => {
-    const aboutSection = document.getElementById('about');
-    if (aboutSection) {
-      aboutSection.scrollIntoView({ behavior: 'smooth' });
-    }
-  };
-
-  // Text scramble effect for the name
-  useEffect(() => {
-    if (!nameRef.current) return;
-    
-    // Store a reference to the current DOM node to use in the cleanup function
-    const nameElement = nameRef.current;
-    
-    const letters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
-    let iteration = 0;
-    let interval: NodeJS.Timeout | null = null;
-    
-    const originalText = nameElement.dataset.value || nameElement.innerText;
-    
-    const scramble = () => {
-      if (!nameElement) return;
-      
-      interval = setInterval(() => {
-        nameElement.innerText = originalText
-          .split("")
-          .map((letter, index) => {
-            if (index < iteration) {
-              return originalText[index];
-            }
-            return letters[Math.floor(Math.random() * 26)];
-          })
-          .join("");
-        
-        if (iteration >= originalText.length) {
-          clearInterval(interval!);
-        }
-        
-        iteration += 1/3;
-      }, 30);
-    };
-    
-    // Initial scramble
-    scramble();
-    
-    // Scramble on hover
-    const handleMouseEnter = () => {
-      if (interval) clearInterval(interval);
-      iteration = 0;
-      scramble();
-    };
-    
-    nameElement.addEventListener('mouseenter', handleMouseEnter);
-    
-    return () => {
-      if (interval) clearInterval(interval);
-      // Use the stored reference in the cleanup function
-      nameElement.removeEventListener('mouseenter', handleMouseEnter);
-    };
-  }, []);
-
   return (
-    <section className="relative w-full h-screen flex flex-col items-center justify-center overflow-hidden">
-      {/* Particle Background */}
-      <ParticleBackground />
-      
-      <div className="container px-4 z-10">
-        <div className="flex flex-col md:flex-row items-center justify-center gap-8 md:gap-12">
-          {/* Profile Picture */}
-          <motion.div
-            initial={{ opacity: 0, scale: 0.8 }}
-            animate={{ opacity: 1, scale: 1 }}
-            transition={{ duration: 0.8 }}
-            className="relative profile-picture-container"
-          >
-            <div className="relative w-56 h-56 md:w-72 md:h-72 rounded-full overflow-hidden border-4 border-primary/20">
-              <Image
-                src="/profile.jpg" // Make sure to add your profile picture to the public folder
-                alt="Jay's profile picture"
-                fill
-                className={`object-cover transition-opacity duration-500 ${imageLoaded ? 'opacity-100' : 'opacity-0'}`}
-                onLoad={() => setImageLoaded(true)}
-                priority
-              />
-              {!imageLoaded && (
-                <div className="absolute inset-0 flex items-center justify-center bg-muted">
-                  <div className="h-8 w-8 animate-spin rounded-full border-4 border-primary border-t-transparent"></div>
-                </div>
-              )}
-            </div>
-            
-            {/* Animated ring around profile picture */}
-            <motion.div 
-              className="absolute -inset-3 rounded-full border-2 border-primary/30"
-              animate={{ 
-                boxShadow: ['0 0 0 0 rgba(var(--primary-rgb), 0.2)', '0 0 0 10px rgba(var(--primary-rgb), 0)'],
-              }}
-              transition={{ 
-                duration: 2,
-                repeat: Infinity,
-                repeatType: 'loop'
-              }}
-            />
-          </motion.div>
+    <section className="relative min-h-[92svh] w-full overflow-hidden border-b border-border">
+      <div className="ambient-grid" aria-hidden="true" />
 
-          {/* Text Content */}
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8, delay: 0.2 }}
-            className="text-center md:text-left space-y-4 hero-text-container"
-          >
-            <motion.h1 
-              className="text-4xl sm:text-5xl md:text-6xl font-bold tracking-tight"
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.8, delay: 0.3 }}
-            >
-              Hi, I&apos;m <span 
-                ref={nameRef} 
-                data-value="Jay" 
-                className="text-primary cursor-pointer"
+      <div className="section-shell relative z-10 grid min-h-[92svh] items-center gap-10 pt-28 pb-12 lg:grid-cols-[1.04fr_0.96fr] lg:pt-24">
+        <div className="max-w-3xl">
+          <div className="mb-8 flex flex-wrap items-center gap-3">
+            <span className="inline-flex items-center gap-2 rounded-full border border-border bg-card px-3 py-1.5 font-mono text-xs uppercase tracking-[0.2em] text-muted-foreground">
+              <span className="size-1.5 rounded-full bg-mint" />
+              Jay Esquivel Jr.
+            </span>
+            <span className="font-mono text-xs uppercase tracking-[0.2em] text-muted-foreground">
+              Software Engineer / Vancouver, BC
+            </span>
+          </div>
+
+          <h1 className="max-w-4xl text-balance text-5xl font-semibold leading-[0.95] tracking-normal sm:text-6xl lg:text-7xl">
+            Software for messy real-world systems.
+          </h1>
+
+          <p className="mt-7 max-w-2xl text-pretty text-lg leading-8 text-muted-foreground sm:text-xl">
+            I build backend automation, AI-backed tools, cloud workflows, and practical interfaces shaped by the same
+            curiosity that keeps my homelab changing.
+          </p>
+
+          <div className="mt-8 flex flex-wrap gap-3">
+            <Button asChild size="lg" className="gap-2">
+              <a href="#projects">
+                View Projects
+                <ArrowDownRight className="size-4" />
+              </a>
+            </Button>
+            <Button asChild variant="outline" size="lg" className="gap-2">
+              <a href="/resume.pdf" target="_blank" rel="noopener noreferrer">
+                <FileText className="size-4" />
+                Resume PDF
+              </a>
+            </Button>
+            <Button asChild variant="outline" size="lg" className="gap-2">
+              <a href="https://github.com/jaysqvl" target="_blank" rel="noopener noreferrer">
+                <Github className="size-4" />
+                GitHub
+              </a>
+            </Button>
+          </div>
+
+          <div className="mt-10 grid max-w-2xl grid-cols-2 gap-2 sm:grid-cols-4">
+            {signals.map((signal) => (
+              <div key={signal} className="rounded-md border border-border bg-card/72 px-3 py-3">
+                <p className="font-mono text-[11px] uppercase tracking-[0.18em] text-muted-foreground">{signal}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        <div className="relative">
+          <div className="control-panel">
+            <div className="flex items-start justify-between gap-4 border-b border-border p-4 sm:p-5">
+              <div className="flex items-center gap-3">
+                <div className="relative size-14 overflow-hidden rounded-md border border-border bg-muted">
+                  <Image
+                    src="/profile.jpg"
+                    alt="Jay Esquivel Jr."
+                    fill
+                    priority
+                    sizes="56px"
+                    className="object-cover grayscale"
+                  />
+                </div>
+                <div>
+                  <p className="font-mono text-xs uppercase tracking-[0.18em] text-muted-foreground">public profile</p>
+                  <p className="mt-1 text-lg font-semibold">SWE @ 2K Games</p>
+                </div>
+              </div>
+              <a
+                href="https://linkedin.com/in/jaysqvl"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="rounded-md border border-border p-2 text-muted-foreground transition-colors hover:text-foreground"
+                aria-label="LinkedIn profile"
               >
-                Jay
-              </span>
-            </motion.h1>
-            
-            <motion.h2 
-              className="text-2xl sm:text-3xl md:text-4xl font-medium text-muted-foreground"
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.8, delay: 0.4 }}
-            >
-              Software Engineer
-            </motion.h2>
-            
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.8, delay: 0.5 }}
-              className="max-w-md relative z-30"
-            >
-              <Alert className="bg-background backdrop-blur-sm shadow-md isolate">
-                <Terminal className="h-4 w-4" />
-                <AlertTitle>Welcome!</AlertTitle>
-                <AlertDescription>
-                  Here&apos;s a coffee for your stay ☕<br />
-                  Play around and enjoy!
-                </AlertDescription>
-              </Alert>
-            </motion.div>
-            
-            {/* Social Links */}
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.8, delay: 0.55 }}
-              className="flex flex-wrap gap-3 justify-center md:justify-start relative z-30"
-            >
-              <Button variant="outline" size="sm" asChild className="backdrop-blur-sm bg-background/100 shadow-md isolate">
-                <a href="/resume.pdf" target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-2">
-                  <FileText className="h-4 w-4" />
-                  Resume
-                </a>
-              </Button>
-              <Button variant="outline" size="sm" asChild className="backdrop-blur-sm bg-background/100 shadow-md isolate">
-                <a href="https://github.com/jaysqvl" target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-2">
-                  <Github className="h-4 w-4" />
-                  GitHub
-                </a>
-              </Button>
-              <Button variant="outline" size="sm" asChild className="backdrop-blur-sm bg-background/100 shadow-md isolate">
-                <a href="https://linkedin.com/in/jaysqvl" target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-2">
-                  <Linkedin className="h-4 w-4" />
-                  LinkedIn
-                </a>
-              </Button>
-            </motion.div>
-            
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.8, delay: 0.6 }}
-              className="pt-4 relative z-30"
-            >
-              <Button 
-                size="lg" 
-                onClick={scrollToAbout}
-                onMouseEnter={() => setIsHovered(true)}
-                onMouseLeave={() => setIsHovered(false)}
-                className="relative group hero-button backdrop-blur-sm bg-primary/100 shadow-md isolate"
-              >
-                <span>Explore My Work</span>
-                <motion.div
-                  animate={{ y: isHovered ? 5 : 0 }}
-                  transition={{ duration: 0.2 }}
-                  className="ml-2"
-                >
-                  <ArrowDown className="h-4 w-4" />
-                </motion.div>
-              </Button>
-            </motion.div>
-          </motion.div>
+                <Linkedin className="size-4" />
+              </a>
+            </div>
+
+            <div className="p-4 sm:p-5">
+              <div className="mb-5 flex items-center justify-between">
+                <div>
+                  <p className="font-mono text-xs uppercase tracking-[0.18em] text-muted-foreground">lab sketch</p>
+                  <h2 className="mt-1 text-2xl font-semibold">Quiet systems, useful tools.</h2>
+                </div>
+                <Terminal className="size-5 text-muted-foreground" />
+              </div>
+
+              <div className="lab-diagram">
+                {labNodes.map((node, index) => {
+                  const Icon = node.icon;
+
+                  return (
+                    <div key={node.label} className={`lab-node ${index % 2 === 0 ? 'translate-y-3' : ''}`}>
+                      <span className={`status-dot ${node.tone}`} />
+                      <Icon className="size-5 text-foreground" />
+                      <div>
+                        <p className="text-sm font-semibold">{node.label}</p>
+                        <p className="mt-1 text-xs leading-5 text-muted-foreground">{node.detail}</p>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+
+              <div className="mt-6 rounded-md border border-border bg-muted/40 p-4">
+                <p className="font-mono text-xs uppercase tracking-[0.18em] text-muted-foreground">
+                  selected stack, not telemetry
+                </p>
+                <p className="mt-2 text-sm leading-6 text-muted-foreground">
+                  Static notes on networking, self-hosted services, automations, and migrations. No private uptime,
+                  hostnames, IPs, or internal diagrams.
+                </p>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
-      
-      {/* Scroll indicator */}
-      <motion.div 
-        className="absolute bottom-10 left-1/2 transform -translate-x-1/2"
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1, y: [0, 10, 0] }}
-        transition={{ 
-          opacity: { delay: 1.5, duration: 1 },
-          y: { repeat: Infinity, duration: 1.5, ease: "easeInOut" }
-        }}
-      >
-        <ArrowDown className="h-6 w-6 text-muted-foreground" />
-      </motion.div>
     </section>
   );
-} 
+}

@@ -1,16 +1,14 @@
-'use client';
-
-import { motion } from 'framer-motion';
-import { Calendar, Briefcase, ExternalLink } from 'lucide-react';
+import { BriefcaseBusiness, ExternalLink } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import LogoOrIcon from '@/components/LogoOrIcon';
 
 interface ExperienceItem {
-  title: string;
+  role: string;
   company: string;
   location: string;
   period: string;
-  description: string[];
+  summary: string;
+  outcomes: string[];
   technologies: string[];
   link?: string;
   logoSrc?: string;
@@ -18,116 +16,115 @@ interface ExperienceItem {
 
 const experiences: ExperienceItem[] = [
   {
-    title: "Software Engineer",
-    company: "OffroadExpert",
-    location: "Vancouver, BC",
-    period: "June 2024 – Present",
-    description: [
-      "Automated vendor product ingestion from vendor CSVs and hosting servers, scaling in-store product listings 300x",
-      "Developed a Dockerized React and Tailwind front-end UI for cron scheduling endpoints, viewing logs, and managing configuration, enabling non-technical staff to interact with back-end services.",
-      "Integrated four new REST API endpoints into the company’s existing product ingest and processing pipeline.",
-      "Added LLM layer into product ingest pipeline standardizing web product display metadata for SEO/consistency.",
-      "Facilitated migration to private cloud assisting design hardware and deploy software infra, reducing OPEX 50%.",
-      "Developed custom react components in TypeScript with team for the company’s upcoming front-end overhaul."
+    role: 'Software Engineer',
+    company: 'OffroadExpert',
+    location: 'Vancouver, BC',
+    period: 'June 2024 - Present',
+    summary:
+      'Built the less glamorous parts that make a business move faster: product ingestion, cron controls, API integrations, cloud migration support, and React tooling for internal workflows.',
+    outcomes: [
+      'Scaled in-store product listings by 300x through automated vendor ingestion from CSVs and hosted vendor files.',
+      'Dockerized a React/Tailwind control surface for cron endpoints, logs, and configuration management.',
+      'Added REST integrations and an LLM metadata layer for cleaner product display data and SEO consistency.',
+      'Supported a private-cloud migration that reduced operating expense by roughly 50%.',
     ],
-    technologies: ["Python", "Bash", "Docker", "HTML", "CSS", "JavaScript", "Google Cloud Platform (GCP)"],
-    link: "https://offroadexpert.shop",
-    logoSrc: "/offroadexpert.jpg"
+    technologies: ['Python', 'TypeScript', 'React', 'Docker', 'Bash', 'GCP'],
+    link: 'https://offroadexpert.shop',
+    logoSrc: '/offroadexpert.jpg',
   },
   {
-    title: "Contract Software Developer",
-    company: "Jaysqvl Solutions",
-    location: "Vancouver, BC / Remote",
-    period: "Sept 2020 – Present",
-    description: [
-      "Software consultations and development for small businesses including generative AI applications, web, cloud, networking, virtualization, containerization, security systems, and IT infrastructure.",
-      "Developed REST APIs, full-stack web applications, and audited course content (debugging and testing) for various courses on Udemy and private platforms, contributing to teaching 3000+ students with a 4.5-star average rating.",
-      "Provided private tutoring in Mathematics, Computer Science, and Data Science for university students."
+    role: 'Contract Software Developer',
+    company: 'Jaysqvl Solutions',
+    location: 'Vancouver, BC / Remote',
+    period: 'Sept 2020 - Present',
+    summary:
+      'Small-business software and technical support across AI integrations, cloud/web apps, networking, virtualization, security, and teaching systems.',
+    outcomes: [
+      'Built REST APIs, full-stack apps, AI integrations, and operational tools for varied client needs.',
+      'Audited, debugged, and tested course content used by 3000+ students across private and public learning platforms.',
+      'Tutored university students in mathematics, computer science, and data science.',
     ],
-    technologies: ["Python", "JavaScript", "React", "Node.js", "Docker", "Cloud Services", "AI/ML"],
-    logoSrc: "/jaysqvl.jpg"
-  }
+    technologies: ['Python', 'JavaScript', 'React', 'Node.js', 'Docker', 'AI/ML'],
+    logoSrc: '/jaysqvl.jpg',
+  },
 ];
 
 export default function Experience() {
   return (
-    <section className="w-full max-w-7xl mx-auto px-4 py-16" id="experience">
-      <div className="space-y-2 mb-8">
-        <h2 className="text-3xl font-bold tracking-tight">Experience</h2>
-        <div className="w-20 h-1 bg-primary rounded"></div>
-      </div>
+    <section id="experience" className="section-band bg-muted/24">
+      <div className="section-shell">
+        <div className="section-kicker">
+          <BriefcaseBusiness className="size-4" />
+          operating history
+        </div>
 
-      <div className="space-y-12">
-        {experiences.map((experience, index) => (
-          <motion.div
-            key={index}
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.5, delay: index * 0.1 }}
-            className="relative"
-          >
-            {/* Timeline connector */}
-            {index < experiences.length - 1 && (
-              <div className="absolute left-[19px] top-[52px] bottom-0 w-0.5 bg-muted-foreground/20"></div>
-            )}
-            
-            <div className="flex gap-4">
-              {/* Timeline dot with logo or icon */}
-              <div className="mt-1.5 flex-shrink-0 w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center">
-                <LogoOrIcon 
-                  logoSrc={experience.logoSrc || ''}
-                  alt={`${experience.company} logo`}
-                  icon={<Briefcase className="h-5 w-5 text-primary" />}
-                  className="text-primary"
-                />
-              </div>
-              
-              {/* Content */}
-              <div className="flex-1 space-y-4">
-                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
-                  <div>
-                    <h3 className="text-xl font-semibold">{experience.title}</h3>
-                    <div className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-2 text-muted-foreground">
-                      <span className="font-medium">{experience.company}</span>
-                      <span className="hidden sm:inline">•</span>
-                      <span>{experience.location}</span>
+        <div className="mb-10 grid gap-5 lg:grid-cols-[0.72fr_1fr] lg:items-end">
+          <h2 className="section-title">Resume work, written like systems work.</h2>
+          <p className="max-w-2xl leading-7 text-muted-foreground lg:justify-self-end">
+            The thread through the work is practical engineering: take messy inputs, build a repeatable path, give people
+            a usable surface, and leave the system easier to run than it was found.
+          </p>
+        </div>
+
+        <div className="grid gap-4">
+          {experiences.map((experience) => (
+            <article key={`${experience.company}-${experience.role}`} className="panel p-5 sm:p-6">
+              <div className="grid gap-6 lg:grid-cols-[0.34fr_0.66fr]">
+                <div>
+                  <div className="flex items-center gap-3">
+                    <div className="grid size-11 shrink-0 place-items-center overflow-hidden rounded-md border border-border bg-muted">
+                      <LogoOrIcon
+                        logoSrc={experience.logoSrc || ''}
+                        alt={`${experience.company} logo`}
+                        icon={<BriefcaseBusiness className="size-5" />}
+                      />
+                    </div>
+                    <div>
+                      <h3 className="text-xl font-semibold">{experience.role}</h3>
+                      <p className="mt-1 text-sm text-muted-foreground">{experience.company}</p>
                     </div>
                   </div>
-                  <div className="flex items-center gap-1.5 text-muted-foreground">
-                    <Calendar className="h-4 w-4" />
-                    <span className="text-sm sm:text-base">{experience.period}</span>
+
+                  <div className="mt-5 space-y-2 font-mono text-xs uppercase tracking-[0.16em] text-muted-foreground">
+                    <p>{experience.period}</p>
+                    <p>{experience.location}</p>
                     {experience.link && (
-                      <a 
-                        href={experience.link} 
-                        target="_blank" 
+                      <a
+                        href={experience.link}
+                        target="_blank"
                         rel="noopener noreferrer"
-                        className="ml-2 text-primary hover:text-primary/80 transition-colors"
+                        className="inline-flex items-center gap-2 text-foreground transition-colors hover:text-muted-foreground"
                       >
-                        <ExternalLink className="h-4 w-4" />
+                        Visit
+                        <ExternalLink className="size-3.5" />
                       </a>
                     )}
                   </div>
                 </div>
-                
-                <div className="space-y-2">
-                  <ul className="list-disc pl-5 space-y-2">
-                    {experience.description.map((item, i) => (
-                      <li key={i} className="text-muted-foreground">{item}</li>
+
+                <div>
+                  <p className="text-pretty leading-7 text-muted-foreground">{experience.summary}</p>
+                  <ul className="mt-5 grid gap-3">
+                    {experience.outcomes.map((outcome) => (
+                      <li key={outcome} className="flex gap-3 leading-7 text-muted-foreground">
+                        <span className="mt-3 size-1.5 shrink-0 rounded-full bg-foreground" />
+                        <span>{outcome}</span>
+                      </li>
                     ))}
                   </ul>
-                </div>
-                
-                <div className="flex flex-wrap gap-2 pt-2">
-                  {experience.technologies.map((tech, i) => (
-                    <Badge key={i} variant="outline" className="bg-primary/5">{tech}</Badge>
-                  ))}
+                  <div className="mt-5 flex flex-wrap gap-2">
+                    {experience.technologies.map((tech) => (
+                      <Badge key={tech} variant="outline" className="badge-soft">
+                        {tech}
+                      </Badge>
+                    ))}
+                  </div>
                 </div>
               </div>
-            </div>
-          </motion.div>
-        ))}
+            </article>
+          ))}
+        </div>
       </div>
     </section>
   );
-} 
+}

@@ -1,37 +1,13 @@
 import type { Metadata } from "next";
-import { Inter, Outfit, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { ThemeProvider } from "@/components/theme-provider";
 import Navbar from "@/components/Navbar";
-import { Toaster } from "@/components/ui/sonner";
-import ChatButton from '@/components/ChatButton';
 import { Analytics } from '@vercel/analytics/react';
 import { SpeedInsights } from "@vercel/speed-insights/next"
 
-// Font for body text
-const inter = Inter({
-  subsets: ["latin"],
-  variable: "--font-sans",
-  display: 'swap',
-});
-
-// Font for headings
-const outfit = Outfit({
-  subsets: ["latin"],
-  variable: "--font-heading",
-  display: 'swap',
-});
-
-// Monospace font for code
-const geistMono = Geist_Mono({
-  subsets: ["latin"],
-  variable: "--font-mono",
-  display: 'swap',
-});
-
 export const metadata: Metadata = {
-  title: "Jaysqvl",
-  description: "Portfolio website of Jay Esquivel",
+  title: "Jay Esquivel Jr. | Software Engineer",
+  description: "Portfolio of Jay Esquivel Jr., a software engineer building backend systems, AI tools, automation, and homelab-inspired infrastructure.",
   icons: {
     icon: [
       {
@@ -60,17 +36,15 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" suppressHydrationWarning>
-      <body className={`${inter.variable} ${outfit.variable} ${geistMono.variable} antialiased`}>
+      <body className="antialiased">
         <ThemeProvider
           attribute="class"
-          defaultTheme="system"
+          defaultTheme="dark"
           enableSystem
           disableTransitionOnChange
         >
           <Navbar />
           {children}
-          <Toaster />
-          <ChatButton />
         </ThemeProvider>
         <Analytics />
         <SpeedInsights />
