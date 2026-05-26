@@ -437,136 +437,126 @@
     gap: 1rem;
   }
 
-  .homelab-map__topology {
-    display: grid;
-    grid-template-columns: repeat(4, minmax(0, 1fr));
-    grid-template-areas:
-      "edge network server storage"
-      "edge network server containers"
-      "cloud cloud ai home"
-      "flow flow flow flow";
-    gap: 0.75rem;
+  .homelab-map__canvas {
     overflow: hidden;
     border: 1px solid hsl(var(--border));
     border-radius: var(--radius);
-    background:
-      radial-gradient(circle at 54% 44%, hsl(var(--foreground) / 0.055), transparent 28%),
-      linear-gradient(hsl(var(--border) / 0.13) 1px, transparent 1px),
-      linear-gradient(90deg, hsl(var(--border) / 0.1) 1px, transparent 1px),
-      hsl(var(--card) / 0.82);
-    background-size: auto, 32px 32px, 32px 32px, auto;
-    padding: 0.75rem;
+    background: hsl(var(--card) / 0.82);
   }
 
-  .homelab-map__card {
-    position: relative;
-    display: flex;
-    min-height: 11.75rem;
-    flex-direction: column;
-    justify-content: space-between;
-    overflow: hidden;
-    border: 1px solid hsl(var(--border));
-    border-radius: var(--radius);
-    background: hsl(var(--background) / 0.86);
-    padding: 1rem;
-    text-align: left;
-    box-shadow: 0 12px 30px hsl(0 0% 0% / 0.1);
+  .homelab-graph {
+    display: block;
+    width: 100%;
+    height: auto;
+  }
+
+  .homelab-graph--desktop {
+    aspect-ratio: 980 / 560;
+  }
+
+  .homelab-graph--compact {
+    display: none;
+    aspect-ratio: 390 / 660;
+  }
+
+  .homelab-graph__background {
+    fill: hsl(var(--card) / 0.86);
+  }
+
+  .homelab-graph__grid-line {
+    stroke: hsl(var(--border) / 0.62);
+    stroke-width: 1;
+  }
+
+  .homelab-graph__link {
+    stroke: hsl(var(--border));
+    stroke-width: 2;
+  }
+
+  .homelab-graph__link--active {
+    stroke: hsl(var(--foreground) / 0.58);
+    stroke-width: 3;
+  }
+
+  .homelab-graph__link-label {
+    fill: hsl(var(--muted-foreground));
+    font-family: var(--font-code);
+    font-size: 10px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+  }
+
+  .homelab-graph__packet {
+    fill: hsl(var(--map-tone));
+    filter: drop-shadow(0 0 8px hsl(var(--map-tone) / 0.65));
+  }
+
+  .homelab-graph__node {
+    cursor: pointer;
+    outline: none;
+  }
+
+  .homelab-graph__node-shell {
+    fill: hsl(var(--background) / 0.94);
+    stroke: hsl(var(--border));
+    stroke-width: 1.5;
     transition:
-      border-color 180ms ease,
-      background-color 180ms ease,
-      transform 180ms ease;
+      fill 180ms ease,
+      stroke 180ms ease,
+      stroke-width 180ms ease;
   }
 
-  .homelab-map__card::after {
-    content: "";
-    position: absolute;
-    inset: auto 1rem 1rem 1rem;
-    height: 2px;
-    border-radius: 999px;
-    background: hsl(var(--map-tone));
-    opacity: 0;
-    transform: scaleX(0.2);
-    transform-origin: left;
-    transition:
-      opacity 180ms ease,
-      transform 180ms ease;
+  .homelab-graph__node:hover .homelab-graph__node-shell,
+  .homelab-graph__node:focus-visible .homelab-graph__node-shell,
+  .homelab-graph__node--active .homelab-graph__node-shell {
+    fill: hsl(var(--card));
+    stroke: hsl(var(--foreground) / 0.62);
+    stroke-width: 2.5;
   }
 
-  .homelab-map__card:hover,
-  .homelab-map__card:focus-visible,
-  .homelab-map__card--active {
-    border-color: hsl(var(--foreground) / 0.52);
-    background: hsl(var(--card));
-    transform: translateY(-2px);
+  .homelab-graph__node--connected .homelab-graph__node-shell {
+    stroke: hsl(var(--map-tone));
   }
 
-  .homelab-map__card--active::after,
-  .homelab-map__card--connected::after {
-    opacity: 0.84;
-    transform: scaleX(1);
+  .homelab-graph__tone {
+    fill: hsl(var(--map-tone));
   }
 
-  .homelab-map__card--edge {
-    grid-area: edge;
+  .homelab-graph__icon {
+    color: hsl(var(--background));
   }
 
-  .homelab-map__card--network {
-    grid-area: network;
+  .homelab-graph__role {
+    fill: hsl(var(--muted-foreground));
+    font-family: var(--font-code);
+    font-size: 10px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
   }
 
-  .homelab-map__card--server {
-    grid-area: server;
+  .homelab-graph__label {
+    fill: hsl(var(--foreground));
+    font-family: var(--font-heading);
+    font-size: 19px;
+    font-weight: 650;
   }
 
-  .homelab-map__card--storage {
-    grid-area: storage;
-  }
-
-  .homelab-map__card--containers {
-    grid-area: containers;
-  }
-
-  .homelab-map__card--ai {
-    grid-area: ai;
-  }
-
-  .homelab-map__card--home {
-    grid-area: home;
-  }
-
-  .homelab-map__card--cloud {
-    grid-area: cloud;
-  }
-
-  .homelab-map__card-top {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 0.75rem;
-  }
-
-  .homelab-map__card-icon {
-    display: grid;
-    width: 2.2rem;
-    height: 2.2rem;
-    place-items: center;
-    border: 1px solid hsl(var(--border));
-    border-radius: var(--radius);
-    background: hsl(var(--muted) / 0.5);
-  }
-
+  .homelab-graph__node--mint,
   .homelab-map__node--mint {
     --map-tone: var(--pastel-mint);
   }
 
+  .homelab-graph__node--blue,
   .homelab-map__node--blue {
     --map-tone: var(--pastel-blue);
   }
 
+  .homelab-graph__node--lavender,
   .homelab-map__node--lavender {
     --map-tone: var(--pastel-lavender);
   }
 
+  .homelab-graph__node--amber,
   .homelab-map__node--amber {
     --map-tone: var(--pastel-amber);
   }
@@ -578,49 +568,6 @@
     border-radius: 999px;
     background: hsl(var(--map-tone));
     box-shadow: 0 0 0 4px hsl(var(--map-tone) / 0.12);
-  }
-
-  .homelab-map__flow {
-    grid-area: flow;
-    display: grid;
-    gap: 0.7rem;
-    border: 1px solid hsl(var(--border));
-    border-radius: var(--radius);
-    background: hsl(var(--background) / 0.7);
-    padding: 0.95rem 1rem;
-  }
-
-  .homelab-map__flow-label {
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-    font-family: var(--font-code);
-    font-size: 0.7rem;
-    letter-spacing: 0.18em;
-    text-transform: uppercase;
-    color: hsl(var(--muted-foreground));
-  }
-
-  .homelab-map__flow-line {
-    position: relative;
-    display: block;
-    height: 2px;
-    overflow: hidden;
-    border-radius: 999px;
-    background: hsl(var(--border));
-  }
-
-  .homelab-map__flow-packet {
-    position: absolute;
-    top: 50%;
-    left: 0;
-    width: 22%;
-    height: 2px;
-    border-radius: 999px;
-    background: hsl(var(--map-tone));
-    box-shadow: 0 0 12px hsl(var(--map-tone) / 0.55);
-    transform: translateY(-50%);
-    animation: map-flow 1800ms ease-in-out infinite;
   }
 
   .homelab-map__detail {
@@ -663,16 +610,6 @@
   }
 }
 
-@keyframes map-flow {
-  0% {
-    transform: translate(-110%, -50%);
-  }
-
-  100% {
-    transform: translate(470%, -50%);
-  }
-}
-
 @media (min-width: 1280px) {
   .homelab-map {
     grid-template-columns: minmax(0, 1.15fr) minmax(18rem, 0.85fr);
@@ -681,19 +618,6 @@
 
   .homelab-map__detail {
     min-height: 31rem;
-  }
-}
-
-@media (max-width: 1023px) {
-  .homelab-map__topology {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    grid-template-areas:
-      "edge network"
-      "server server"
-      "storage containers"
-      "ai home"
-      "cloud cloud"
-      "flow flow";
   }
 }
 
@@ -707,22 +631,26 @@
     white-space: normal;
   }
 
-  .homelab-map__topology {
-    grid-template-columns: 1fr;
-    grid-template-areas:
-      "edge"
-      "network"
-      "server"
-      "storage"
-      "containers"
-      "ai"
-      "home"
-      "cloud"
-      "flow";
+  .homelab-graph--desktop {
+    display: none;
   }
 
-  .homelab-map__card {
-    min-height: 10.5rem;
+  .homelab-graph--compact {
+    display: block;
+  }
+
+  .homelab-graph__link-label {
+    font-size: 8px;
+    letter-spacing: 0.08em;
+  }
+
+  .homelab-graph__role {
+    font-size: 8.5px;
+    letter-spacing: 0.1em;
+  }
+
+  .homelab-graph__label {
+    font-size: 16px;
   }
 }
 
@@ -734,12 +662,6 @@
     animation-duration: 0.001ms !important;
     animation-iteration-count: 1 !important;
     transition-duration: 0.001ms !important;
-  }
-
-  .homelab-map__card:hover,
-  .homelab-map__card:focus-visible,
-  .homelab-map__card--active {
-    transform: none;
   }
 
   .project-card:hover {

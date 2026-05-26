@@ -35,12 +35,12 @@ export default function AboutMe() {
           <div>
             <h2 className="section-title">A server that actually does things.</h2>
             <p className="mt-5 max-w-xl text-lg leading-8 text-muted-foreground">
-              My homelab replaces a few paid-cloud habits: it holds files and photos, runs Docker apps, backs up the
-              boring stuff, hosts little AI experiments, and ties into smart-home work.
+              My homelab earns its keep: photo storage instead of another cloud bill, NAS duty, Docker apps, backups,
+              small AI experiments, and smart-home wiring that behaves like software.
             </p>
             <p className="mt-4 max-w-xl leading-7 text-muted-foreground">
-              I am not publishing addresses, firewall rules, or dashboard names here. The useful part is the shape:
-              edge, UniFi, server, storage, containers, AI, automations, and the few cloud handoffs that make sense.
+              The public version is deliberately high level: OPNsense at the edge, UniFi for the network, one server at
+              the center, and a few cloud handoffs where they make sense.
             </p>
 
             <div className="mt-7 rounded-md border border-border bg-card/80 p-5">
@@ -49,10 +49,10 @@ export default function AboutMe() {
                   <Server className="size-5" />
                 </div>
                 <div>
-                  <h3 className="text-xl font-semibold">Not a dashboard. A sketch.</h3>
+                  <h3 className="text-xl font-semibold">Broad strokes, real shape.</h3>
                   <p className="mt-2 leading-7 text-muted-foreground">
-                    It should look like the system without leaking the system. Enough topology to show taste; not enough
-                    detail to invite trouble.
+                    The interesting part is how the pieces talk to each other: routing, storage, containers,
+                    automation, and a proxy edge. The private names and numbers stay off the page.
                   </p>
                 </div>
               </div>
