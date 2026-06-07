@@ -2,8 +2,8 @@ import Image from 'next/image';
 import {
   ArrowDownRight,
   FileText,
-  Github,
-  Linkedin,
+  GitBranch,
+  Link2,
   Terminal,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -57,7 +57,7 @@ export default function Hero() {
             </Button>
             <Button asChild variant="outline" size="lg" className="gap-2">
               <a href="https://github.com/jaysqvl" target="_blank" rel="noopener noreferrer">
-                <Github className="size-4" />
+                <GitBranch className="size-4" />
                 GitHub
               </a>
             </Button>
@@ -103,7 +103,7 @@ export default function Hero() {
                 className="rounded-md border border-border p-2 text-muted-foreground transition-colors hover:text-foreground"
                 aria-label="LinkedIn profile"
               >
-                <Linkedin className="size-4" />
+                <Link2 className="size-4" />
               </a>
             </div>
 

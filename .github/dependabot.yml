@@ -1,0 +1,23 @@
+version: 2
+updates:
+  - package-ecosystem: "npm"
+    directory: "/jaysqvl"
+    schedule:
+      interval: "daily"
+      time: "08:00"
+      timezone: "Etc/UTC"
+    open-pull-requests-limit: 20
+    versioning-strategy: "increase"
+    labels:
+      - "dependencies"
+      - "security"
+
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "daily"
+      time: "08:00"
+      timezone: "Etc/UTC"
+    labels:
+      - "dependencies"
+      - "security"

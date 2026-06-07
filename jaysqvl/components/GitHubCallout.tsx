@@ -1,23 +1,10 @@
 'use client';
 
-import { useState, useEffect } from 'react';
-import { Github, ExternalLink, Code, Star } from 'lucide-react';
+import { GitBranch, ExternalLink, Code, Star } from 'lucide-react';
 import Link from 'next/link';
 import { Badge } from '@/components/ui/badge';
 
 export default function GitHubCallout() {
-  const [isMounted, setIsMounted] = useState(false);
-  
-  // Only render on client side
-  useEffect(() => {
-    setIsMounted(true);
-  }, []);
-  
-  // Don't render anything during SSR to avoid hydration errors
-  if (!isMounted) {
-    return null;
-  }
-  
   return (
     <div className="bg-card border rounded-lg overflow-hidden shadow-sm hover:shadow-md transition-shadow">
       <div className="p-6 space-y-4">
@@ -31,7 +18,7 @@ export default function GitHubCallout() {
               className="text-muted-foreground hover:text-primary transition-colors"
               aria-label="GitHub profile"
             >
-              <Github className="h-5 w-5" />
+              <GitBranch className="h-5 w-5" />
             </a>
           </div>
         </div>
@@ -65,4 +52,4 @@ export default function GitHubCallout() {
       </div>
     </div>
   );
-} 
+}

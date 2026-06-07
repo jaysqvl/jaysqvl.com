@@ -1,4 +1,4 @@
-import { ArrowUpRight, Code2, Github } from 'lucide-react';
+import { ArrowUpRight, Code2, GitBranch } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 
@@ -93,7 +93,7 @@ export default function Projects() {
           </div>
           <Button asChild variant="outline" className="w-fit gap-2">
             <a href="https://github.com/jaysqvl?tab=repositories" target="_blank" rel="noopener noreferrer">
-              <Github className="size-4" />
+              <GitBranch className="size-4" />
               More on GitHub
             </a>
           </Button>
@@ -126,7 +126,7 @@ export default function Projects() {
                     rel="noopener noreferrer"
                     className="inline-flex items-center gap-2 rounded-md border border-border px-3 py-2 text-sm transition-colors hover:bg-muted"
                   >
-                    <Github className="size-4" />
+                    <GitBranch className="size-4" />
                     Code
                   </a>
                   {project.demo && (

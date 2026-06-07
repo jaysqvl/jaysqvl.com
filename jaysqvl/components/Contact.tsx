@@ -1,4 +1,4 @@
-import { FileText, Github, Linkedin, Mail, Send } from 'lucide-react';
+import { FileText, GitBranch, Link2, Mail, Send } from 'lucide-react';
 
 const links = [
   {
@@ -9,12 +9,12 @@ const links = [
   {
     label: 'GitHub',
     href: 'https://github.com/jaysqvl',
-    icon: Github,
+    icon: GitBranch,
   },
   {
     label: 'LinkedIn',
     href: 'https://linkedin.com/in/jaysqvl/',
-    icon: Linkedin,
+    icon: Link2,
   },
   {
     label: 'Resume PDF',
