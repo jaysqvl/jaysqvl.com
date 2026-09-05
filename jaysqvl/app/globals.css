@@ -138,10 +138,6 @@
     min-height: 100vh;
     font-family: var(--font-body);
     letter-spacing: 0;
-    background-image:
-      linear-gradient(hsl(var(--border) / 0.16) 1px, transparent 1px),
-      linear-gradient(90deg, hsl(var(--border) / 0.12) 1px, transparent 1px);
-    background-size: 44px 44px;
   }
 
   h1,
@@ -222,19 +218,6 @@
       linear-gradient(145deg, hsl(var(--card) / 0.98), hsl(var(--muted) / 0.22)),
       hsl(var(--card));
     box-shadow: 0 24px 80px hsl(0 0% 0% / 0.18);
-  }
-
-  .ambient-grid {
-    position: absolute;
-    inset: 0;
-    background:
-      radial-gradient(circle at 18% 24%, hsl(var(--pastel-lavender) / 0.18), transparent 28%),
-      radial-gradient(circle at 82% 12%, hsl(var(--pastel-mint) / 0.16), transparent 26%),
-      linear-gradient(hsl(var(--border) / 0.22) 1px, transparent 1px),
-      linear-gradient(90deg, hsl(var(--border) / 0.18) 1px, transparent 1px);
-    background-size: auto, auto, 54px 54px, 54px 54px;
-    mask-image: linear-gradient(to bottom, black, black 72%, transparent);
-    pointer-events: none;
   }
 
   .lab-diagram {
@@ -403,6 +386,7 @@
 
   .lab-terminal__history {
     display: grid;
+    grid-template-columns: minmax(0, 1fr);
     min-height: 7.8rem;
     align-content: end;
     gap: 0.55rem;

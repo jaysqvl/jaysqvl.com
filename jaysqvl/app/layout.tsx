@@ -7,8 +7,8 @@ import { Analytics } from '@vercel/analytics/react';
 import { SpeedInsights } from "@vercel/speed-insights/next"
 
 export const metadata: Metadata = {
-  title: "Jay Esquivel Jr. | Software Engineer",
-  description: "Jay Esquivel Jr. is a software engineer in Vancouver working on networking and online backend systems, with open-source software and tools on the side.",
+  title: "Jay Esquivel Jr. | Online Engineer",
+  description: "Jay Esquivel Jr. is an Online Engineer at 2K working on backend and client, and builds open-source software and tools in his spare time.",
   icons: {
     icon: [
       {

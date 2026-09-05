@@ -17,12 +17,12 @@ interface ExperienceItem {
 
 const experiences: ExperienceItem[] = [
   {
-    role: 'Software Engineer',
+    role: 'Online Engineer',
     company: '2K',
     location: 'Vancouver, BC',
     period: 'Present',
     summary:
-      'I work on networking and online backend systems.',
+      'I work on backend systems and their integration with the client.',
     outcomes: [],
     technologies: [],
     link: 'https://www.2k.com',

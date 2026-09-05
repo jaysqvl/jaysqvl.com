@@ -8,6 +8,7 @@ import {
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import LabTerminal from '@/components/LabTerminal';
+import HeroBackground from '@/components/HeroBackground';
 
 const signals = [
   'Networking',
@@ -19,9 +20,9 @@ const signals = [
 export default function Hero() {
   return (
     <section className="relative min-h-[92svh] w-full overflow-hidden border-b border-border">
-      <div className="ambient-grid" aria-hidden="true" />
+      <HeroBackground />
 
-      <div className="section-shell relative z-10 grid min-h-[92svh] items-center gap-10 pt-28 pb-12 lg:grid-cols-[1.04fr_0.96fr] lg:pt-24">
+      <div className="section-shell relative z-10 grid min-h-[92svh] grid-cols-1 items-center gap-10 pt-28 pb-12 lg:grid-cols-[1.04fr_0.96fr] lg:pt-24">
         <div className="max-w-3xl">
           <div className="mb-8 flex flex-wrap items-center gap-3">
             <span className="inline-flex items-center gap-2 rounded-full border border-border bg-card px-3 py-1.5 font-mono text-xs uppercase tracking-[0.2em] text-muted-foreground">
@@ -29,7 +30,7 @@ export default function Hero() {
               Jay Esquivel Jr.
             </span>
             <span className="font-mono text-xs uppercase tracking-[0.2em] text-muted-foreground">
-              Software Engineer / Vancouver, BC
+              Online Engineer / Vancouver, BC
             </span>
           </div>
 
@@ -38,7 +39,7 @@ export default function Hero() {
           </h1>
 
           <p className="mt-7 max-w-2xl text-pretty text-lg leading-8 text-muted-foreground sm:text-xl">
-            I work on networking and online backend systems at 2K. In my spare time,
+            I’m an Online Engineer at 2K working on backend and client. In my spare time,
             I build open-source software and tools.
           </p>
 
@@ -92,7 +93,7 @@ export default function Hero() {
                     <span className="relative grid size-7 shrink-0 place-items-center overflow-hidden rounded-md border border-border bg-black">
                       <Image src="/2k-logo.png" alt="2K logo" fill sizes="28px" className="object-contain p-0.5" />
                     </span>
-                    <p className="text-lg font-semibold">Software Engineer @ 2K</p>
+                    <p className="text-lg font-semibold">Online Engineer @ 2K</p>
                   </div>
                 </div>
               </div>
