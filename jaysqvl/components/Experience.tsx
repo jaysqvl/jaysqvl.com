@@ -22,13 +22,9 @@ const experiences: ExperienceItem[] = [
     location: 'Vancouver, BC',
     period: 'Present',
     summary:
-      'Software engineering at 2K in Vancouver. The work details stay off the public portfolio, but the role belongs here: production software inside a real game company.',
-    outcomes: [
-      'Working in a professional game-development engineering environment.',
-      'Keeping project specifics private while still showing the current 2K chapter on the site.',
-      'Bringing systems, tooling, automation, and backend instincts into a larger software organization.',
-    ],
-    technologies: ['Software Engineering', 'Games', 'Tooling', 'Production Systems'],
+      'I work on networking and online backend systems.',
+    outcomes: [],
+    technologies: [],
     link: 'https://www.2k.com',
     logoSrc: '/2k-logo.png',
     logoFit: 'contain',
@@ -37,13 +33,13 @@ const experiences: ExperienceItem[] = [
     role: 'Software Engineer',
     company: 'OffroadExpert',
     location: 'Vancouver, BC',
-    period: 'June 2024 - before 2K',
+    period: 'From June 2024',
     summary:
-      'Built the less glamorous parts that make a business move faster: product ingestion, cron controls, API integrations, cloud migration support, and React tooling for internal workflows.',
+      'Built product import pipelines, API integrations, and internal tools for an automotive parts retailer.',
     outcomes: [
       'Scaled in-store product listings by 300x through automated vendor ingestion from CSVs and hosted vendor files.',
-      'Dockerized a React/Tailwind control surface for cron endpoints, logs, and configuration management.',
-      'Added REST integrations and an LLM metadata layer for cleaner product display data and SEO consistency.',
+      'Built and containerized a React interface for managing scheduled jobs, logs, and configuration.',
+      'Integrated vendor APIs and used an LLM to standardize product metadata.',
       'Supported a private-cloud migration that reduced operating expense by roughly 50%.',
     ],
     technologies: ['Python', 'TypeScript', 'React', 'Docker', 'Bash', 'GCP'],
@@ -56,7 +52,7 @@ const experiences: ExperienceItem[] = [
     location: 'Vancouver, BC / Remote',
     period: 'Sept 2020 - Present',
     summary:
-      'Small-business software and technical support across AI integrations, cloud/web apps, networking, virtualization, security, and teaching systems.',
+      'Develop software and provide technical support for small businesses, alongside course development and tutoring.',
     outcomes: [
       'Built REST APIs, full-stack apps, AI integrations, and operational tools for varied client needs.',
       'Audited, debugged, and tested course content used by 3000+ students across private and public learning platforms.',
@@ -71,18 +67,7 @@ export default function Experience() {
   return (
     <section id="experience" className="section-band bg-muted/24">
       <div className="section-shell">
-        <div className="section-kicker">
-          <BriefcaseBusiness className="size-4" />
-          operating history
-        </div>
-
-        <div className="mb-10 grid gap-5">
-          <h2 className="experience-title">Resume work, written like systems work.</h2>
-          <p className="max-w-4xl leading-7 text-muted-foreground">
-            The thread through the work is practical engineering: take messy inputs, build a repeatable path, give people
-            a usable surface, and leave the system easier to run than it was found.
-          </p>
-        </div>
+        <h2 className="section-title mb-10">Experience</h2>
 
         <div className="grid gap-4">
           {experiences.map((experience) => (
@@ -123,21 +108,25 @@ export default function Experience() {
 
                 <div>
                   <p className="text-pretty leading-7 text-muted-foreground">{experience.summary}</p>
-                  <ul className="mt-5 grid gap-3">
-                    {experience.outcomes.map((outcome) => (
-                      <li key={outcome} className="flex gap-3 leading-7 text-muted-foreground">
-                        <span className="mt-3 size-1.5 shrink-0 rounded-full bg-foreground" />
-                        <span>{outcome}</span>
-                      </li>
-                    ))}
-                  </ul>
-                  <div className="mt-5 flex flex-wrap gap-2">
-                    {experience.technologies.map((tech) => (
-                      <Badge key={tech} variant="outline" className="badge-soft">
-                        {tech}
-                      </Badge>
-                    ))}
-                  </div>
+                  {experience.outcomes.length > 0 && (
+                    <ul className="mt-5 grid gap-3">
+                      {experience.outcomes.map((outcome) => (
+                        <li key={outcome} className="flex gap-3 leading-7 text-muted-foreground">
+                          <span className="mt-3 size-1.5 shrink-0 rounded-full bg-foreground" aria-hidden="true" />
+                          <span>{outcome}</span>
+                        </li>
+                      ))}
+                    </ul>
+                  )}
+                  {experience.technologies.length > 0 && (
+                    <div className="mt-5 flex flex-wrap gap-2">
+                      {experience.technologies.map((tech) => (
+                        <Badge key={tech} variant="outline" className="badge-soft">
+                          {tech}
+                        </Badge>
+                      ))}
+                    </div>
+                  )}
                 </div>
               </div>
             </article>

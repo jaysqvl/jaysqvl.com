@@ -1,4 +1,4 @@
-import { ArrowUpRight, Code2, GitBranch } from 'lucide-react';
+import { ArrowUpRight, GitBranch } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 
@@ -13,8 +13,24 @@ interface ProjectItem {
 
 const projects: ProjectItem[] = [
   {
+    title: 'Buntzen Pass Bot',
+    type: 'Browser automation',
+    description:
+      'I built this to help my family reserve Buntzen Lake park passes when bookings open. It automates the reservation process in a browser.',
+    technologies: ['Go', 'Browser automation', 'Docker'],
+    github: 'https://github.com/jaysqvl/buntzen-pass-bot',
+  },
+  {
+    title: 'Wi-Fi QR Generator',
+    type: 'Homelab utility',
+    description:
+      'A command-line tool that creates Wi-Fi QR codes so guests can join a network without typing the password. Exports PNG and SVG files.',
+    technologies: ['Shell', 'qrencode', 'PNG/SVG', 'CLI'],
+    github: 'https://github.com/jaysqvl/wifi-qrcode-generator',
+  },
+  {
     title: 'ExpensAI',
-    type: 'Android + AI finance tool',
+    type: 'Android app',
     description:
       'Expense tracking app with receipt scanning, Firebase-backed sync, OpenAI Vision classification, and cloud functions for image/text processing.',
     technologies: ['Kotlin', 'Firebase', 'GCP', 'OpenAI Vision'],
@@ -29,26 +45,10 @@ const projects: ProjectItem[] = [
     github: 'https://github.com/jaysqvl/impersonator',
   },
   {
-    title: 'Buntzen Pass Bot',
-    type: 'Practical automation',
-    description:
-      'A Selenium/NTP automation project for reserving park passes at the exact release window, built from a real family problem.',
-    technologies: ['Python', 'Selenium', 'NTP', 'Automation'],
-    github: 'https://github.com/jaysqvl/buntzen-pass-bot',
-  },
-  {
-    title: 'Wi-Fi QR Generator',
-    type: 'Homelab utility',
-    description:
-      'Interactive shell utility for generating Wi-Fi QR codes across WPA/WEP/open networks with validation and multiple output formats.',
-    technologies: ['Shell', 'qrencode', 'PNG/SVG', 'CLI'],
-    github: 'https://github.com/jaysqvl/wifi-qrcode-generator',
-  },
-  {
     title: 'SnapScreen.ai',
     type: 'Resume screening platform',
     description:
-      'Open-source platform prototype for student hiring workflows with authentication, dashboard UI, and planned service-backed document handling.',
+      'A prototype for student hiring, with authentication and a résumé review dashboard. Still in development.',
     technologies: ['Java', 'Spring', 'Firebase', 'Postgres'],
     github: 'https://github.com/jaysqvl/snapscreen.ai',
   },
@@ -62,9 +62,9 @@ const projects: ProjectItem[] = [
   },
   {
     title: 'Jaysqvl.com',
-    type: 'Portfolio system',
+    type: 'Personal website',
     description:
-      'This site: a rollback-safe Next.js portfolio on Vercel, now redesigned around work, projects, and homelab texture.',
+      'The source for this website, built with Next.js and hosted on Vercel.',
     technologies: ['Next.js', 'TypeScript', 'Tailwind', 'Vercel'],
     github: 'https://github.com/jaysqvl/jaysqvl.com',
     demo: 'https://jaysqvl.com',
@@ -73,7 +73,7 @@ const projects: ProjectItem[] = [
     title: 'Cardiolo',
     type: 'Mobile activity tracking',
     description:
-      'Cardio tracking app with automatic activity classification, Google Maps route views, and asynchronous Android UI flows.',
+      'An Android app that records exercise routes and classifies activities.',
     technologies: ['Kotlin', 'Weka', 'Google Maps', 'Android'],
     github: 'https://github.com/jaysqvl/Cardiolo',
   },
@@ -85,11 +85,10 @@ export default function Projects() {
       <div className="section-shell">
         <div className="mb-10 flex flex-col gap-5 sm:flex-row sm:items-end sm:justify-between">
           <div>
-            <div className="section-kicker">
-              <Code2 className="size-4" />
-              selected work
-            </div>
-            <h2 className="section-title">Projects that feel like tools, not thumbnails.</h2>
+            <h2 className="section-title">Projects</h2>
+            <p className="mt-5 max-w-2xl leading-7 text-muted-foreground">
+              Some of the software and tools I work on in my spare time.
+            </p>
           </div>
           <Button asChild variant="outline" className="w-fit gap-2">
             <a href="https://github.com/jaysqvl?tab=repositories" target="_blank" rel="noopener noreferrer">
@@ -99,7 +98,7 @@ export default function Projects() {
           </Button>
         </div>
 
-        <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-4">
+        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
           {projects.map((project) => (
             <article key={project.title} className="project-card">
               <div>

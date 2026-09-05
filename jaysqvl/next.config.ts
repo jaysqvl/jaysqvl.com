@@ -18,7 +18,8 @@ const nextConfig = {
   trailingSlash: false,
   
   // Improve caching and reduce roundtrips with HTTP headers
-  headers: async () => [
+  // Let Next.js disable caching for development assets and hot updates.
+  headers: async () => process.env.NODE_ENV === 'development' ? [] : [
     {
       source: '/(.*)',
       headers: [

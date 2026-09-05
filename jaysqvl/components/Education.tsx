@@ -24,10 +24,7 @@ export default function Education() {
   return (
     <section id="education" className="section-band bg-muted/24">
       <div className="section-shell">
-        <div className="section-kicker">
-          <GraduationCap className="size-4" />
-          education
-        </div>
+        <h2 className="section-title mb-10">Education</h2>
 
         <div className="grid gap-4 lg:grid-cols-2">
           {education.map((item) => (
@@ -42,7 +39,7 @@ export default function Education() {
                 </div>
                 <div>
                   <p className="font-mono text-xs uppercase tracking-[0.18em] text-muted-foreground">{item.period}</p>
-                  <h2 className="mt-2 text-2xl font-semibold">{item.institution}</h2>
+                  <h3 className="mt-2 text-2xl font-semibold">{item.institution}</h3>
                   <p className="mt-1 text-muted-foreground">{item.degree}</p>
                   <p className="mt-4 leading-7 text-muted-foreground">{item.focus}</p>
                   <p className="mt-5 inline-flex items-center gap-2 font-mono text-xs uppercase tracking-[0.16em] text-muted-foreground">

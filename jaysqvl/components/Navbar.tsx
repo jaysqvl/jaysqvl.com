@@ -1,14 +1,15 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, type MouseEvent } from 'react';
 import { Menu, X } from 'lucide-react';
+import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { ThemeToggle } from '@/components/theme-toggle';
 
 const navItems = [
-  { name: 'Lab', href: '#lab' },
-  { name: 'Work', href: '#experience' },
   { name: 'Projects', href: '#projects' },
+  { name: 'Homelab', href: '#lab' },
+  { name: 'Experience', href: '#experience' },
   { name: 'Resume', href: '/resume.pdf', external: true },
   { name: 'Contact', href: '#contact' },
 ];
@@ -26,7 +27,8 @@ export default function Navbar() {
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
-  const handleInternalNav = (href: string) => {
+  const handleInternalNav = (event: MouseEvent<HTMLAnchorElement>, href: string) => {
+    if (event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
     setMobileMenuOpen(false);
     const element = document.querySelector(href);
 
@@ -34,9 +36,10 @@ export default function Navbar() {
       return;
     }
 
+    event.preventDefault();
     window.scrollTo({
       top: element.getBoundingClientRect().top + window.scrollY - 80,
-      behavior: 'smooth',
+      behavior: window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'instant' : 'smooth',
     });
   };
 
@@ -49,11 +52,10 @@ export default function Navbar() {
       }`}
     >
       <div className="section-shell flex h-16 items-center justify-between">
-        <button
-          type="button"
+        <Link
+          href="/"
           className="group flex items-center gap-3 text-left"
-          onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
-          aria-label="Scroll to top"
+          aria-label="Jay Esquivel Jr., home"
         >
           <span className="grid size-8 place-items-center rounded-md border border-border bg-card text-xs font-semibold tracking-[0.18em] text-foreground">
             JQ
@@ -61,10 +63,10 @@ export default function Navbar() {
           <span className="hidden leading-none sm:block">
             <span className="block text-sm font-semibold tracking-[0.18em]">JAYSQVL</span>
             <span className="block pt-1 font-mono text-[10px] uppercase tracking-[0.22em] text-muted-foreground">
-              portfolio / lab
+              Vancouver, BC
             </span>
           </span>
-        </button>
+        </Link>
 
         <div className="hidden items-center gap-2 md:flex">
           <nav className="flex items-center gap-1" aria-label="Primary navigation">
@@ -80,14 +82,14 @@ export default function Navbar() {
                   {item.name}
                 </a>
               ) : (
-                <button
+                <Link
                   key={item.name}
-                  type="button"
-                  onClick={() => handleInternalNav(item.href)}
+                  href={`/${item.href}`}
+                  onClick={(event) => handleInternalNav(event, item.href)}
                   className="rounded-md px-3 py-2 text-sm text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
                 >
                   {item.name}
-                </button>
+                </Link>
               )
             )}
           </nav>
@@ -100,7 +102,9 @@ export default function Navbar() {
             variant="ghost"
             size="icon"
             onClick={() => setMobileMenuOpen((open) => !open)}
-            aria-label="Toggle menu"
+            aria-label={mobileMenuOpen ? 'Close menu' : 'Open menu'}
+            aria-expanded={mobileMenuOpen}
+            aria-controls="mobile-navigation"
           >
             {mobileMenuOpen ? <X className="size-5" /> : <Menu className="size-5" />}
           </Button>
@@ -109,7 +113,7 @@ export default function Navbar() {
 
       {mobileMenuOpen && (
         <div className="border-t border-border bg-background/96 backdrop-blur-xl md:hidden">
-          <nav className="section-shell grid gap-2 py-4" aria-label="Mobile navigation">
+          <nav id="mobile-navigation" className="section-shell grid gap-2 py-4" aria-label="Mobile navigation">
             {navItems.map((item) =>
               item.external ? (
                 <a
@@ -123,14 +127,14 @@ export default function Navbar() {
                   {item.name}
                 </a>
               ) : (
-                <button
+                <Link
                   key={item.name}
-                  type="button"
-                  onClick={() => handleInternalNav(item.href)}
+                  href={`/${item.href}`}
+                  onClick={(event) => handleInternalNav(event, item.href)}
                   className="rounded-md px-3 py-3 text-left text-base text-foreground"
                 >
                   {item.name}
-                </button>
+                </Link>
               )
             )}
           </nav>

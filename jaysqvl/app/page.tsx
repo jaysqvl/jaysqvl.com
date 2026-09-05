@@ -9,10 +9,10 @@ export default function Home() {
   return (
     <main className="min-h-screen overflow-hidden">
       <Hero />
+      <Projects />
       <AboutMe />
       <Experience />
       <Education />
-      <Projects />
       <Contact />
     </main>
   );

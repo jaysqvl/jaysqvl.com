@@ -1,598 +1,232 @@
 'use client';
 
-import { useEffect, useMemo, useState, type CSSProperties } from 'react';
+import { useMemo, useState } from 'react';
 import {
-  Background,
-  BackgroundVariant,
-  Controls,
-  Handle,
-  MarkerType,
-  Position,
-  ReactFlow,
-  ReactFlowProvider,
-  useReactFlow,
-  type Edge,
-  type Node,
-  type NodeProps,
+  Controls, Handle, Position, ReactFlow, ReactFlowProvider,
+  type Edge, type Node, type NodeProps,
 } from '@xyflow/react';
-import {
-  Activity,
-  Bell,
-  Boxes,
-  BrainCircuit,
-  Camera,
-  CircleDot,
-  Cloud,
-  Cpu,
-  Database,
-  Filter,
-  Globe2,
-  HardDrive,
-  Home,
-  Image,
-  KeyRound,
-  PanelTop,
-  Route,
-  Server,
-  ShieldCheck,
-  TerminalSquare,
-  Wifi,
-  Wrench,
-  type LucideIcon,
-} from 'lucide-react';
-import { Badge } from '@/components/ui/badge';
-import topologyData from '@/data/homelab-topology.json';
+import { Cloud, Cpu, Globe2, Server, ShieldCheck, Wifi, type LucideIcon } from 'lucide-react';
+import topology from '@/data/homelab-topology.json';
+import styles from './HomelabMap.module.css';
 
-type GraphVariant = 'desktop' | 'compact';
-type LabTone = 'mint' | 'blue' | 'lavender' | 'amber';
-type LinkDirection = 'both' | 'forward' | 'none';
-type FlowSide = 'top' | 'right' | 'bottom' | 'left';
-type EdgeKind = 'smoothstep' | 'straight';
-type NodeKind = 'plain' | 'edge' | 'hub' | 'serviceGroup';
+type LabNode = (typeof topology.nodes)[number];
+type Selection = { activeId: string; onSelect: (id: string) => void };
+type DeviceData = Selection & { nodeId: string } & Record<string, unknown>;
+type DeviceNode = Node<DeviceData, 'device'>;
 
-interface NodeLayout {
-  x: number;
-  y: number;
-  width: number;
-}
-
-interface LinkLayout {
-  points?: number[][];
-  labelX?: number;
-  labelY?: number;
-}
-
-interface LabNode {
-  id: string;
-  label: string;
-  role: string;
-  detail: string;
-  tags: string[];
-  tone: LabTone;
-  icon: string;
-  layout: Record<GraphVariant, NodeLayout>;
-}
-
-interface LabLink {
-  id: string;
-  source: string;
-  target: string;
-  label: string;
-  direction: LinkDirection;
-  tone: LabTone;
-  layout?: Record<GraphVariant, LinkLayout>;
-}
-
-interface LabTopology {
-  version: number;
-  title: string;
-  nodes: LabNode[];
-  links: LabLink[];
-}
-
-interface LabNodeData extends Record<string, unknown> {
-  labNode: LabNode;
-  items: LabNode[];
-  active: boolean;
-  connected: boolean;
-  kind: NodeKind;
-  activeId: string;
-  onSelect: (nodeId: string) => void;
-}
-
-type LabFlowNode = Node<LabNodeData, 'labNode'>;
-type LabFlowEdge = Edge<{ tone: LabTone } & Record<string, unknown>>;
-
-const topology = topologyData as unknown as LabTopology;
-const nodesById = new Map(topology.nodes.map((node) => [node.id, node]));
-
-const sidePosition: Record<FlowSide, Position> = {
-  top: Position.Top,
-  right: Position.Right,
-  bottom: Position.Bottom,
-  left: Position.Left,
+const byId = new Map(topology.nodes.map((node) => [node.id, node]));
+const routerServices = ['crowdsec', 'adguard', 'unbound', 'tailscale'];
+const dockerServices = ['npm', 'cloudflared', 'personal-cloud', 'ai-sandbox', 'ops-dashboards', 'automation', 'camera-smart', 'utility-tools'];
+const vmServices = ['unifi-os', 'home-assistant', 'lab-vms'];
+const serverContents = ['docker-services', ...dockerServices, 'vm-services', ...vmServices, 'storage'];
+const owners = new Map<string, string>([
+  ...routerServices.map((id) => [id, 'opnsense'] as const),
+  ...serverContents.map((id) => [id, 'home-server'] as const),
+  ['pi-services', 'raspberry-pi'],
+]);
+const icons: Record<string, LucideIcon> = {
+  wan: Globe2, cloudflare: Cloud, opnsense: ShieldCheck,
+  'unifi-hardware': Wifi, 'home-server': Server, 'raspberry-pi': Cpu,
 };
 
-const flowHandles: Array<{ side: FlowSide; id: string; style?: CSSProperties }> = [
-  { side: 'top', id: 'top' },
-  { side: 'top', id: 'top-left', style: { left: '34%' } },
-  { side: 'top', id: 'top-right', style: { left: '66%' } },
-  { side: 'right', id: 'right' },
-  { side: 'right', id: 'right-top', style: { top: '32%' } },
-  { side: 'right', id: 'right-bottom', style: { top: '68%' } },
-  { side: 'bottom', id: 'bottom' },
-  { side: 'bottom', id: 'bottom-left', style: { left: '34%' } },
-  { side: 'bottom', id: 'bottom-right', style: { left: '66%' } },
-  { side: 'left', id: 'left' },
-  { side: 'left', id: 'left-top', style: { top: '32%' } },
-  { side: 'left', id: 'left-bottom', style: { top: '68%' } },
+// Workloads are contained inside their hosts; lines represent network connections.
+const layout = [
+  { id: 'cloudflare', x: 16, y: 126, width: 168 },
+  { id: 'wan', x: 16, y: 282, width: 168 },
+  { id: 'opnsense', x: 230, y: 210, width: 222 },
+  { id: 'unifi-hardware', x: 230, y: 570, width: 222 },
+  { id: 'home-server', x: 534, y: 40, width: 560 },
+  { id: 'raspberry-pi', x: 534, y: 550, width: 560 },
+];
+const connections: Edge[] = [
+  { id: 'wan-router', source: 'wan', target: 'opnsense', sourceHandle: 'right', targetHandle: 'left', type: 'straight' },
+  { id: 'router-server', source: 'opnsense', target: 'home-server', sourceHandle: 'right', targetHandle: 'network', type: 'straight' },
+  { id: 'router-wifi', source: 'opnsense', target: 'unifi-hardware', sourceHandle: 'bottom', targetHandle: 'top', type: 'straight' },
+  { id: 'router-pi', source: 'opnsense', target: 'raspberry-pi', sourceHandle: 'branch', targetHandle: 'left', type: 'smoothstep' },
+  { id: 'tunnel', source: 'cloudflare', target: 'home-server', sourceHandle: 'right', targetHandle: 'tunnel', type: 'straight' },
 ];
 
-const iconMap: Record<string, LucideIcon> = {
-  activity: Activity,
-  bell: Bell,
-  boxes: Boxes,
-  brain: BrainCircuit,
-  camera: Camera,
-  cloud: Cloud,
-  cpu: Cpu,
-  database: Database,
-  filter: Filter,
-  globe: Globe2,
-  'hard-drive': HardDrive,
-  home: Home,
-  image: Image,
-  key: KeyRound,
-  panel: PanelTop,
-  route: Route,
-  server: Server,
-  shield: ShieldCheck,
-  terminal: TerminalSquare,
-  wifi: Wifi,
-  wrench: Wrench,
-};
+function getNode(id: string): LabNode {
+  const node = byId.get(id);
+  if (!node) throw new Error('Unknown homelab node: ' + id);
+  return node;
+}
 
-const embeddedNodeIds: Record<string, string[]> = {
-  opnsense: ['crowdsec', 'adguard', 'unbound', 'tailscale'],
-  'docker-services': [
-    'npm',
-    'cloudflared',
-    'personal-cloud',
-    'ai-sandbox',
-    'ops-dashboards',
-    'automation',
-    'camera-smart',
-    'utility-tools',
-  ],
-  'vm-services': ['unifi-os', 'home-assistant', 'lab-vms'],
-  'raspberry-pi': ['pi-services'],
-};
-
-const visibleNodeIds = [
-  'wan',
-  'cloudflare',
-  'opnsense',
-  'unifi-hardware',
-  'home-server',
-  'raspberry-pi',
-  'storage',
-  'docker-services',
-  'vm-services',
-];
-
-const graphLinks: LabLink[] = [
-  { id: 'wan-opnsense', source: 'wan', target: 'opnsense', label: 'edge flow', direction: 'both', tone: 'amber' },
-  { id: 'cloudflare-docker', source: 'cloudflare', target: 'docker-services', label: 'tunnel', direction: 'both', tone: 'blue' },
-  { id: 'opnsense-docker', source: 'opnsense', target: 'docker-services', label: 'proxy ingress', direction: 'both', tone: 'mint' },
-  { id: 'opnsense-server', source: 'opnsense', target: 'home-server', label: 'server lan', direction: 'both', tone: 'lavender' },
-  { id: 'opnsense-unifi', source: 'opnsense', target: 'unifi-hardware', label: 'lan / vlans', direction: 'both', tone: 'blue' },
-  { id: 'opnsense-pi', source: 'opnsense', target: 'raspberry-pi', label: 'isolated lan', direction: 'both', tone: 'amber' },
-  { id: 'server-docker', source: 'home-server', target: 'docker-services', label: 'containers', direction: 'both', tone: 'mint' },
-  { id: 'server-vms', source: 'home-server', target: 'vm-services', label: 'virtualize', direction: 'both', tone: 'blue' },
-  { id: 'server-storage', source: 'home-server', target: 'storage', label: 'storage base', direction: 'both', tone: 'amber' },
-];
-
-const edgeRouteOverrides: Record<string, { type?: EdgeKind; sourceHandle?: string; targetHandle?: string }> = {
-  'wan-opnsense': { type: 'straight', sourceHandle: 'source-right', targetHandle: 'target-left' },
-  'opnsense-server': { type: 'straight', sourceHandle: 'source-right', targetHandle: 'target-left' },
-  'opnsense-unifi': { type: 'straight', sourceHandle: 'source-bottom', targetHandle: 'target-top' },
-  'opnsense-pi': { sourceHandle: 'source-bottom-right', targetHandle: 'target-left' },
-  'opnsense-docker': { sourceHandle: 'source-right-top', targetHandle: 'target-left' },
-  'server-docker': { sourceHandle: 'source-right-top', targetHandle: 'target-left-bottom' },
-  'server-vms': { sourceHandle: 'source-right-bottom', targetHandle: 'target-left' },
-  'server-storage': { type: 'straight', sourceHandle: 'source-bottom', targetHandle: 'target-top' },
-};
-
-const ownerByNodeId = new Map<string, string>();
-
-Object.entries(embeddedNodeIds).forEach(([ownerId, itemIds]) => {
-  itemIds.forEach((itemId) => ownerByNodeId.set(itemId, ownerId));
-});
-
-visibleNodeIds.forEach((nodeId) => ownerByNodeId.set(nodeId, nodeId));
-
-const architectureLayout: Record<GraphVariant, Record<string, { x: number; y: number; width: number }>> = {
-  desktop: {
-    wan: { x: 24, y: 262, width: 160 },
-    cloudflare: { x: 214, y: 76, width: 180 },
-    opnsense: { x: 214, y: 218, width: 246 },
-    'unifi-hardware': { x: 242, y: 492, width: 190 },
-    'home-server': { x: 510, y: 246, width: 220 },
-    storage: { x: 520, y: 486, width: 190 },
-    'raspberry-pi': { x: 520, y: 628, width: 224 },
-    'docker-services': { x: 792, y: 72, width: 330 },
-    'vm-services': { x: 792, y: 430, width: 330 },
-  },
-  compact: {
-    wan: { x: 145, y: 24, width: 170 },
-    cloudflare: { x: 145, y: 126, width: 170 },
-    opnsense: { x: 96, y: 255, width: 268 },
-    'unifi-hardware': { x: 145, y: 510, width: 182 },
-    'home-server': { x: 120, y: 632, width: 220 },
-    'raspberry-pi': { x: 118, y: 760, width: 224 },
-    'docker-services': { x: 42, y: 920, width: 376 },
-    storage: { x: 120, y: 1235, width: 220 },
-    'vm-services': { x: 42, y: 1380, width: 376 },
-  },
-};
-
-const nodeTypes = {
-  labNode: LabNodeCard,
-};
-
-function LabNodeCard({ data }: NodeProps<LabFlowNode>) {
-  const Icon = iconMap[data.labNode.icon] || CircleDot;
-
+function SelectNode({ id, activeId, onSelect, heading = false, icon = false }: Selection & {
+  id: string; heading?: boolean; icon?: boolean;
+}) {
+  const node = getNode(id);
+  const Icon = icons[id];
+  const selected = activeId === id;
   return (
-    <div
-      className={`homelab-flow-node homelab-flow-node--${data.labNode.tone} homelab-flow-node--${data.kind} ${
-        data.active ? 'homelab-flow-node--active' : ''
-      } ${data.connected ? 'homelab-flow-node--connected' : ''}`}
-    >
-      <GraphHandles />
-      <div className="homelab-flow-node__head">
-        <span className="homelab-flow-node__icon">
-          <Icon className="size-4" aria-hidden="true" />
+    <div className={styles.selection}>
+      <button
+        type="button"
+        className={[styles.select, heading ? styles.heading : styles.item, 'nodrag nopan'].join(' ')}
+        aria-pressed={selected}
+        onClick={(event) => {
+          event.stopPropagation();
+          onSelect(id);
+        }}
+      >
+        {icon && Icon && <Icon size={20} strokeWidth={1.5} aria-hidden="true" />}
+        <span>
+          {heading && icon && <span className={styles.role}>{node.role}</span>}
+          <span>{id === 'wan' ? 'Internet' : node.label}</span>
         </span>
-        <span className="min-w-0">
-          <span className="homelab-flow-node__role">{data.labNode.role}</span>
-          <span className="homelab-flow-node__label">{data.labNode.label}</span>
-        </span>
-      </div>
+        <span className={styles.selectionMark} aria-hidden="true">{selected ? '•' : '›'}</span>
+      </button>
+      {selected && <p className={styles.inlineDetail}>{node.detail}</p>}
+    </div>
+  );
+}
 
-      {data.items.length > 0 && (
-        <div className="homelab-flow-node__items">
-          {data.items.map((item) => (
-            <button
-              key={item.id}
-              type="button"
-              className={`homelab-flow-node__chip nodrag nopan ${data.activeId === item.id ? 'homelab-flow-node__chip--active' : ''}`}
-              onClick={(event) => {
-                event.stopPropagation();
-                data.onSelect(item.id);
-              }}
-              onPointerDown={(event) => event.stopPropagation()}
-              onMouseEnter={() => data.onSelect(item.id)}
-            >
-              {item.label}
-            </button>
-          ))}
-        </div>
+function ServiceList({ ids, columns = false, ...selection }: Selection & { ids: string[]; columns?: boolean }) {
+  return (
+    <ul className={[styles.services, columns ? styles.twoColumns : ''].join(' ')}>
+      {ids.map((id) => <li key={id}><SelectNode id={id} {...selection} /></li>)}
+    </ul>
+  );
+}
+
+function Device({ nodeId, ...selection }: DeviceData) {
+  const owner = owners.get(selection.activeId) || selection.activeId;
+  return (
+    <div className={[styles.device, owner === nodeId ? styles.related : ''].join(' ')}>
+      <SelectNode id={nodeId} heading icon {...selection} />
+      {nodeId === 'opnsense' && (
+        <div className={styles.routerServices}><ServiceList ids={routerServices} {...selection} /></div>
+      )}
+      {nodeId === 'home-server' && (
+        <>
+          <div className={styles.workloads}>
+            <SelectNode id="docker-services" heading {...selection} />
+            <ServiceList ids={dockerServices} columns {...selection} />
+          </div>
+          <div className={styles.serverBase}>
+            <div className={styles.workloads}>
+              <SelectNode id="vm-services" heading {...selection} />
+              <ServiceList ids={vmServices} {...selection} />
+            </div>
+            <div className={styles.storage}>
+              <SelectNode id="storage" heading {...selection} />
+              <p>Files, photo libraries,<br />and backups.</p>
+            </div>
+          </div>
+        </>
+      )}
+      {nodeId === 'raspberry-pi' && (
+        <div className={styles.piServices}><ServiceList ids={['pi-services']} {...selection} /></div>
       )}
     </div>
   );
 }
 
-function GraphHandles() {
+function FlowDevice({ data }: NodeProps<DeviceNode>) {
   return (
     <>
-      {flowHandles.map((handle) => (
-        <Handle
-          key={`source-${handle.id}`}
-          id={`source-${handle.id}`}
-          type="source"
-          position={sidePosition[handle.side]}
-          className="homelab-flow__handle"
-          style={handle.style}
-        />
-      ))}
-      {flowHandles.map((handle) => (
-        <Handle
-          key={`target-${handle.id}`}
-          id={`target-${handle.id}`}
-          type="target"
-          position={sidePosition[handle.side]}
-          className="homelab-flow__handle"
-          style={handle.style}
-        />
-      ))}
+      <Handle id="left" type="target" position={Position.Left} className={styles.handle} />
+      <Handle id="top" type="target" position={Position.Top} className={styles.handle} />
+      <Handle id="right" type="source" position={Position.Right} className={styles.handle} />
+      <Handle id="bottom" type="source" position={Position.Bottom} className={styles.handle} />
+      <Handle id="branch" type="source" position={Position.Right} style={{ top: '80%' }} className={styles.handle} />
+      {data.nodeId === 'home-server' && (
+        <>
+          <Handle id="network" type="target" position={Position.Left} style={{ top: 282 }} className={styles.handle} />
+          <Handle id="tunnel" type="target" position={Position.Left} style={{ top: 126 }} className={styles.handle} />
+        </>
+      )}
+      <Device {...data} />
     </>
   );
 }
 
-function useGraphVariant() {
-  const [variant, setVariant] = useState<GraphVariant>('desktop');
+const nodeTypes = { device: FlowDevice };
 
-  useEffect(() => {
-    const query = window.matchMedia('(max-width: 767px)');
-    const syncVariant = () => setVariant(query.matches ? 'compact' : 'desktop');
-
-    syncVariant();
-    query.addEventListener('change', syncVariant);
-
-    return () => query.removeEventListener('change', syncVariant);
-  }, []);
-
-  return variant;
-}
-
-function getNodeKind(nodeId: string): NodeKind {
-  if (nodeId === 'opnsense') {
-    return 'edge';
-  }
-
-  if (nodeId === 'home-server') {
-    return 'hub';
-  }
-
-  if (nodeId === 'docker-services' || nodeId === 'vm-services' || nodeId === 'raspberry-pi') {
-    return 'serviceGroup';
-  }
-
-  return 'plain';
-}
-
-function getNodeHeight(nodeId: string) {
-  if (nodeId === 'docker-services') {
-    return 235;
-  }
-
-  if (nodeId === 'opnsense') {
-    return 178;
-  }
-
-  if (nodeId === 'vm-services') {
-    return 152;
-  }
-
-  if (nodeId === 'raspberry-pi') {
-    return 122;
-  }
-
-  return 72;
-}
-
-function getGraphOwner(nodeId: string) {
-  return ownerByNodeId.get(nodeId) || nodeId;
-}
-
-function getGraphLayout(nodeId: string, variant: GraphVariant) {
-  return architectureLayout[variant][nodeId];
-}
-
-function getGraphCenter(nodeId: string, variant: GraphVariant) {
-  const layout = getGraphLayout(nodeId, variant);
-
-  return {
-    x: layout.x + layout.width / 2,
-    y: layout.y + getNodeHeight(nodeId) / 2,
-  };
-}
-
-function getHandlePair(sourceId: string, targetId: string, variant: GraphVariant) {
-  const sourceCenter = getGraphCenter(sourceId, variant);
-  const targetCenter = getGraphCenter(targetId, variant);
-  const deltaX = targetCenter.x - sourceCenter.x;
-  const deltaY = targetCenter.y - sourceCenter.y;
-
-  if (Math.abs(deltaX) > Math.abs(deltaY)) {
-    return deltaX > 0
-      ? { sourceHandle: 'source-right', targetHandle: 'target-left' }
-      : { sourceHandle: 'source-left', targetHandle: 'target-right' };
-  }
-
-  return deltaY > 0
-    ? { sourceHandle: 'source-bottom', targetHandle: 'target-top' }
-    : { sourceHandle: 'source-top', targetHandle: 'target-bottom' };
-}
-
-function createFlowNodes(
-  variant: GraphVariant,
-  activeId: string,
-  connectedIds: Set<string>,
-  onSelect: (nodeId: string) => void
-): LabFlowNode[] {
-  const activeOwner = getGraphOwner(activeId);
-
-  return visibleNodeIds.flatMap((nodeId) => {
-    const labNode = nodesById.get(nodeId);
-    const layout = getGraphLayout(nodeId, variant);
-
-    if (!labNode || !layout) {
-      return [];
-    }
-
-    const items = (embeddedNodeIds[nodeId] || []).flatMap((itemId) => {
-      const item = nodesById.get(itemId);
-      return item ? [item] : [];
-    });
-
-    return [
-      {
-        id: nodeId,
-        type: 'labNode',
-        position: { x: layout.x, y: layout.y },
-        data: {
-          labNode,
-          items,
-          active: activeOwner === nodeId,
-          connected: connectedIds.has(nodeId),
-          kind: getNodeKind(nodeId),
-          activeId,
-          onSelect,
-        },
-        style: { width: layout.width },
-        draggable: false,
-        selectable: false,
-        deletable: false,
-      },
-    ];
-  });
-}
-
-function createFlowEdges(variant: GraphVariant, activeId: string): LabFlowEdge[] {
-  const activeOwner = getGraphOwner(activeId);
-
-  return graphLinks.map((link) => {
-    const isActive = activeOwner === link.source || activeOwner === link.target;
-    const handles = {
-      ...getHandlePair(link.source, link.target, variant),
-      ...edgeRouteOverrides[link.id],
-    };
-    const marker = {
-      type: MarkerType.ArrowClosed,
-      width: 14,
-      height: 14,
-      color: isActive ? 'hsl(var(--foreground) / 0.72)' : `hsl(var(--pastel-${link.tone}) / 0.72)`,
-    };
-
+function DesktopMap({ activeId, onSelect }: Selection) {
+  const owner = owners.get(activeId) || activeId;
+  const nodes: DeviceNode[] = useMemo(() => layout.map(({ id, x, y, width }) => ({
+    id, type: 'device', position: { x, y }, style: { width },
+    data: { nodeId: id, activeId, onSelect },
+    draggable: false, selectable: false, focusable: false,
+  })), [activeId, onSelect]);
+  const edges = connections.map((connection) => {
+    const related = connection.source === owner || connection.target === owner;
     return {
-      id: link.id,
-      source: link.source,
-      target: link.target,
-      type: handles.type || 'smoothstep',
-      sourceHandle: handles.sourceHandle,
-      targetHandle: handles.targetHandle,
-      label: isActive ? link.label : undefined,
-      data: { tone: link.tone },
-      animated: isActive,
-      className: `homelab-flow-edge homelab-flow-edge--${link.tone} ${isActive ? 'homelab-flow-edge--active' : ''}`,
-      markerStart: link.direction === 'both' ? marker : undefined,
-      markerEnd: link.direction !== 'none' ? marker : undefined,
-      labelClassName: 'homelab-flow-edge__label homelab-flow-edge__label--active',
-      labelBgBorderRadius: 999,
-      labelBgPadding: [7, 4],
-      labelBgStyle: { fill: 'hsl(var(--card) / 0.96)' },
+      ...connection, focusable: false,
+      style: {
+        stroke: 'hsl(var(--muted-foreground))',
+        strokeWidth: related ? 1.8 : 1.2,
+        opacity: related ? 1 : 0.8,
+        strokeDasharray: connection.id === 'tunnel' ? '5 5' : undefined,
+      },
     };
   });
-}
-
-function FitGraphToCanvas({ variant }: { variant: GraphVariant }) {
-  const { fitView } = useReactFlow();
-
-  useEffect(() => {
-    const handle = window.requestAnimationFrame(() => {
-      fitView({
-        padding: variant === 'compact' ? 0.08 : 0.1,
-        duration: 260,
-        maxZoom: variant === 'compact' ? 0.96 : 1.04,
-      });
-    });
-
-    return () => window.cancelAnimationFrame(handle);
-  }, [fitView, variant]);
-
-  return null;
-}
-
-function HomelabFlow({
-  activeId,
-  connectedIds,
-  onSelect,
-  variant,
-}: {
-  activeId: string;
-  connectedIds: Set<string>;
-  onSelect: (nodeId: string) => void;
-  variant: GraphVariant;
-}) {
-  const flowNodes = useMemo(
-    () => createFlowNodes(variant, activeId, connectedIds, onSelect),
-    [activeId, connectedIds, onSelect, variant]
-  );
-  const flowEdges = useMemo(() => createFlowEdges(variant, activeId), [activeId, variant]);
-
   return (
-    <ReactFlow
-      nodes={flowNodes}
-      edges={flowEdges}
-      nodeTypes={nodeTypes}
-      fitView
-      fitViewOptions={{ padding: variant === 'compact' ? 0.08 : 0.1, maxZoom: variant === 'compact' ? 0.96 : 1.04 }}
-      minZoom={0.38}
-      maxZoom={1.3}
-      panOnDrag
-      panOnScroll={false}
-      zoomOnScroll={false}
-      zoomOnPinch
-      nodesDraggable={false}
-      nodesConnectable={false}
-      elementsSelectable={false}
-      proOptions={{ hideAttribution: true }}
-      onNodeClick={(_, node) => onSelect(node.id)}
-      onNodeMouseEnter={(_, node) => onSelect(node.id)}
-    >
-      <Background
-        variant={BackgroundVariant.Lines}
-        gap={32}
-        lineWidth={1}
-        color="hsl(var(--border) / 0.2)"
-      />
-      <Controls className="homelab-flow__controls" showInteractive={false} />
-      <FitGraphToCanvas variant={variant} />
-    </ReactFlow>
+    <div className={styles.desktop}>
+      <ReactFlowProvider>
+        <ReactFlow
+          nodes={nodes} edges={edges} nodeTypes={nodeTypes}
+          fitView fitViewOptions={{ padding: 0.045, maxZoom: 1.05 }}
+          minZoom={0.6} maxZoom={1.5}
+          nodesDraggable={false} nodesConnectable={false} elementsSelectable={false}
+          onNodeClick={(_, node) => onSelect(node.id)}
+          panOnDrag zoomOnScroll={false} zoomOnDoubleClick={false} zoomOnPinch
+          proOptions={{ hideAttribution: true }}
+        >
+          <Controls className={styles.controls} showInteractive={false} />
+        </ReactFlow>
+      </ReactFlowProvider>
+    </div>
+  );
+}
+
+function MobileMap(selection: Selection) {
+  return (
+    <div className={styles.mobile}>
+      <div className={styles.mobileSection}>
+        <h3>Network</h3>
+        <Device nodeId="wan" {...selection} />
+        <div className={styles.mobileConnection} aria-hidden="true" />
+        <Device nodeId="opnsense" {...selection} />
+        <div className={styles.mobileConnection} aria-hidden="true" />
+        <Device nodeId="unifi-hardware" {...selection} />
+      </div>
+      <div className={styles.mobileSection}>
+        <h3>Hosts</h3>
+        <p className={styles.connectionNote}>The home server and Raspberry Pi connect to OPNsense.</p>
+        <Device nodeId="home-server" {...selection} />
+        <Device nodeId="raspberry-pi" {...selection} />
+      </div>
+      <div className={styles.mobileSection}>
+        <h3>Cloudflare tunnel</h3>
+        <p className={styles.connectionNote}>Connects Cloudflare to the container services on the home server.</p>
+        <Device nodeId="cloudflare" {...selection} />
+      </div>
+    </div>
   );
 }
 
 export default function HomelabMap() {
-  const variant = useGraphVariant();
   const [activeId, setActiveId] = useState('home-server');
-  const activeNode = nodesById.get(activeId) || nodesById.get(getGraphOwner(activeId)) || topology.nodes[0];
-  const ActiveIcon = iconMap[activeNode.icon] || CircleDot;
-  const activeOwner = getGraphOwner(activeId);
-
-  const connectedIds = useMemo(() => {
-    const ids = new Set<string>([activeOwner]);
-
-    graphLinks.forEach((link) => {
-      if (link.source === activeOwner || link.target === activeOwner) {
-        ids.add(link.source);
-        ids.add(link.target);
-      }
-    });
-
-    return ids;
-  }, [activeOwner]);
-
+  const active = getNode(activeId);
+  const selection = useMemo(() => ({ activeId, onSelect: setActiveId }), [activeId]);
   return (
-    <div className="homelab-map" aria-label={topology.title}>
-      <div className="homelab-map__canvas">
-        <ReactFlowProvider>
-          <HomelabFlow activeId={activeId} connectedIds={connectedIds} onSelect={setActiveId} variant={variant} />
-        </ReactFlowProvider>
+    <div className={styles.map} aria-label={topology.title}>
+      <div className={styles.toolbar}>
+        <span>Simplified overview</span>
+        <div className={styles.legend} aria-label="Connection legend">
+          <span><i />Network</span>
+          <span><i className={styles.tunnelLine} />Tunnel</span>
+        </div>
+        <span className={styles.hint}>Select a device or service</span>
       </div>
-
-      <aside className="homelab-map__detail">
-        <div className="flex items-center gap-3">
-          <span className={`homelab-map__detail-icon homelab-flow-node--${activeNode.tone}`}>
-            <ActiveIcon className="size-5" />
-          </span>
-          <div>
-            <p className="font-mono text-xs uppercase tracking-[0.18em] text-muted-foreground">{activeNode.role}</p>
-            <h3 className="mt-1 text-2xl font-semibold">{activeNode.label}</h3>
-          </div>
-        </div>
-
-        <p className="mt-5 leading-7 text-muted-foreground">{activeNode.detail}</p>
-
-        <div className="mt-5 flex flex-wrap gap-2">
-          {activeNode.tags.map((tag) => (
-            <Badge key={tag} variant="outline" className="badge-soft">
-              {tag}
-            </Badge>
-          ))}
-        </div>
-      </aside>
+      <DesktopMap {...selection} />
+      <MobileMap {...selection} />
+      <div className={styles.detail} aria-live="polite" aria-atomic="true">
+        <div><span className={styles.role}>{active.role}</span><h3>{active.label}</h3></div>
+        <p>{active.detail}</p>
+      </div>
     </div>
   );
 }

@@ -8,7 +8,7 @@ import { SpeedInsights } from "@vercel/speed-insights/next"
 
 export const metadata: Metadata = {
   title: "Jay Esquivel Jr. | Software Engineer",
-  description: "Portfolio of Jay Esquivel Jr., a software engineer building backend systems, AI tools, automation, and homelab-inspired infrastructure.",
+  description: "Jay Esquivel Jr. is a software engineer in Vancouver working on networking and online backend systems, with open-source software and tools on the side.",
   icons: {
     icon: [
       {
@@ -26,7 +26,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" suppressHydrationWarning>
+    <html lang="en" data-scroll-behavior="smooth" suppressHydrationWarning>
       <body className="antialiased">
         <ThemeProvider
           attribute="class"

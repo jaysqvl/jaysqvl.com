@@ -1,78 +1,49 @@
-import { FileText, GitBranch, Link2, Mail, Send } from 'lucide-react';
+import { ArrowUpRight, FileText, GitBranch, Link2, Mail } from 'lucide-react';
 
 const links = [
-  {
-    label: 'Email',
-    href: 'mailto:jaysqvl@gmail.com',
-    icon: Mail,
-  },
-  {
-    label: 'GitHub',
-    href: 'https://github.com/jaysqvl',
-    icon: GitBranch,
-  },
-  {
-    label: 'LinkedIn',
-    href: 'https://linkedin.com/in/jaysqvl/',
-    icon: Link2,
-  },
-  {
-    label: 'Resume PDF',
-    href: '/resume.pdf',
-    icon: FileText,
-  },
+  { label: 'Email', href: 'mailto:jaysqvl@gmail.com', icon: Mail },
+  { label: 'GitHub', href: 'https://github.com/jaysqvl', icon: GitBranch },
+  { label: 'LinkedIn', href: 'https://linkedin.com/in/jaysqvl/', icon: Link2 },
+  { label: 'Résumé', href: '/resume.pdf', icon: FileText },
 ];
 
 export default function Contact() {
   return (
     <section id="contact" className="section-band border-b-0">
       <div className="section-shell">
-        <div className="panel overflow-hidden">
-          <div className="grid gap-8 p-5 sm:p-8 lg:grid-cols-[0.78fr_1fr] lg:items-center">
-            <div>
-              <div className="section-kicker">
-                <Send className="size-4" />
-                contact
-              </div>
-              <h2 className="section-title">Send the signal directly.</h2>
-              <p className="mt-5 max-w-xl leading-7 text-muted-foreground">
-                No fake contact form, no pretend chatbot. The useful paths are right here for work, collaboration,
-                questions, or a quick hello.
-              </p>
-            </div>
-
-            <div className="grid gap-3 sm:grid-cols-2">
-              {links.map((link) => {
-                const Icon = link.icon;
-                const isExternal = link.href.startsWith('http');
-
-                return (
-                  <a
-                    key={link.label}
-                    href={link.href}
-                    target={isExternal || link.href.endsWith('.pdf') ? '_blank' : undefined}
-                    rel={isExternal || link.href.endsWith('.pdf') ? 'noopener noreferrer' : undefined}
-                    className="group flex items-center justify-between rounded-md border border-border bg-background/45 p-4 transition-colors hover:bg-muted"
-                  >
-                    <span className="flex items-center gap-3">
-                      <span className="grid size-9 place-items-center rounded-md border border-border bg-card">
-                        <Icon className="size-4" />
-                      </span>
-                      <span className="font-medium">{link.label}</span>
-                    </span>
-                    <span className="text-muted-foreground transition-transform group-hover:translate-x-0.5">/</span>
-                  </a>
-                );
-              })}
-            </div>
-          </div>
-
-          <div className="border-t border-border bg-muted/32 px-5 py-4 sm:px-8">
-            <p className="font-mono text-xs uppercase tracking-[0.18em] text-muted-foreground">
-              jaysqvl.com / built with Next.js / deployed on Vercel
+        <div className="grid gap-8 lg:grid-cols-[1fr_0.7fr] lg:items-start">
+          <div>
+            <h2 className="section-title">Get in touch</h2>
+            <p className="mt-5 max-w-xl leading-7 text-muted-foreground">
+              Have a project in mind, or want to talk about something I’m working on? Send me an email.
             </p>
           </div>
+          <div className="grid gap-x-8 sm:grid-cols-2">
+            {links.map((link) => {
+              const Icon = link.icon;
+              const opensNewTab = link.href.startsWith('http') || link.href.endsWith('.pdf');
+
+              return (
+                <a
+                  key={link.label}
+                  href={link.href}
+                  target={opensNewTab ? '_blank' : undefined}
+                  rel={opensNewTab ? 'noopener noreferrer' : undefined}
+                  className="flex items-center justify-between gap-4 border-b border-border py-4 text-muted-foreground transition-colors hover:text-foreground"
+                >
+                  <span className="flex items-center gap-3">
+                    <Icon className="size-4" aria-hidden="true" />
+                    <span className="font-medium">{link.label}</span>
+                  </span>
+                  <ArrowUpRight className="size-4" aria-hidden="true" />
+                </a>
+              );
+            })}
+          </div>
         </div>
+        <footer className="mt-16 border-t border-border pt-6 text-sm text-muted-foreground">
+          Jay Esquivel Jr.
+        </footer>
       </div>
     </section>
   );
