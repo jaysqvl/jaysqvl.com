@@ -7,9 +7,9 @@ import { Button } from '@/components/ui/button';
 import { ThemeToggle } from '@/components/theme-toggle';
 
 const navItems = [
+  { name: 'Lab', href: '#lab' },
+  { name: 'Work', href: '#experience' },
   { name: 'Projects', href: '#projects' },
-  { name: 'Homelab', href: '#lab' },
-  { name: 'Experience', href: '#experience' },
   { name: 'Resume', href: '/resume.pdf', external: true },
   { name: 'Contact', href: '#contact' },
 ];
@@ -63,7 +63,7 @@ export default function Navbar() {
           <span className="hidden leading-none sm:block">
             <span className="block text-sm font-semibold tracking-[0.18em]">JAYSQVL</span>
             <span className="block pt-1 font-mono text-[10px] uppercase tracking-[0.22em] text-muted-foreground">
-              Vancouver, BC
+              Portfolio / Lab
             </span>
           </span>
         </Link>

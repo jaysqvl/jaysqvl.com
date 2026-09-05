@@ -12,27 +12,27 @@ export interface TerminalLine {
 const terminalLines: TerminalLine[] = [
   {
     command: 'rsync camera-roll /server/photos',
-    output: 'personal photo library lands on owned storage',
+    output: 'photo library stored on the home server',
     tone: 'mint',
   },
   {
     command: 'npm route add lab-tools',
-    output: 'Nginx Proxy Manager keeps the public edge tidy',
+    output: 'Nginx Proxy Manager routes selected services',
     tone: 'blue',
   },
   {
     command: 'docker compose up tools notes automations',
-    output: 'small services boot where experiments can get messy',
+    output: 'Docker services for tools, notes, and automation',
     tone: 'lavender',
   },
   {
     command: 'index notes -> ai-sandbox',
-    output: 'private docs become retrieval playground material',
+    output: 'testing search across personal notes',
     tone: 'amber',
   },
   {
     command: 'tail smart-home/events',
-    output: 'home automations show up as plain old system events',
+    output: 'home automation event logs',
     tone: 'mint',
   },
 ];
