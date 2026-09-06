@@ -7,6 +7,7 @@ interface ExperienceItem {
   company: string;
   location: string;
   period: string;
+  project?: string;
   summary: string;
   outcomes: string[];
   technologies: string[];
@@ -21,6 +22,7 @@ const experiences: ExperienceItem[] = [
     company: '2K',
     location: 'Vancouver, BC',
     period: 'Present',
+    project: 'Unannounced project',
     summary:
       'I work on backend systems and their integration with the client.',
     outcomes: [],
@@ -107,6 +109,9 @@ export default function Experience() {
                 </div>
 
                 <div>
+                  {experience.project && (
+                    <h4 className="mb-3 text-lg font-semibold">{experience.project}</h4>
+                  )}
                   <p className="text-pretty leading-7 text-muted-foreground">{experience.summary}</p>
                   {experience.outcomes.length > 0 && (
                     <ul className="mt-5 grid gap-3">

@@ -47,6 +47,11 @@ const nextConfig = {
         },
       ],
     },
+    {
+      // GitHub fetches cache successful data; the response must stay retryable.
+      source: '/api/projects',
+      headers: [{ key: 'Cache-Control', value: 'no-store' }],
+    },
   ],
   
   // Experimental features - keeping only the recognized ones
