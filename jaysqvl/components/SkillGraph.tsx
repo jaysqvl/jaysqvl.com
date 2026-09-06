@@ -1,6 +1,6 @@
 'use client';
 
-import { useCallback, useRef, useState, useEffect } from 'react';
+import { useCallback, useMemo, useRef, useState, useEffect, useSyncExternalStore } from 'react';
 import dynamic from 'next/dynamic';
 import type { NodeObject, LinkObject } from 'react-force-graph-2d';
 import { useTheme } from 'next-themes';
@@ -40,6 +40,14 @@ interface SkillLink extends LinkObject {
 interface GraphData {
   nodes: SkillNode[];
   links: SkillLink[];
+}
+
+const subscribeToClient = () => () => undefined;
+const getClientSnapshot = () => true;
+const getServerSnapshot = () => false;
+
+function useIsClient() {
+  return useSyncExternalStore(subscribeToClient, getClientSnapshot, getServerSnapshot);
 }
 
 // Define our skills data
@@ -779,12 +787,49 @@ const positionComponentByCategory = (nodes: SkillNode[], width: number, height: 
 
 const SkillGraph = () => {
   const [selectedCategory, setSelectedCategory] = useState<SkillCategory | null>(null);
-  const [mounted, setMounted] = useState(false);
-  const [graphData, setGraphData] = useState(skillsData);
   const [dimensions, setDimensions] = useState({ width: 0, height: 0 });
   const [isInitialized, setIsInitialized] = useState(false);
   const [isGraphReady, setIsGraphReady] = useState(false);
   const { theme, systemTheme } = useTheme();
+  const mounted = useIsClient();
+  const graphData = useMemo<GraphData>(() => {
+    if (!mounted || !isInitialized) {
+      return { nodes: [], links: [] };
+    }
+
+    if (!selectedCategory) {
+      return {
+        nodes: detectLeafNodes([...skillsData.nodes], skillsData.links),
+        links: skillsData.links,
+      };
+    }
+
+    const primaryNodes = skillsData.nodes.filter((node) => node.category === selectedCategory);
+    const primaryNodeIds = new Set(primaryNodes.map((node) => node.id));
+    const connectedNodes = new Set<string>();
+    const relevantLinks = skillsData.links.filter((link) => {
+      const source = typeof link.source === 'object' && link.source !== null
+        ? (link.source as SkillNode).id
+        : link.source as string;
+      const target = typeof link.target === 'object' && link.target !== null
+        ? (link.target as SkillNode).id
+        : link.target as string;
+
+      if (primaryNodeIds.has(source) || primaryNodeIds.has(target)) {
+        connectedNodes.add(source);
+        connectedNodes.add(target);
+        return true;
+      }
+
+      return false;
+    });
+    const relevantNodes = skillsData.nodes.filter((node) => connectedNodes.has(node.id));
+
+    return {
+      nodes: detectLeafNodes([...relevantNodes], relevantLinks),
+      links: relevantLinks,
+    };
+  }, [selectedCategory, mounted, isInitialized]);
   
   // Use a simple any type for the ref to avoid complex typing issues
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -798,11 +843,6 @@ const SkillGraph = () => {
     // Use the graph's built-in zoomToFit method which centers based on actual node positions
     graphRef.current.zoomToFit(400, 50);
   }, [graphData.nodes]);
-
-  // Set mounted state
-  useEffect(() => {
-    setMounted(true);
-  }, []);
 
   // Handle container resizing
   useEffect(() => {
@@ -861,57 +901,6 @@ const SkillGraph = () => {
       return () => clearTimeout(timer);
     }
   }, [mounted, dimensions, isInitialized]);
-
-  // Update graph data when category changes
-  useEffect(() => {
-    if (!mounted || !isInitialized) return;
-
-    if (!selectedCategory) {
-      // Detect leaf nodes on a copy of the original data
-      const processedNodes = detectLeafNodes([...skillsData.nodes], skillsData.links);
-      
-      setGraphData({
-        nodes: processedNodes,
-        links: skillsData.links
-      });
-    } else {
-      // Get primary nodes (selected category)
-      const primaryNodes = skillsData.nodes.filter(node => node.category === selectedCategory);
-      const primaryNodeIds = new Set(primaryNodes.map(node => node.id));
-
-      // Find all connected nodes and their links
-      const connectedNodes = new Set<string>();
-      const relevantLinks = skillsData.links.filter(link => {
-        const source = (typeof link.source === 'object' && link.source !== null) ? 
-          (link.source as SkillNode).id : 
-          link.source as string;
-        const target = (typeof link.target === 'object' && link.target !== null) ? 
-          (link.target as SkillNode).id : 
-          link.target as string;
-        
-        // If either end is in our primary nodes, keep this link and both nodes
-        if (primaryNodeIds.has(source) || primaryNodeIds.has(target)) {
-          connectedNodes.add(source);
-          connectedNodes.add(target);
-          return true;
-        }
-        return false;
-      });
-
-      // Get all nodes that are part of our filtered graph
-      const relevantNodes = skillsData.nodes.filter(node => 
-        connectedNodes.has(node.id)
-      );
-
-      // Detect leaf nodes on our filtered set
-      const processedNodes = detectLeafNodes([...relevantNodes], relevantLinks);
-
-      setGraphData({
-        nodes: processedNodes,
-        links: relevantLinks
-      });
-    }
-  }, [selectedCategory, mounted, isInitialized]);
 
   // Calculate dynamic link distance based on node count
   const calculateLinkDistance = useCallback((nodeCount: number) => {
@@ -1312,4 +1301,4 @@ const SkillGraph = () => {
   );
 };
 
-export default SkillGraph; 
+export default SkillGraph;

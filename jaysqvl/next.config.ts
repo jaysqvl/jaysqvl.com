@@ -18,7 +18,8 @@ const nextConfig = {
   trailingSlash: false,
   
   // Improve caching and reduce roundtrips with HTTP headers
-  headers: async () => [
+  // Let Next.js disable caching for development assets and hot updates.
+  headers: async () => process.env.NODE_ENV === 'development' ? [] : [
     {
       source: '/(.*)',
       headers: [
@@ -45,6 +46,11 @@ const nextConfig = {
           value: 'public, max-age=31536000, immutable',
         },
       ],
+    },
+    {
+      // GitHub fetches cache successful data; the response must stay retryable.
+      source: '/api/projects',
+      headers: [{ key: 'Cache-Control', value: 'no-store' }],
     },
   ],
   

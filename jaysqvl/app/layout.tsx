@@ -1,37 +1,14 @@
 import type { Metadata } from "next";
-import { Inter, Outfit, Geist_Mono } from "next/font/google";
+import "@xyflow/react/dist/style.css";
 import "./globals.css";
 import { ThemeProvider } from "@/components/theme-provider";
 import Navbar from "@/components/Navbar";
-import { Toaster } from "@/components/ui/sonner";
-import ChatButton from '@/components/ChatButton';
 import { Analytics } from '@vercel/analytics/react';
 import { SpeedInsights } from "@vercel/speed-insights/next"
 
-// Font for body text
-const inter = Inter({
-  subsets: ["latin"],
-  variable: "--font-sans",
-  display: 'swap',
-});
-
-// Font for headings
-const outfit = Outfit({
-  subsets: ["latin"],
-  variable: "--font-heading",
-  display: 'swap',
-});
-
-// Monospace font for code
-const geistMono = Geist_Mono({
-  subsets: ["latin"],
-  variable: "--font-mono",
-  display: 'swap',
-});
-
 export const metadata: Metadata = {
-  title: "Jaysqvl",
-  description: "Portfolio website of Jay Esquivel",
+  title: "Jay Esquivel Jr. | Online Engineer",
+  description: "Jay Esquivel Jr. is an Online Engineer at 2K working on backend and client, and builds open-source software and tools in his spare time.",
   icons: {
     icon: [
       {
@@ -39,17 +16,7 @@ export const metadata: Metadata = {
         sizes: '32x32',
         type: 'image/x-icon',
       },
-      {
-        url: '/icon.png',
-        sizes: '192x192',
-        type: 'image/png',
-      },
     ],
-    apple: {
-      url: '/apple-touch-icon.png',
-      sizes: '180x180',
-      type: 'image/png',
-    },
   },
 };
 
@@ -59,18 +26,16 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" suppressHydrationWarning>
-      <body className={`${inter.variable} ${outfit.variable} ${geistMono.variable} antialiased`}>
+    <html lang="en" data-scroll-behavior="smooth" suppressHydrationWarning>
+      <body className="antialiased">
         <ThemeProvider
           attribute="class"
-          defaultTheme="system"
+          defaultTheme="dark"
           enableSystem
           disableTransitionOnChange
         >
           <Navbar />
           {children}
-          <Toaster />
-          <ChatButton />
         </ThemeProvider>
         <Analytics />
         <SpeedInsights />

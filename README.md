@@ -1,50 +1,29 @@
 # jaysqvl.com
 
-## Overview
-This is my personal portfolio website built with React. It showcases my projects, skills, and professional experience in a clean, modern interface.
+Personal portfolio for Jay Esquivel Jr., built with Next.js, TypeScript, Tailwind CSS, and Vercel.
 
-## Features
-- **Responsive Design**: Optimized for all devices from mobile to desktop
-- **Project Showcase**: Detailed portfolio of my work with descriptions and links
-- **Skills Section**: Visual representation of my technical skills and proficiencies
-- **Contact Form**: Easy way for recruiters and potential clients to reach out
-- **Modern UI/UX**: Clean, intuitive interface with smooth animations
+The current redesign direction is a quieter black-and-white portfolio with warm neutrals, restrained pastel accents, static homelab notes, selected projects, resume-style work history, and direct contact links.
 
-## Technologies Used
-- **Language**: TypeScript
-- **Frontend**: React.js, Next.js
-- **Styling**: TailwindCSS, Shadcn UI, Lucide Icons
-- **Deployment**: Vercel
-- **Version Control**: Git/GitHub
+## App
 
-## Development Process
-I built this portfolio website to demonstrate my frontend development skills and create a central hub for my professional presence online. The development process involved:
-
-1. Designing a clean, accessible UI that highlights my work
-2. Implementing responsive layouts that work across all device sizes
-3. Optimizing performance for fast load times
-4. Ensuring accessibility compliance
-
-## Setup and Installation
-To run this project locally:
+The Next.js app lives in `jaysqvl/`.
 
 ```bash
-# Clone the repository
-git clone https://github.com/jaysqvl/jaysqvl.com.git
-
-# Navigate to the project directory
-cd jaysqvl.com
-
-# Install dependencies
+cd jaysqvl
 npm install
-
-# Start the development server
 npm run dev
 ```
 
+## Checks
+
+```bash
+cd jaysqvl
+npm run lint
+npm run build
+```
+
 ## Deployment
-This site is deployed on Vercel and can be accessed at [jaysqvl.com](https://jaysqvl.com)
 
----
+Production stays on `main`. Redesign work happens on `redesign/homelab-neutral` and should be reviewed through Vercel preview deployments before merge.
 
-© Jay Esquivel 2025
+The pre-redesign safety tag is `pre-redesign-2026-05-26`. See `RELEASE.md` for the release and rollback runbook.
