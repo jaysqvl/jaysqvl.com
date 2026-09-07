@@ -1,10 +1,9 @@
-import { ArrowUpRight, FileText, GitBranch, Link2, Mail } from 'lucide-react';
+import { ArrowUpRight, GitBranch, Link2, Mail } from 'lucide-react';
 
 const links = [
   { label: 'Email', href: 'mailto:jaysqvl@gmail.com', icon: Mail },
   { label: 'GitHub', href: 'https://github.com/jaysqvl', icon: GitBranch },
   { label: 'LinkedIn', href: 'https://linkedin.com/in/jaysqvl/', icon: Link2 },
-  { label: 'Résumé', href: '/resume.pdf', icon: FileText },
 ];
 
 export default function Contact() {
@@ -21,7 +20,7 @@ export default function Contact() {
           <div className="grid gap-x-8 sm:grid-cols-2">
             {links.map((link) => {
               const Icon = link.icon;
-              const opensNewTab = link.href.startsWith('http') || link.href.endsWith('.pdf');
+              const opensNewTab = link.href.startsWith('http');
 
               return (
                 <a
