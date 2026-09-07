@@ -21,7 +21,7 @@ This repo keeps production on `main` and uses branch/PR previews for redesign wo
    ```
 
 4. Verify the preview on desktop and mobile.
-5. Check the main public links: resume PDF, GitHub, LinkedIn, email/contact, and project links.
+5. Check the header branding, favicon, GitHub, LinkedIn, email/contact, and project links. The resume PDF and its links are temporarily removed.
 6. Merge the PR into `main` only when the preview is the version intended for production.
 7. After production is confirmed, tag the shipped redesign:
 

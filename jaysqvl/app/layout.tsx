@@ -12,11 +12,17 @@ export const metadata: Metadata = {
   icons: {
     icon: [
       {
-        url: '/favicon.ico',
-        sizes: '32x32',
+        url: '/brand/je-rounded-v1.ico',
+        sizes: '16x16 32x32 48x48',
         type: 'image/x-icon',
       },
+      {
+        url: '/brand/je-rounded-v1.svg',
+        sizes: 'any',
+        type: 'image/svg+xml',
+      },
     ],
+    apple: [{ url: '/brand/apple-touch-icon-je-v1.png', sizes: '180x180', type: 'image/png' }],
   },
 };
 
