@@ -61,7 +61,8 @@ const experiences: ExperienceItem[] = [
       'Tutored university students in mathematics, computer science, and data science.',
     ],
     technologies: ['Python', 'JavaScript', 'React', 'Node.js', 'Docker', 'AI/ML'],
-    logoSrc: '/jaysqvl.jpg',
+    logoSrc: '/brand/je-rounded-v1.svg',
+    logoFit: 'contain',
   },
 ];
 
