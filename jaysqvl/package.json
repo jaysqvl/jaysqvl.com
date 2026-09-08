@@ -38,7 +38,7 @@
   },
   "devDependencies": {
     "@eslint/eslintrc": "3.3.7",
-    "@tailwindcss/postcss": "4.3.0",
+    "@tailwindcss/postcss": "4.3.3",
     "@types/d3-zoom": "3.0.8",
     "@types/node": "25.9.2",
     "@types/react": "19.2.17",
