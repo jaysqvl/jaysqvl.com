@@ -1,7 +1,6 @@
 import Image from 'next/image';
 import {
   ArrowDownRight,
-  FileText,
   GitBranch,
   Link2,
   Terminal,
@@ -48,12 +47,6 @@ export default function Hero() {
               <a href="#projects">
                 View Projects
                 <ArrowDownRight className="size-4" />
-              </a>
-            </Button>
-            <Button asChild variant="outline" size="lg" className="gap-2">
-              <a href="/resume.pdf" target="_blank" rel="noopener noreferrer">
-                <FileText className="size-4" />
-                Resume PDF
               </a>
             </Button>
             <Button asChild variant="outline" size="lg" className="gap-2">
