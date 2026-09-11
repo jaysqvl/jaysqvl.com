@@ -35,7 +35,7 @@ const experiences: ExperienceItem[] = [
     role: 'Software Engineer',
     company: 'OffroadExpert',
     location: 'Vancouver, BC',
-    period: 'From June 2024',
+    period: 'June 2024 - June 2025',
     summary:
       'Built product import pipelines, API integrations, and internal tools for an automotive parts retailer.',
     outcomes: [
@@ -52,9 +52,9 @@ const experiences: ExperienceItem[] = [
     role: 'Contract Software Developer',
     company: 'Jaysqvl Solutions',
     location: 'Vancouver, BC / Remote',
-    period: 'Sept 2020 - Present',
+    period: 'Sept 2020 - June 2025',
     summary:
-      'Develop software and provide technical support for small businesses, alongside course development and tutoring.',
+      'Developed software and provided technical support for small businesses, alongside course development and tutoring.',
     outcomes: [
       'Built REST APIs, full-stack apps, AI integrations, and operational tools for varied client needs.',
       'Audited, debugged, and tested course content used by 3000+ students across private and public learning platforms.',
