@@ -94,16 +94,94 @@
       }
     },
     {
-      "id": "unifi-hardware",
-      "label": "UniFi Hardware",
-      "role": "Wi-Fi / Switching",
-      "detail": "Wi-Fi access points and switches for the segmented home network.",
-      "tags": ["wifi", "switching", "lan"],
+      "id": "switching",
+      "label": "Connectivity",
+      "role": "10 GbE / 2.5 GbE switching",
+      "detail": "Includes a UniFi Pro XG 8 PoE, about six other managed switches, and MoCA and powerline adapters.",
+      "tags": ["switching", "adapters", "lan"],
       "tone": "blue",
-      "icon": "wifi",
+      "icon": "route",
       "layout": {
         "desktop": { "x": 39, "y": 84, "width": 15 },
         "compact": { "x": 50, "y": 80, "width": 46 }
+      }
+    },
+    {
+      "id": "unifi-switch",
+      "label": "UniFi Pro XG 8 PoE",
+      "role": "Managed switch",
+      "detail": "One of the managed switches on the home network, controlled through UniFi OS Server.",
+      "tags": ["unifi", "switching", "lan"],
+      "tone": "blue",
+      "icon": "route",
+      "layout": {
+        "desktop": { "x": 22, "y": 112, "width": 16 },
+        "compact": { "x": 23, "y": 274, "width": 40 }
+      }
+    },
+    {
+      "id": "other-switches",
+      "label": "~6 other managed switches",
+      "role": "Managed switches",
+      "detail": "About six managed switches from other brands, used across the home network.",
+      "tags": ["switching", "lan"],
+      "tone": "blue",
+      "icon": "route",
+      "layout": {
+        "desktop": { "x": 38, "y": 130, "width": 18 },
+        "compact": { "x": 77, "y": 274, "width": 40 }
+      }
+    },
+    {
+      "id": "moca-adapters",
+      "label": "MoCA adapters",
+      "role": "Network adapters",
+      "detail": "Carry network traffic over existing coaxial cabling.",
+      "tags": ["moca", "coax", "lan"],
+      "tone": "blue",
+      "icon": "route",
+      "layout": {
+        "desktop": { "x": 12, "y": 130, "width": 16 },
+        "compact": { "x": 23, "y": 290, "width": 40 }
+      }
+    },
+    {
+      "id": "powerline-adapters",
+      "label": "Powerline adapters",
+      "role": "Network adapters",
+      "detail": "Carry network traffic over existing electrical wiring.",
+      "tags": ["powerline", "lan"],
+      "tone": "blue",
+      "icon": "route",
+      "layout": {
+        "desktop": { "x": 22, "y": 148, "width": 16 },
+        "compact": { "x": 77, "y": 290, "width": 40 }
+      }
+    },
+    {
+      "id": "unifi-wifi",
+      "label": "Access Points",
+      "role": "Wi-Fi",
+      "detail": "Two UniFi E7 access points provide Wi-Fi for the segmented home network.",
+      "tags": ["wifi", "lan"],
+      "tone": "blue",
+      "icon": "wifi",
+      "layout": {
+        "desktop": { "x": 20, "y": 95, "width": 16 },
+        "compact": { "x": 23, "y": 128, "width": 40 }
+      }
+    },
+    {
+      "id": "unifi-e7",
+      "label": "2 x UniFi E7 AP's",
+      "role": "Wi-Fi access points",
+      "detail": "Two UniFi E7 access points provide Wi-Fi for the home network.",
+      "tags": ["unifi", "wifi", "access points"],
+      "tone": "blue",
+      "icon": "wifi",
+      "layout": {
+        "desktop": { "x": 20, "y": 110, "width": 16 },
+        "compact": { "x": 23, "y": 144, "width": 40 }
       }
     },
     {
@@ -292,7 +370,7 @@
       "id": "unifi-os",
       "label": "UniFi OS Server",
       "role": "VM service",
-      "detail": "The UniFi network controller, running in a virtual machine.",
+      "detail": "Manages the UniFi switch and access points from a virtual machine on the home server.",
       "tags": ["unifi", "vm"],
       "tone": "blue",
       "icon": "wifi",
@@ -342,9 +420,9 @@
       }
     },
     {
-      "id": "opnsense-unifi",
+      "id": "opnsense-switching",
       "source": "opnsense",
-      "target": "unifi-hardware",
+      "target": "switching",
       "label": "lan / vlans",
       "direction": "both",
       "tone": "blue",
@@ -354,27 +432,99 @@
       }
     },
     {
-      "id": "opnsense-server",
-      "source": "opnsense",
+      "id": "switching-wifi",
+      "source": "switching",
+      "target": "unifi-wifi",
+      "label": "wi-fi access",
+      "direction": "both",
+      "tone": "blue",
+      "layout": {
+        "desktop": { "labelX": 29, "labelY": 89 },
+        "compact": { "points": [[50, 80], [12, 80], [12, 114], [23, 128]], "labelX": 16, "labelY": 106 }
+      }
+    },
+    {
+      "id": "wifi-unifi-e7",
+      "source": "unifi-wifi",
+      "target": "unifi-e7",
+      "label": "includes",
+      "direction": "none",
+      "tone": "blue",
+      "layout": {
+        "desktop": { "labelX": 20, "labelY": 103 },
+        "compact": { "labelX": 23, "labelY": 136 }
+      }
+    },
+    {
+      "id": "switching-server",
+      "source": "switching",
       "target": "home-server",
       "label": "server lan",
       "direction": "both",
       "tone": "lavender",
       "layout": {
-        "desktop": { "labelX": 37, "labelY": 38 },
-        "compact": { "labelX": 50, "labelY": 85 }
+        "desktop": { "labelX": 45, "labelY": 62 },
+        "compact": { "labelX": 50, "labelY": 88 }
       }
     },
     {
-      "id": "opnsense-pi",
-      "source": "opnsense",
+      "id": "switching-pi",
+      "source": "switching",
       "target": "raspberry-pi",
       "label": "isolated lan",
       "direction": "both",
       "tone": "amber",
       "layout": {
-        "desktop": { "points": [[22, 42], [31, 98], [53, 95]], "labelX": 36, "labelY": 90 },
-        "compact": { "points": [[50, 34], [38, 108], [50, 112]], "labelX": 34, "labelY": 101 }
+        "desktop": { "labelX": 46, "labelY": 88 },
+        "compact": { "points": [[50, 80], [73, 80], [73, 112], [50, 112]], "labelX": 68, "labelY": 106 }
+      }
+    },
+    {
+      "id": "switching-unifi-switch",
+      "source": "switching",
+      "target": "unifi-switch",
+      "label": "includes",
+      "direction": "none",
+      "tone": "blue",
+      "layout": {
+        "desktop": { "labelX": 30, "labelY": 98 },
+        "compact": { "labelX": 23, "labelY": 264 }
+      }
+    },
+    {
+      "id": "switching-other-switches",
+      "source": "switching",
+      "target": "other-switches",
+      "label": "includes",
+      "direction": "none",
+      "tone": "blue",
+      "layout": {
+        "desktop": { "labelX": 38, "labelY": 115 },
+        "compact": { "labelX": 77, "labelY": 264 }
+      }
+    },
+    {
+      "id": "switching-moca-adapters",
+      "source": "switching",
+      "target": "moca-adapters",
+      "label": "includes",
+      "direction": "none",
+      "tone": "blue",
+      "layout": {
+        "desktop": { "labelX": 25, "labelY": 107 },
+        "compact": { "labelX": 23, "labelY": 282 }
+      }
+    },
+    {
+      "id": "switching-powerline-adapters",
+      "source": "switching",
+      "target": "powerline-adapters",
+      "label": "includes",
+      "direction": "none",
+      "tone": "blue",
+      "layout": {
+        "desktop": { "labelX": 30, "labelY": 116 },
+        "compact": { "labelX": 77, "labelY": 282 }
       }
     },
     {

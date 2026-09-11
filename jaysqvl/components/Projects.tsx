@@ -12,7 +12,7 @@ export default function Projects() {
           <div>
             <h2 className="section-title">Projects</h2>
             <p className="mt-5 max-w-2xl leading-7 text-muted-foreground">
-              Some of the software and tools I work on in my spare time.
+              Some of the software I’ve built, maintained, or contributed to.
             </p>
           </div>
           <Button asChild variant="outline" className="w-fit gap-2">

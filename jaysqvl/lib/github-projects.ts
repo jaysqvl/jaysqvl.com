@@ -1,11 +1,11 @@
 import 'server-only';
 
 import { fallbackProjects, githubOwner, isProjectList, type ProjectItem } from './projects';
+import { applyProjectMetadata } from './project-metadata';
 
 interface PublicRepository {
   id: string;
   name: string;
-  description: string | null;
   language: string | null;
   pushedAt: string | null;
 }
@@ -60,8 +60,6 @@ function publicRepository(value: unknown): PublicRepository | null {
   if (!selectedProjects.has(id)) return null;
 
   if (
-    (value.description !== null && typeof value.description !== 'string') ||
-    (typeof value.description === 'string' && value.description.length > 2048) ||
     (value.language !== null && typeof value.language !== 'string') ||
     (typeof value.language === 'string' && (value.language.length === 0 || value.language.length > 80)) ||
     (value.pushed_at !== null && (
@@ -75,7 +73,6 @@ function publicRepository(value: unknown): PublicRepository | null {
   return {
     id,
     name: value.name,
-    description: typeof value.description === 'string' ? value.description.trim() || null : null,
     language: value.language as string | null,
     pushedAt: value.pushed_at as string | null,
   };
@@ -131,21 +128,12 @@ export async function getGithubProjects(): Promise<ProjectsResponse> {
   try {
     const signal = AbortSignal.timeout(refreshTimeoutMs);
     const repositories = await publicRepositories(signal);
-    const projects = await Promise.all(repositories.map(async (repository): Promise<ProjectItem> => {
-      const saved = selectedProjects.get(repository.id)!;
-      return {
-        ...saved,
-        description: repository.description ?? saved.description,
-        languages: await repositoryLanguages(repository, signal),
-        github: `https://github.com/${githubOwner}/${repository.name}`,
-        updatedAt: repository.pushedAt,
-      };
-    }));
-
-    projects.sort((a, b) => (
-      (b.updatedAt ? Date.parse(b.updatedAt) : 0) - (a.updatedAt ? Date.parse(a.updatedAt) : 0) ||
-      a.title.localeCompare(b.title)
-    ));
+    const metadata = await Promise.all(repositories.map(async (repository) => ({
+      id: repository.id,
+      languages: await repositoryLanguages(repository, signal),
+      updatedAt: repository.pushedAt,
+    })));
+    const projects = applyProjectMetadata(fallbackProjects, metadata);
     if (!isProjectList(projects)) throw new Error('Invalid project response');
     return { projects, source: 'github' };
   } catch {
