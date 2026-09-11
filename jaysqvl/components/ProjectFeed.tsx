@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState, type ComponentType, type ReactNode } from 'react';
 import { isProjectList, type ProjectItem } from '@/lib/projects';
+import { applyProjectMetadata, resolveProjectRefresh } from '@/lib/project-metadata';
 
 const cacheKey = 'jaysqvl-projects:v1';
 const cacheLifetime = 30 * 24 * 60 * 60 * 1000;
@@ -42,7 +43,7 @@ export default function ProjectFeed({ initialProjects, children }: {
       started = true;
       observer?.disconnect();
       const saved = readSavedProjects();
-      if (saved) setProjects(saved);
+      if (saved) setProjects(applyProjectMetadata(initialProjects, saved, { includeMissing: true }));
       setRefreshing(true);
 
       // The card module and network request start together, only near this section.
@@ -59,15 +60,18 @@ export default function ProjectFeed({ initialProjects, children }: {
           const result: unknown = await response.json();
           if (!mounted) return;
           if (!result || typeof result !== 'object' || !('projects' in result) || !('source' in result) || !isProjectList(result.projects)) return;
-          if (result.source === 'github') {
-            if (mounted) setProjects(result.projects);
+          if (result.source !== 'github' && result.source !== 'fallback') return;
+          const refresh = resolveProjectRefresh(initialProjects, {
+            projects: result.projects,
+            source: result.source,
+          }, saved);
+          setProjects(refresh.projects);
+          if (refresh.snapshot !== null) {
             try {
-              localStorage.setItem(cacheKey, JSON.stringify({ savedAt: Date.now(), projects: result.projects }));
+              localStorage.setItem(cacheKey, JSON.stringify({ savedAt: Date.now(), projects: refresh.snapshot }));
             } catch {
               // Refreshing does not depend on browser storage being enabled.
             }
-          } else if (result.source === 'fallback' && !saved && mounted) {
-            setProjects(result.projects);
           }
         })
         .catch(() => {
@@ -94,7 +98,7 @@ export default function ProjectFeed({ initialProjects, children }: {
       controller.abort();
       if (timeout) clearTimeout(timeout);
     };
-  }, []);
+  }, [initialProjects]);
 
   return (
     <div ref={rootRef} aria-busy={refreshing}>

@@ -16,16 +16,9 @@ export default function ProjectCards({ projects }: { projects: ProjectItem[] }) 
       {projects.map((project) => (
         <article key={project.id} className="project-card">
           <div>
-            <div className="flex flex-wrap items-center gap-x-3 gap-y-2 text-muted-foreground">
-              {project.type && (
-                <p className="font-mono text-[11px] uppercase tracking-[0.18em]">{project.type}</p>
-              )}
-              {project.updatedAt && (
-                <time dateTime={project.updatedAt} className="text-xs">
-                  Updated {dateFormat.format(new Date(project.updatedAt))}
-                </time>
-              )}
-            </div>
+            {project.type && (
+              <p className="font-mono text-[11px] uppercase tracking-[0.18em] text-muted-foreground">{project.type}</p>
+            )}
             <h3 className="mt-3 text-2xl font-semibold">{project.title}</h3>
             <p className="mt-4 leading-7 text-muted-foreground">{project.description}</p>
           </div>
@@ -47,6 +40,19 @@ export default function ProjectCards({ projects }: { projects: ProjectItem[] }) 
                   Live
                   <ArrowUpRight className="size-4" />
                 </a>
+              )}
+              {project.releases && (
+                <a href={project.releases} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-2 rounded-md border border-border px-3 py-2 text-sm transition-colors hover:bg-muted">
+                  Releases
+                  <ArrowUpRight className="size-4" />
+                </a>
+              )}
+            </div>
+            <div className="mt-4 min-h-4 text-xs text-muted-foreground">
+              {project.updatedAt && (
+                <time dateTime={project.updatedAt} title="Latest repository push reported by GitHub (UTC)">
+                  Last push {dateFormat.format(new Date(project.updatedAt))}
+                </time>
               )}
             </div>
           </div>
