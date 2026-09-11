@@ -40,7 +40,7 @@
 }
 
 .desktop {
-  height: 720px;
+  height: 680px;
 }
 
 .mobile {
@@ -267,6 +267,28 @@
     margin: -12px 0;
     border-left: 1px solid hsl(var(--muted-foreground));
     justify-self: center;
+  }
+
+  .mobileBranches {
+    display: grid;
+    gap: 16px;
+    margin-left: 6px;
+    padding-left: 18px;
+    border-left: 1px solid hsl(var(--muted-foreground));
+  }
+
+  .mobileBranch {
+    position: relative;
+    min-width: 0;
+  }
+
+  .mobileBranch::before {
+    content: '';
+    position: absolute;
+    top: 36px;
+    left: -18px;
+    width: 18px;
+    border-top: 1px solid hsl(var(--muted-foreground));
   }
 
   .heading {

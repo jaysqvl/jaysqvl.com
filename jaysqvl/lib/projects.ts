@@ -25,6 +25,16 @@ export const fallbackProjects: ProjectItem[] = [
     updatedAt: null,
   },
   {
+    id: 'jaysqvl/scriberr',
+    title: 'Scriberr',
+    type: 'Maintained fork',
+    description:
+      'I maintain my own fork of Scriberr, an open-source platform for self-hosted audio transcription.',
+    languages: ['Go', 'TypeScript', 'Python', 'MDX', 'CSS'],
+    github: 'https://github.com/jaysqvl/Scriberr',
+    updatedAt: null,
+  },
+  {
     id: 'jaysqvl/wifi-qrcode-generator',
     title: 'Wi-Fi QR Generator',
     type: 'Homelab utility',

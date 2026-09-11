@@ -5,7 +5,7 @@ import {
   Controls, Handle, Position, ReactFlow, ReactFlowProvider,
   type Edge, type Node, type NodeProps,
 } from '@xyflow/react';
-import { Cloud, Cpu, Globe2, Server, ShieldCheck, Wifi, type LucideIcon } from 'lucide-react';
+import { Cloud, Cpu, Globe2, Network, Server, ShieldCheck, Wifi, type LucideIcon } from 'lucide-react';
 import topology from '@/data/homelab-topology.json';
 import styles from './HomelabMap.module.css';
 
@@ -16,33 +16,38 @@ type DeviceNode = Node<DeviceData, 'device'>;
 
 const byId = new Map(topology.nodes.map((node) => [node.id, node]));
 const routerServices = ['crowdsec', 'adguard', 'unbound', 'tailscale'];
+const connectivityHardware = ['unifi-switch', 'other-switches', 'moca-adapters', 'powerline-adapters'];
 const dockerServices = ['npm', 'cloudflared', 'personal-cloud', 'ai-sandbox', 'ops-dashboards', 'automation', 'camera-smart', 'utility-tools'];
 const vmServices = ['unifi-os', 'home-assistant', 'lab-vms'];
 const serverContents = ['docker-services', ...dockerServices, 'vm-services', ...vmServices, 'storage'];
 const owners = new Map<string, string>([
   ...routerServices.map((id) => [id, 'opnsense'] as const),
+  ...connectivityHardware.map((id) => [id, 'switching'] as const),
+  ['unifi-e7', 'unifi-wifi'],
   ...serverContents.map((id) => [id, 'home-server'] as const),
   ['pi-services', 'raspberry-pi'],
 ]);
 const icons: Record<string, LucideIcon> = {
   wan: Globe2, cloudflare: Cloud, opnsense: ShieldCheck,
-  'unifi-hardware': Wifi, 'home-server': Server, 'raspberry-pi': Cpu,
+  switching: Network, 'unifi-wifi': Wifi, 'home-server': Server, 'raspberry-pi': Cpu,
 };
 
 // Workloads are contained inside their hosts; lines represent network connections.
 const layout = [
-  { id: 'cloudflare', x: 16, y: 126, width: 168 },
-  { id: 'wan', x: 16, y: 282, width: 168 },
-  { id: 'opnsense', x: 230, y: 210, width: 222 },
-  { id: 'unifi-hardware', x: 230, y: 570, width: 222 },
-  { id: 'home-server', x: 534, y: 40, width: 560 },
-  { id: 'raspberry-pi', x: 534, y: 550, width: 560 },
+  { id: 'cloudflare', x: 16, y: 64, width: 240 },
+  { id: 'wan', x: 16, y: 242, width: 240 },
+  { id: 'opnsense', x: 304, y: 170, width: 240 },
+  { id: 'switching', x: 304, y: 430, width: 240 },
+  { id: 'unifi-wifi', x: 16, y: 430, width: 240 },
+  { id: 'home-server', x: 608, y: 64, width: 480 },
+  { id: 'raspberry-pi', x: 608, y: 550, width: 480 },
 ];
 const connections: Edge[] = [
   { id: 'wan-router', source: 'wan', target: 'opnsense', sourceHandle: 'right', targetHandle: 'left', type: 'straight' },
-  { id: 'router-server', source: 'opnsense', target: 'home-server', sourceHandle: 'right', targetHandle: 'network', type: 'straight' },
-  { id: 'router-wifi', source: 'opnsense', target: 'unifi-hardware', sourceHandle: 'bottom', targetHandle: 'top', type: 'straight' },
-  { id: 'router-pi', source: 'opnsense', target: 'raspberry-pi', sourceHandle: 'branch', targetHandle: 'left', type: 'smoothstep' },
+  { id: 'router-switch', source: 'opnsense', target: 'switching', sourceHandle: 'bottom', targetHandle: 'top', type: 'straight' },
+  { id: 'switch-wifi', source: 'switching', target: 'unifi-wifi', sourceHandle: 'wifi', targetHandle: 'uplink', type: 'straight' },
+  { id: 'switch-server', source: 'switching', target: 'home-server', sourceHandle: 'right', targetHandle: 'network', type: 'smoothstep' },
+  { id: 'switch-pi', source: 'switching', target: 'raspberry-pi', sourceHandle: 'right', targetHandle: 'left', type: 'smoothstep' },
   { id: 'tunnel', source: 'cloudflare', target: 'home-server', sourceHandle: 'right', targetHandle: 'tunnel', type: 'straight' },
 ];
 
@@ -97,6 +102,12 @@ function Device({ nodeId, ...selection }: DeviceData) {
       {nodeId === 'opnsense' && (
         <div className={styles.routerServices}><ServiceList ids={routerServices} {...selection} /></div>
       )}
+      {nodeId === 'switching' && (
+        <div className={styles.routerServices}><ServiceList ids={connectivityHardware} {...selection} /></div>
+      )}
+      {nodeId === 'unifi-wifi' && (
+        <div className={styles.routerServices}><ServiceList ids={['unifi-e7']} {...selection} /></div>
+      )}
       {nodeId === 'home-server' && (
         <>
           <div className={styles.workloads}>
@@ -129,11 +140,16 @@ function FlowDevice({ data }: NodeProps<DeviceNode>) {
       <Handle id="top" type="target" position={Position.Top} className={styles.handle} />
       <Handle id="right" type="source" position={Position.Right} className={styles.handle} />
       <Handle id="bottom" type="source" position={Position.Bottom} className={styles.handle} />
-      <Handle id="branch" type="source" position={Position.Right} style={{ top: '80%' }} className={styles.handle} />
+      {data.nodeId === 'switching' && (
+        <Handle id="wifi" type="source" position={Position.Left} style={{ top: 41 }} className={styles.handle} />
+      )}
+      {data.nodeId === 'unifi-wifi' && (
+        <Handle id="uplink" type="target" position={Position.Right} style={{ top: 41 }} className={styles.handle} />
+      )}
       {data.nodeId === 'home-server' && (
         <>
           <Handle id="network" type="target" position={Position.Left} style={{ top: 282 }} className={styles.handle} />
-          <Handle id="tunnel" type="target" position={Position.Left} style={{ top: 126 }} className={styles.handle} />
+          <Handle id="tunnel" type="target" position={Position.Left} style={{ top: 41 }} className={styles.handle} />
         </>
       )}
       <Device {...data} />
@@ -190,13 +206,17 @@ function MobileMap(selection: Selection) {
         <div className={styles.mobileConnection} aria-hidden="true" />
         <Device nodeId="opnsense" {...selection} />
         <div className={styles.mobileConnection} aria-hidden="true" />
-        <Device nodeId="unifi-hardware" {...selection} />
+        <Device nodeId="switching" {...selection} />
       </div>
       <div className={styles.mobileSection}>
-        <h3>Hosts</h3>
-        <p className={styles.connectionNote}>The home server and Raspberry Pi connect to OPNsense.</p>
-        <Device nodeId="home-server" {...selection} />
-        <Device nodeId="raspberry-pi" {...selection} />
+        <h3>Connected devices</h3>
+        <div className={styles.mobileBranches}>
+          {['unifi-wifi', 'home-server', 'raspberry-pi'].map((id) => (
+            <div key={id} className={styles.mobileBranch}>
+              <Device nodeId={id} {...selection} />
+            </div>
+          ))}
+        </div>
       </div>
       <div className={styles.mobileSection}>
         <h3>Cloudflare tunnel</h3>
