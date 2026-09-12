@@ -211,6 +211,33 @@
       }
     },
     {
+      "id": "macbook-air",
+      "label": "MacBook Air",
+      "role": "Headless / Development",
+      "detail": "Headless MacBook Air for AI-assisted coding, remote development, and LLM hosting.",
+      "tags": ["macos", "development", "llms"],
+      "tone": "blue",
+      "icon": "laptop"
+    },
+    {
+      "id": "mac-ai-coding",
+      "label": "AI + Remote coding",
+      "role": "Development tools",
+      "detail": "AI coding assistants and remote development tools on the MacBook Air.",
+      "tags": ["ai", "coding", "remote"],
+      "tone": "blue",
+      "icon": "terminal"
+    },
+    {
+      "id": "mac-llm-hosting",
+      "label": "LLM hosting",
+      "role": "LLM tools",
+      "detail": "Hosts LLM tools and services for development and experimentation.",
+      "tags": ["llms", "hosting", "tools"],
+      "tone": "blue",
+      "icon": "brain"
+    },
+    {
       "id": "pi-services",
       "label": "Pi Services",
       "role": "Small workloads",
@@ -478,6 +505,30 @@
         "desktop": { "labelX": 46, "labelY": 88 },
         "compact": { "points": [[50, 80], [73, 80], [73, 112], [50, 112]], "labelX": 68, "labelY": 106 }
       }
+    },
+    {
+      "id": "switching-mac",
+      "source": "switching",
+      "target": "macbook-air",
+      "label": "development host",
+      "direction": "both",
+      "tone": "blue"
+    },
+    {
+      "id": "mac-ai-coding",
+      "source": "macbook-air",
+      "target": "mac-ai-coding",
+      "label": "development tools",
+      "direction": "both",
+      "tone": "blue"
+    },
+    {
+      "id": "mac-llm-hosting",
+      "source": "macbook-air",
+      "target": "mac-llm-hosting",
+      "label": "hosts",
+      "direction": "both",
+      "tone": "blue"
     },
     {
       "id": "switching-unifi-switch",
