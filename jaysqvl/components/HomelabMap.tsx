@@ -5,7 +5,7 @@ import {
   Controls, Handle, Position, ReactFlow, ReactFlowProvider,
   type Edge, type Node, type NodeMouseHandler, type NodeProps,
 } from '@xyflow/react';
-import { Cloud, Cpu, Globe2, Laptop, Network, Server, ShieldCheck, Wifi, type LucideIcon } from 'lucide-react';
+import { Cloud, Computer, Cpu, Globe2, Network, Server, ShieldCheck, Wifi, type LucideIcon } from 'lucide-react';
 import topology from '@/data/homelab-topology.json';
 import styles from './HomelabMap.module.css';
 
@@ -19,7 +19,7 @@ const routerServices = ['crowdsec', 'adguard', 'unbound', 'tailscale'];
 const connectivityHardware = ['unifi-switch', 'other-switches', 'moca-adapters', 'powerline-adapters'];
 const dockerServices = ['npm', 'cloudflared', 'personal-cloud', 'ai-sandbox', 'ops-dashboards', 'automation', 'camera-smart', 'utility-tools'];
 const vmServices = ['unifi-os', 'home-assistant', 'lab-vms'];
-const macServices = ['mac-ai-coding', 'mac-llm-hosting'];
+const macServices = ['mac-remote-development', 'mac-llm-hosting'];
 const serverContents = ['docker-services', ...dockerServices, 'vm-services', ...vmServices, 'storage'];
 const owners = new Map<string, string>([
   ...routerServices.map((id) => [id, 'opnsense'] as const),
@@ -27,12 +27,12 @@ const owners = new Map<string, string>([
   ['unifi-e7', 'unifi-wifi'],
   ...serverContents.map((id) => [id, 'home-server'] as const),
   ['pi-services', 'raspberry-pi'],
-  ...macServices.map((id) => [id, 'macbook-air'] as const),
+  ...macServices.map((id) => [id, 'mac-mini'] as const),
 ]);
 const icons: Record<string, LucideIcon> = {
   wan: Globe2, cloudflare: Cloud, opnsense: ShieldCheck,
   switching: Network, 'unifi-wifi': Wifi, 'home-server': Server, 'raspberry-pi': Cpu,
-  'macbook-air': Laptop,
+  'mac-mini': Computer,
 };
 
 // Workloads are contained inside their hosts; lines represent network connections.
@@ -44,7 +44,7 @@ const layout = [
   { id: 'unifi-wifi', x: 16, y: 430, width: 240 },
   { id: 'home-server', x: 608, y: 64, width: 480 },
   { id: 'raspberry-pi', x: 608, y: 550, width: 224 },
-  { id: 'macbook-air', x: 864, y: 550, width: 224 },
+  { id: 'mac-mini', x: 864, y: 550, width: 224 },
 ];
 const connections: Edge[] = [
   { id: 'wan-router', source: 'wan', target: 'opnsense', sourceHandle: 'right', targetHandle: 'left', type: 'straight' },
@@ -52,7 +52,7 @@ const connections: Edge[] = [
   { id: 'switch-wifi', source: 'switching', target: 'unifi-wifi', sourceHandle: 'wifi', targetHandle: 'uplink', type: 'straight' },
   { id: 'switch-server', source: 'switching', target: 'home-server', sourceHandle: 'hosts', targetHandle: 'network', type: 'smoothstep' },
   { id: 'switch-pi', source: 'switching', target: 'raspberry-pi', sourceHandle: 'hosts', targetHandle: 'top', type: 'smoothstep' },
-  { id: 'switch-mac', source: 'switching', target: 'macbook-air', sourceHandle: 'hosts', targetHandle: 'top', type: 'smoothstep' },
+  { id: 'switch-mac', source: 'switching', target: 'mac-mini', sourceHandle: 'hosts', targetHandle: 'top', type: 'smoothstep' },
   { id: 'tunnel', source: 'cloudflare', target: 'home-server', sourceHandle: 'right', targetHandle: 'tunnel', type: 'straight' },
 ];
 
@@ -134,7 +134,7 @@ function Device({ nodeId, ...selection }: DeviceData) {
       {nodeId === 'raspberry-pi' && (
         <div className={styles.piServices}><ServiceList ids={['pi-services']} {...selection} /></div>
       )}
-      {nodeId === 'macbook-air' && (
+      {nodeId === 'mac-mini' && (
         <div className={styles.workloads}><ServiceList ids={macServices} {...selection} /></div>
       )}
     </div>
@@ -225,7 +225,7 @@ function MobileMap(selection: Selection) {
       <div className={styles.mobileSection}>
         <h3>Connected devices</h3>
         <div className={styles.mobileBranches}>
-          {['unifi-wifi', 'home-server', 'raspberry-pi', 'macbook-air'].map((id) => (
+          {['unifi-wifi', 'home-server', 'raspberry-pi', 'mac-mini'].map((id) => (
             <div key={id} className={styles.mobileBranch}>
               <Device nodeId={id} {...selection} />
             </div>

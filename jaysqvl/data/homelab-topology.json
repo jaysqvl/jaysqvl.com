@@ -211,20 +211,20 @@
       }
     },
     {
-      "id": "macbook-air",
-      "label": "MacBook Air",
+      "id": "mac-mini",
+      "label": "Mac mini",
       "role": "Headless / Development",
-      "detail": "Headless MacBook Air for AI-assisted coding, remote development, and LLM hosting.",
+      "detail": "Headless Mac mini for remote macOS development and LLM hosting.",
       "tags": ["macos", "development", "llms"],
       "tone": "blue",
-      "icon": "laptop"
+      "icon": "computer"
     },
     {
-      "id": "mac-ai-coding",
-      "label": "AI + Remote coding",
+      "id": "mac-remote-development",
+      "label": "Remote Mac development",
       "role": "Development tools",
-      "detail": "AI coding assistants and remote development tools on the MacBook Air.",
-      "tags": ["ai", "coding", "remote"],
+      "detail": "Remote access to macOS development tools and workspaces.",
+      "tags": ["macos", "development", "remote"],
       "tone": "blue",
       "icon": "terminal"
     },
@@ -509,22 +509,22 @@
     {
       "id": "switching-mac",
       "source": "switching",
-      "target": "macbook-air",
+      "target": "mac-mini",
       "label": "development host",
       "direction": "both",
       "tone": "blue"
     },
     {
-      "id": "mac-ai-coding",
-      "source": "macbook-air",
-      "target": "mac-ai-coding",
+      "id": "mac-remote-development",
+      "source": "mac-mini",
+      "target": "mac-remote-development",
       "label": "development tools",
       "direction": "both",
       "tone": "blue"
     },
     {
       "id": "mac-llm-hosting",
-      "source": "macbook-air",
+      "source": "mac-mini",
       "target": "mac-llm-hosting",
       "label": "hosts",
       "direction": "both",
