@@ -9,9 +9,10 @@ interface LogoOrIconProps {
   icon: React.ReactNode;
   className?: string;
   fit?: 'cover' | 'contain';
+  sizes?: string;
 }
 
-export default function LogoOrIcon({ logoSrc, alt, icon, className = "", fit = 'cover' }: LogoOrIconProps) {
+export default function LogoOrIcon({ logoSrc, alt, icon, className = "", fit = 'cover', sizes = '48px' }: LogoOrIconProps) {
   const [imgError, setImgError] = useState<boolean>(false);
 
   if (!logoSrc || imgError) {
@@ -19,15 +20,14 @@ export default function LogoOrIcon({ logoSrc, alt, icon, className = "", fit = '
   }
 
   return (
-    <div className={`flex items-center justify-center w-full h-full ${className}`}>
+    <div className={`relative h-full w-full ${className}`}>
       <Image
         src={logoSrc}
         alt={alt}
-        width={24}
-        height={24}
-        className={`h-full w-full ${fit === 'contain' ? 'object-contain' : 'rounded-full object-cover'}`}
+        fill
+        sizes={sizes}
+        className={fit === 'contain' ? 'object-contain' : 'object-cover'}
         onError={() => setImgError(true)}
-        priority
       />
     </div>
   );

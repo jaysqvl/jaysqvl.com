@@ -28,8 +28,7 @@ const experiences: ExperienceItem[] = [
     outcomes: [],
     technologies: [],
     link: 'https://www.2k.com',
-    logoSrc: '/2k-logo.png',
-    logoFit: 'contain',
+    logoSrc: '/logos/2k.svg',
   },
   {
     role: 'Software Engineer',
@@ -84,6 +83,7 @@ export default function Experience() {
                         alt={`${experience.company} logo`}
                         icon={<BriefcaseBusiness className="size-5" />}
                         fit={experience.logoFit}
+                        sizes="44px"
                       />
                     </div>
                     <div>

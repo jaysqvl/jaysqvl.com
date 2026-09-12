@@ -8,7 +8,7 @@ const education = [
     location: 'Burnaby, BC',
     period: 'Sept 2022 - Present',
     focus: 'Operating systems, computer networks, software engineering, cloud computing, databases, mobile development, UI design, and intelligent systems.',
-    logoSrc: '/sfu.jpg',
+    logoSrc: '/logos/sfu-square.png',
   },
   {
     institution: 'University of British Columbia',
