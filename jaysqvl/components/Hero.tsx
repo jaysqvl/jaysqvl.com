@@ -75,7 +75,7 @@ export default function Hero() {
                     src="/profile.jpg"
                     alt="Jay Esquivel Jr."
                     fill
-                    priority
+                    preload
                     sizes="56px"
                     className="object-cover"
                   />

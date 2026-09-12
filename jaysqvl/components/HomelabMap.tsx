@@ -1,9 +1,9 @@
 'use client';
 
-import { useMemo, useState } from 'react';
+import { useCallback, useMemo, useState } from 'react';
 import {
   Controls, Handle, Position, ReactFlow, ReactFlowProvider,
-  type Edge, type Node, type NodeProps,
+  type Edge, type Node, type NodeMouseHandler, type NodeProps,
 } from '@xyflow/react';
 import { Cloud, Cpu, Globe2, Network, Server, ShieldCheck, Wifi, type LucideIcon } from 'lucide-react';
 import topology from '@/data/homelab-topology.json';
@@ -158,6 +158,8 @@ function FlowDevice({ data }: NodeProps<DeviceNode>) {
 }
 
 const nodeTypes = { device: FlowDevice };
+const fitViewOptions = { padding: 0.045, maxZoom: 1.05 };
+const proOptions = { hideAttribution: true };
 
 function DesktopMap({ activeId, onSelect }: Selection) {
   const owner = owners.get(activeId) || activeId;
@@ -166,7 +168,7 @@ function DesktopMap({ activeId, onSelect }: Selection) {
     data: { nodeId: id, activeId, onSelect },
     draggable: false, selectable: false, focusable: false,
   })), [activeId, onSelect]);
-  const edges = connections.map((connection) => {
+  const edges = useMemo(() => connections.map((connection) => {
     const related = connection.source === owner || connection.target === owner;
     return {
       ...connection, focusable: false,
@@ -177,18 +179,19 @@ function DesktopMap({ activeId, onSelect }: Selection) {
         strokeDasharray: connection.id === 'tunnel' ? '5 5' : undefined,
       },
     };
-  });
+  }), [owner]);
+  const onNodeClick = useCallback<NodeMouseHandler<DeviceNode>>((_, node) => onSelect(node.id), [onSelect]);
   return (
     <div className={styles.desktop}>
       <ReactFlowProvider>
         <ReactFlow
           nodes={nodes} edges={edges} nodeTypes={nodeTypes}
-          fitView fitViewOptions={{ padding: 0.045, maxZoom: 1.05 }}
+          fitView fitViewOptions={fitViewOptions}
           minZoom={0.6} maxZoom={1.5}
           nodesDraggable={false} nodesConnectable={false} elementsSelectable={false}
-          onNodeClick={(_, node) => onSelect(node.id)}
+          onNodeClick={onNodeClick}
           panOnDrag zoomOnScroll={false} zoomOnDoubleClick={false} zoomOnPinch
-          proOptions={{ hideAttribution: true }}
+          proOptions={proOptions}
         >
           <Controls className={styles.controls} showInteractive={false} />
         </ReactFlow>

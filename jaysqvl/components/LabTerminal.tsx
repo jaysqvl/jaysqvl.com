@@ -1,7 +1,7 @@
 'use client';
 
-import { useEffect, useMemo, useState } from 'react';
-import { AnimatePresence, motion, useReducedMotion } from 'framer-motion';
+import { useEffect, useMemo, useState, useSyncExternalStore } from 'react';
+import { AnimatePresence, domAnimation, LazyMotion, m, useReducedMotion } from 'framer-motion';
 
 export interface TerminalLine {
   command: string;
@@ -38,13 +38,16 @@ const terminalLines: TerminalLine[] = [
 ];
 
 const prompt = 'jay@home-server';
+const emptySubscribe = () => () => {};
 
 export default function LabTerminal() {
-  const reduceMotion = useReducedMotion();
+  const motionPreference = useReducedMotion();
+  // Use the server's initial value during hydration, then Motion's client preference.
+  const reduceMotion = useSyncExternalStore(emptySubscribe, () => motionPreference, () => null);
   const [activeIndex, setActiveIndex] = useState(0);
 
   useEffect(() => {
-    if (reduceMotion) {
+    if (motionPreference) {
       return;
     }
 
@@ -53,7 +56,7 @@ export default function LabTerminal() {
     }, 2600);
 
     return () => window.clearInterval(interval);
-  }, [reduceMotion]);
+  }, [motionPreference]);
 
   const visibleHistory = useMemo(() => {
     const start = Math.max(0, activeIndex - 2);
@@ -77,19 +80,21 @@ export default function LabTerminal() {
               <TerminalRow key={line.command} line={line} />
             ))
           ) : (
-            <AnimatePresence initial={false} mode="popLayout">
-              {visibleHistory.map((line) => (
-                <motion.div
-                  key={line.command}
-                  initial={{ opacity: 0, y: 8 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, y: -8 }}
-                  transition={{ duration: 0.24, ease: 'easeOut' }}
-                >
-                  <TerminalRow line={line} />
-                </motion.div>
-              ))}
-            </AnimatePresence>
+            <LazyMotion features={domAnimation}>
+              <AnimatePresence initial={false} mode="popLayout">
+                {visibleHistory.map((line) => (
+                  <m.div
+                    key={line.command}
+                    initial={{ opacity: 0, y: 8 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: -8 }}
+                    transition={{ duration: 0.24, ease: 'easeOut' }}
+                  >
+                    <TerminalRow line={line} />
+                  </m.div>
+                ))}
+              </AnimatePresence>
+            </LazyMotion>
           )}
         </div>
 
