@@ -29,7 +29,7 @@ export default function Hero() {
               Jay Esquivel Jr.
             </span>
             <span className="font-mono text-xs uppercase tracking-[0.2em] text-muted-foreground">
-              Online Engineer / Vancouver, BC
+              Online Software Engineer / Vancouver, BC
             </span>
           </div>
 
@@ -38,7 +38,7 @@ export default function Hero() {
           </h1>
 
           <p className="mt-7 max-w-2xl text-pretty text-lg leading-8 text-muted-foreground sm:text-xl">
-            I’m an Online Engineer at 2K working on backend and client. In my spare time,
+            I’m an Online Software Engineer at 2K working on backend and client. In my spare time,
             I build open-source software and tools.
           </p>
 
@@ -86,7 +86,7 @@ export default function Hero() {
                     <span className="relative grid size-7 shrink-0 place-items-center overflow-hidden rounded-md border border-border bg-black">
                       <Image src="/logos/2k.svg" alt="2K logo" fill sizes="28px" className="object-cover" />
                     </span>
-                    <p className="text-lg font-semibold">Online Engineer @ 2K</p>
+                    <p className="text-lg font-semibold">Online Software Engineer @ 2K</p>
                   </div>
                 </div>
               </div>
