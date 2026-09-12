@@ -212,9 +212,9 @@
     },
     {
       "id": "mac-mini",
-      "label": "Mac mini",
+      "label": "Mac Mini",
       "role": "Headless / Development",
-      "detail": "Headless Mac mini for remote macOS development and LLM hosting.",
+      "detail": "Headless Mac Mini for remote macOS development, LLM hosting, and iMessage forwarding through BlueBubbles.",
       "tags": ["macos", "development", "llms"],
       "tone": "blue",
       "icon": "computer"
@@ -236,6 +236,15 @@
       "tags": ["llms", "hosting", "tools"],
       "tone": "blue",
       "icon": "brain"
+    },
+    {
+      "id": "mac-imessage",
+      "label": "iMessage Forwarding Server",
+      "role": "Messaging",
+      "detail": "Runs BlueBubbles to forward iMessage to my other devices.",
+      "tags": ["bluebubbles", "imessage", "messaging"],
+      "tone": "blue",
+      "icon": "message-circle"
     },
     {
       "id": "pi-services",
@@ -526,6 +535,14 @@
       "id": "mac-llm-hosting",
       "source": "mac-mini",
       "target": "mac-llm-hosting",
+      "label": "hosts",
+      "direction": "both",
+      "tone": "blue"
+    },
+    {
+      "id": "mac-imessage",
+      "source": "mac-mini",
+      "target": "mac-imessage",
       "label": "hosts",
       "direction": "both",
       "tone": "blue"
