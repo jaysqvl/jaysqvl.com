@@ -204,7 +204,7 @@ function DesktopMap({ activeId, onSelect }: Selection) {
           panOnDrag zoomOnScroll={false} zoomOnDoubleClick={false} zoomOnPinch
           proOptions={proOptions}
         >
-          <Controls className={styles.controls} showInteractive={false} />
+          <Controls className={styles.controls} showInteractive={false} orientation="horizontal" />
         </ReactFlow>
       </ReactFlowProvider>
     </div>
