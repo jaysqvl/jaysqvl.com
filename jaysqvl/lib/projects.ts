@@ -66,6 +66,16 @@ export const fallbackProjects: ProjectItem[] = [
     github: 'https://github.com/jaysqvl/ExpensAI',
     updatedAt: null,
   },
+  {
+    id: 'jaysqvl/ev3-robot',
+    title: 'LEGO EV3',
+    type: 'Robotics experiments',
+    description:
+      'LEGO EV3 programs for line following and maze navigation using sensor feedback. The project also includes MATLAB analysis of barcode readings captured by the robot.',
+    languages: ['C', 'Python', 'MATLAB'],
+    github: 'https://github.com/jaysqvl/ev3-robot',
+    updatedAt: null,
+  },
 ];
 
 function isText(value: unknown, maxLength: number): value is string {
