@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useState, useSyncExternalStore } from 'react';
 import { AnimatePresence, domAnimation, LazyMotion, m, useReducedMotion } from 'framer-motion';
 
 export interface TerminalLine {
@@ -38,13 +38,16 @@ const terminalLines: TerminalLine[] = [
 ];
 
 const prompt = 'jay@home-server';
+const emptySubscribe = () => () => {};
 
 export default function LabTerminal() {
-  const reduceMotion = useReducedMotion();
+  const motionPreference = useReducedMotion();
+  // Use the server's initial value during hydration, then Motion's client preference.
+  const reduceMotion = useSyncExternalStore(emptySubscribe, () => motionPreference, () => null);
   const [activeIndex, setActiveIndex] = useState(0);
 
   useEffect(() => {
-    if (reduceMotion) {
+    if (motionPreference) {
       return;
     }
 
@@ -53,7 +56,7 @@ export default function LabTerminal() {
     }, 2600);
 
     return () => window.clearInterval(interval);
-  }, [reduceMotion]);
+  }, [motionPreference]);
 
   const visibleHistory = useMemo(() => {
     const start = Math.max(0, activeIndex - 2);
