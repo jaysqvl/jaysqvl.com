@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useMemo, useState } from 'react';
-import { AnimatePresence, motion, useReducedMotion } from 'framer-motion';
+import { AnimatePresence, domAnimation, LazyMotion, m, useReducedMotion } from 'framer-motion';
 
 export interface TerminalLine {
   command: string;
@@ -77,19 +77,21 @@ export default function LabTerminal() {
               <TerminalRow key={line.command} line={line} />
             ))
           ) : (
-            <AnimatePresence initial={false} mode="popLayout">
-              {visibleHistory.map((line) => (
-                <motion.div
-                  key={line.command}
-                  initial={{ opacity: 0, y: 8 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, y: -8 }}
-                  transition={{ duration: 0.24, ease: 'easeOut' }}
-                >
-                  <TerminalRow line={line} />
-                </motion.div>
-              ))}
-            </AnimatePresence>
+            <LazyMotion features={domAnimation}>
+              <AnimatePresence initial={false} mode="popLayout">
+                {visibleHistory.map((line) => (
+                  <m.div
+                    key={line.command}
+                    initial={{ opacity: 0, y: 8 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: -8 }}
+                    transition={{ duration: 0.24, ease: 'easeOut' }}
+                  >
+                    <TerminalRow line={line} />
+                  </m.div>
+                ))}
+              </AnimatePresence>
+            </LazyMotion>
           )}
         </div>
 

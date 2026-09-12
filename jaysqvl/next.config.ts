@@ -1,23 +1,12 @@
-/** @type {import('next').NextConfig} */
-const nextConfig = {
-  // Image optimization - enhanced for performance
+import type { NextConfig } from 'next';
+
+const nextConfig: NextConfig = {
   images: {
     formats: ['image/avif', 'image/webp'],
-    // Minimize image size variations to improve cache hit ratio
     deviceSizes: [640, 750, 828, 1080, 1200, 1920, 2048],
     imageSizes: [16, 32, 48, 64, 96, 128, 256],
   },
-  
-  // Enable gzip compression (enabled by default)
-  compress: true,
-  
-  // Disable source maps in production for smaller bundle sizes
-  productionBrowserSourceMaps: false,
-  
-  // Minimize redirects which cause additional latency
-  trailingSlash: false,
-  
-  // Improve caching and reduce roundtrips with HTTP headers
+
   // Let Next.js disable caching for development assets and hot updates.
   headers: async () => process.env.NODE_ENV === 'development' ? [] : [
     {
@@ -53,11 +42,6 @@ const nextConfig = {
       headers: [{ key: 'Cache-Control', value: 'no-store' }],
     },
   ],
-  
-  // Experimental features - keeping only the recognized ones
-  // experimental: {
-  //   optimizeCss: true, // Requires 'critters' package
-  // },
 };
 
 export default nextConfig;
