@@ -69,8 +69,8 @@ export default function Hero() {
         <div className="relative">
           <div className="control-panel">
             <div className="flex items-start justify-between gap-4 border-b border-border p-4 sm:p-5">
-              <div className="flex items-center gap-3">
-                <div className="relative size-14 overflow-hidden rounded-md border border-border bg-muted">
+              <div className="flex min-w-0 items-center gap-3">
+                <div className="relative size-14 shrink-0 overflow-hidden rounded-md border border-border bg-muted">
                   <Image
                     src="/profile.jpg"
                     alt="Jay Esquivel Jr."
@@ -80,7 +80,7 @@ export default function Hero() {
                     className="object-cover"
                   />
                 </div>
-                <div>
+                <div className="min-w-0">
                   <p className="font-mono text-xs uppercase tracking-[0.18em] text-muted-foreground">public profile</p>
                   <div className="mt-1 flex items-center gap-2">
                     <span className="relative grid size-7 shrink-0 place-items-center overflow-hidden rounded-md border border-border bg-black">
