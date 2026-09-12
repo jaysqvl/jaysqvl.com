@@ -41,18 +41,18 @@ const layout = [
   { id: 'wan', x: 16, y: 242, width: 240 },
   { id: 'opnsense', x: 304, y: 170, width: 240 },
   { id: 'switching', x: 304, y: 430, width: 240 },
-  { id: 'unifi-wifi', x: 16, y: 430, width: 240 },
+  { id: 'mac-mini', x: 16, y: 430, width: 240 },
   { id: 'home-server', x: 608, y: 64, width: 480 },
   { id: 'raspberry-pi', x: 608, y: 550, width: 224 },
-  { id: 'mac-mini', x: 864, y: 550, width: 224 },
+  { id: 'unifi-wifi', x: 864, y: 550, width: 224 },
 ];
 const connections: Edge[] = [
   { id: 'wan-router', source: 'wan', target: 'opnsense', sourceHandle: 'right', targetHandle: 'left', type: 'straight' },
   { id: 'router-switch', source: 'opnsense', target: 'switching', sourceHandle: 'bottom', targetHandle: 'top', type: 'straight' },
-  { id: 'switch-wifi', source: 'switching', target: 'unifi-wifi', sourceHandle: 'wifi', targetHandle: 'uplink', type: 'straight' },
+  { id: 'switch-wifi', source: 'switching', target: 'unifi-wifi', sourceHandle: 'hosts', targetHandle: 'top', type: 'smoothstep' },
   { id: 'switch-server', source: 'switching', target: 'home-server', sourceHandle: 'hosts', targetHandle: 'network', type: 'smoothstep' },
   { id: 'switch-pi', source: 'switching', target: 'raspberry-pi', sourceHandle: 'hosts', targetHandle: 'top', type: 'smoothstep' },
-  { id: 'switch-mac', source: 'switching', target: 'mac-mini', sourceHandle: 'hosts', targetHandle: 'top', type: 'smoothstep' },
+  { id: 'switch-mac', source: 'switching', target: 'mac-mini', sourceHandle: 'left-branch', targetHandle: 'uplink', type: 'straight' },
   { id: 'tunnel', source: 'cloudflare', target: 'home-server', sourceHandle: 'right', targetHandle: 'tunnel', type: 'straight' },
 ];
 
@@ -150,11 +150,11 @@ function FlowDevice({ data }: NodeProps<DeviceNode>) {
       <Handle id="bottom" type="source" position={Position.Bottom} className={styles.handle} />
       {data.nodeId === 'switching' && (
         <>
-          <Handle id="wifi" type="source" position={Position.Left} style={{ top: 41 }} className={styles.handle} />
+          <Handle id="left-branch" type="source" position={Position.Left} style={{ top: 41 }} className={styles.handle} />
           <Handle id="hosts" type="source" position={Position.Right} style={{ top: 80 }} className={styles.handle} />
         </>
       )}
-      {data.nodeId === 'unifi-wifi' && (
+      {data.nodeId === 'mac-mini' && (
         <Handle id="uplink" type="target" position={Position.Right} style={{ top: 41 }} className={styles.handle} />
       )}
       {data.nodeId === 'home-server' && (
