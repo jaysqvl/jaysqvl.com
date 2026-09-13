@@ -30,7 +30,7 @@ export const fallbackProjects: ProjectItem[] = [
     title: 'Jotist',
     type: 'Audio transcription',
     description:
-      'A self-hosted transcription platform I develop independently, built on Scriberr. My work adds queued model comparisons, preserved run history, resumable uploads, and controls for long-running jobs.',
+      'I’m the main maintainer of Jotist, a self-hosted transcription platform forked from Scriberr. I’ve added queued model comparisons, preserved run history, resumable uploads, and controls for long-running jobs.',
     languages: ['Go', 'TypeScript', 'Python', 'MDX', 'CSS'],
     github: 'https://github.com/jaysqvl/Jotist',
     updatedAt: null,
