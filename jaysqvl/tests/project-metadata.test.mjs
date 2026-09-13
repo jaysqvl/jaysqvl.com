@@ -17,19 +17,19 @@ function project(id, overrides = {}) {
 const catalogue = [
   project('spider', { title: 'Spider', type: 'Game', releases: 'https://github.com/jaysqvl/spider/releases' }),
   project('lake-pass-bot', { title: 'Lake Pass Bot', languages: ['Go'] }),
-  project('scriberr', { title: 'Scriberr', type: 'Maintained fork', github: 'https://github.com/jaysqvl/Scriberr' }),
+  project('jotist', { title: 'Jotist', type: 'Audio transcription', github: 'https://github.com/jaysqvl/Jotist' }),
 ];
 
 test('a legacy snapshot supplies metadata without restoring obsolete selection, copy, links, or order', () => {
   const oldSnapshot = {
     savedAt: 1750000000000,
     projects: [
-      project('scriberr', {
+      project('jotist', {
         title: 'Old title',
         description: 'Old GitHub About text.',
         type: 'Old type',
         demo: 'https://old-demo.example',
-        releases: 'https://github.com/jaysqvl/scriberr/releases',
+        releases: 'https://github.com/jaysqvl/jotist/releases',
         languages: ['Go', 'TypeScript', 'Python'],
         updatedAt: '2026-09-05T20:28:51Z',
       }),
@@ -55,7 +55,7 @@ test('successful public results use catalogue order and omit absent repositories
   const response = {
     source: 'github',
     projects: [
-      project('scriberr', { updatedAt: '2026-09-10T00:00:00Z' }),
+      project('jotist', { updatedAt: '2026-09-10T00:00:00Z' }),
       project('unselected', { updatedAt: '2026-09-11T00:00:00Z' }),
       project('spider', { updatedAt: '2026-01-01T00:00:00Z' }),
     ],
@@ -64,7 +64,7 @@ test('successful public results use catalogue order and omit absent repositories
 
   const actual = resolveProjectRefresh(catalogue, response, saved);
 
-  assert.deepEqual(actual.projects.map(({ id }) => id), ['jaysqvl/spider', 'jaysqvl/scriberr']);
+  assert.deepEqual(actual.projects.map(({ id }) => id), ['jaysqvl/spider', 'jaysqvl/jotist']);
   assert.equal(actual.projects[0].updatedAt, '2026-01-01T00:00:00Z');
   assert.equal(actual.projects[0].releases, 'https://github.com/jaysqvl/spider/releases');
   assert.equal(actual.projects[1].updatedAt, '2026-09-10T00:00:00Z');
@@ -93,7 +93,7 @@ test('an empty successful public response remains empty and is saved as a succes
 });
 
 test('a fallback response retains saved metadata without authorizing a snapshot renewal', () => {
-  const saved = [project('scriberr', {
+  const saved = [project('jotist', {
     languages: ['Go', 'Python'],
     updatedAt: '2026-09-05T20:28:51Z',
   })];
