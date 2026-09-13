@@ -1,4 +1,5 @@
 import 'server-only';
+import { createHash } from 'node:crypto';
 
 import { fallbackProjects, githubOwner, isProjectList, type ProjectItem } from './projects';
 import { applyProjectMetadata } from './project-metadata';
@@ -16,6 +17,11 @@ interface ProjectsResponse {
 }
 
 const selectedProjects = new Map(fallbackProjects.map((project) => [project.id, project]));
+// Request headers are part of Next's fetch cache key. Refresh the public listing
+// when the selection changes so cached repository names cannot hide a renamed card.
+const catalogueVersion = createHash('sha256')
+  .update([...selectedProjects.keys()].sort().join('\n'))
+  .digest('hex').slice(0, 16);
 const requestTimeoutMs = 3500;
 const refreshTimeoutMs = 8000;
 
@@ -27,7 +33,7 @@ async function githubJson(path: string, signal: AbortSignal): Promise<unknown> {
   const headers: Record<string, string> = {
     Accept: 'application/vnd.github+json',
     'X-GitHub-Api-Version': '2026-03-10',
-    'User-Agent': 'jaysqvl.com-projects',
+    'User-Agent': `jaysqvl.com-projects/${catalogueVersion}`,
   };
   if (process.env.GITHUB_TOKEN) headers.Authorization = `Bearer ${process.env.GITHUB_TOKEN}`;
 
