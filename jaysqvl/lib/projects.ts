@@ -26,13 +26,13 @@ export const fallbackProjects: ProjectItem[] = [
     updatedAt: null,
   },
   {
-    id: 'jaysqvl/scriberr',
-    title: 'Scriberr',
-    type: 'Maintained fork',
+    id: 'jaysqvl/jotist',
+    title: 'Jotist',
+    type: 'Audio transcription',
     description:
-      'I maintain a fork of Scriberr, a self-hosted transcription platform. My updates add queued model comparisons, preserved run history, resumable uploads, and controls for long-running jobs.',
+      'A self-hosted transcription platform I develop independently, built on Scriberr. My work adds queued model comparisons, preserved run history, resumable uploads, and controls for long-running jobs.',
     languages: ['Go', 'TypeScript', 'Python', 'MDX', 'CSS'],
-    github: 'https://github.com/jaysqvl/Scriberr',
+    github: 'https://github.com/jaysqvl/Jotist',
     updatedAt: null,
   },
   {
