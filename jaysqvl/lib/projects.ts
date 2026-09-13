@@ -16,13 +16,13 @@ export const githubOwner = 'jaysqvl';
 // refreshes languages and last-push dates; it cannot replace this copy or order.
 export const fallbackProjects: ProjectItem[] = [
   {
-    id: 'jaysqvl/buntzen-pass-bot',
-    title: 'Buntzen Pass Bot',
+    id: 'jaysqvl/lake-pass-bot',
+    title: 'Lake Pass Bot',
     type: 'Backend / browser automation',
     description:
-      'A self-hosted service I built to reserve Buntzen Lake passes for my family. A Go backend coordinates scheduled jobs, Python browser workers, manual approval, and booking confirmation.',
-    languages: ['Go', 'Python', 'HTML', 'Shell', 'JavaScript'],
-    github: 'https://github.com/jaysqvl/buntzen-pass-bot',
+      'A self-hosted service I built to plan and book lake passes for my family. A Go backend coordinates scheduled jobs, Python browser workers, manual approval, and booking confirmation.',
+    languages: ['Go', 'Python', 'HTML', 'CSS', 'Shell'],
+    github: 'https://github.com/jaysqvl/lake-pass-bot',
     updatedAt: null,
   },
   {

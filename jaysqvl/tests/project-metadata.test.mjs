@@ -16,7 +16,7 @@ function project(id, overrides = {}) {
 
 const catalogue = [
   project('spider', { title: 'Spider', type: 'Game', releases: 'https://github.com/jaysqvl/spider/releases' }),
-  project('buntzen-pass-bot', { title: 'Buntzen Pass Bot', languages: ['Go'] }),
+  project('lake-pass-bot', { title: 'Lake Pass Bot', languages: ['Go'] }),
   project('scriberr', { title: 'Scriberr', type: 'Maintained fork', github: 'https://github.com/jaysqvl/Scriberr' }),
 ];
 
@@ -34,7 +34,7 @@ test('a legacy snapshot supplies metadata without restoring obsolete selection, 
         updatedAt: '2026-09-05T20:28:51Z',
       }),
       project('pomodoro-timer', { updatedAt: '2026-09-10T00:00:00Z' }),
-      project('buntzen-pass-bot', {
+      project('lake-pass-bot', {
         description: 'Old description.',
         languages: ['Go', 'Python'],
         updatedAt: '2026-09-09T00:00:00Z',
@@ -60,7 +60,7 @@ test('successful public results use catalogue order and omit absent repositories
       project('spider', { updatedAt: '2026-01-01T00:00:00Z' }),
     ],
   };
-  const saved = [project('buntzen-pass-bot')];
+  const saved = [project('lake-pass-bot')];
 
   const actual = resolveProjectRefresh(catalogue, response, saved);
 
@@ -69,6 +69,20 @@ test('successful public results use catalogue order and omit absent repositories
   assert.equal(actual.projects[0].releases, 'https://github.com/jaysqvl/spider/releases');
   assert.equal(actual.projects[1].updatedAt, '2026-09-10T00:00:00Z');
   assert.deepEqual(actual.snapshot, actual.projects);
+});
+
+test('a renamed repository keeps its current card during an outage with a pre-rename snapshot', () => {
+  const renamed = project('lake-pass-bot', { title: 'Lake Pass Bot', languages: ['Go', 'Python'] });
+  const saved = [project('previous-project-name', {
+    title: 'Previous project name',
+    languages: ['JavaScript'],
+    updatedAt: '2026-01-01T00:00:00Z',
+  })];
+
+  const actual = resolveProjectRefresh([renamed], { source: 'fallback', projects: [] }, saved);
+
+  assert.deepEqual(actual.projects, [renamed]);
+  assert.equal(actual.snapshot, null);
 });
 
 test('an empty successful public response remains empty and is saved as a successful snapshot', () => {
