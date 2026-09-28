@@ -63,7 +63,7 @@ test('React Flow renders connections, selection, and zoom controls', async ({ pa
   await expect(flow).toBeVisible();
   await expect(flow.locator('.react-flow__node')).toHaveCount(8);
   await expect(flow.locator('.react-flow__edge')).toHaveCount(7);
-  const button = flow.getByRole('button', { name: /Cloudflare/ });
+  const button = flow.getByRole('button', { name: 'Tunnel edge Cloudflare', exact: true });
   await button.click();
   await expect(button).toHaveAttribute('aria-pressed', 'true');
   await expect(page.locator('[aria-live="polite"]')).toContainText('Cloudflare');
