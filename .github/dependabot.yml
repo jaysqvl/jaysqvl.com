@@ -8,6 +8,18 @@ updates:
       timezone: "Etc/UTC"
     open-pull-requests-limit: 20
     versioning-strategy: "increase"
+    groups:
+      react-runtime:
+        patterns: ["react", "react-dom", "@types/react", "@types/react-dom"]
+      next-framework:
+        patterns: ["next", "eslint-config-next"]
+      tailwind:
+        patterns: ["tailwindcss", "@tailwindcss/postcss"]
+    # Types must describe the minimum verified runtime used by CI, not a newer
+    # Node major whose APIs may be absent in the deployed Node 22 runtime.
+    ignore:
+      - dependency-name: "@types/node"
+        versions: [">=23"]
     labels:
       - "dependencies"
       - "security"
