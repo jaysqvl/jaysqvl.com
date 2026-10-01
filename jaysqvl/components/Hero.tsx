@@ -1,9 +1,6 @@
-import Image from 'next/image';
 import {
   ArrowDownRight,
   GitBranch,
-  Link2,
-  Terminal,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import LabTerminal from '@/components/LabTerminal';
@@ -67,61 +64,7 @@ export default function Hero() {
         </div>
 
         <div className="relative">
-          <div className="control-panel">
-            <div className="flex items-start justify-between gap-4 border-b border-border p-4 sm:p-5">
-              <div className="flex min-w-0 items-center gap-3">
-                <div className="relative size-14 shrink-0 overflow-hidden rounded-md border border-border bg-muted">
-                  <Image
-                    src="/profile.jpg"
-                    alt="Jay Esquivel Jr."
-                    fill
-                    preload
-                    sizes="56px"
-                    className="object-cover"
-                  />
-                </div>
-                <div className="min-w-0">
-                  <p className="font-mono text-xs uppercase tracking-[0.18em] text-muted-foreground">public profile</p>
-                  <div className="mt-1 flex items-center gap-2">
-                    <span className="relative grid size-7 shrink-0 place-items-center overflow-hidden rounded-md border border-border bg-black">
-                      <Image src="/logos/2k.svg" alt="2K logo" fill sizes="28px" className="object-cover" />
-                    </span>
-                    <p className="text-lg font-semibold">Online Software Engineer @ 2K</p>
-                  </div>
-                </div>
-              </div>
-              <a
-                href="https://linkedin.com/in/jaysqvl"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="rounded-md border border-border p-2 text-muted-foreground transition-colors hover:text-foreground"
-                aria-label="LinkedIn profile"
-              >
-                <Link2 className="size-4" />
-              </a>
-            </div>
-
-            <div className="p-4 sm:p-5">
-              <div className="mb-5 flex items-center justify-between">
-                <div>
-                  <p className="font-mono text-xs uppercase tracking-[0.18em] text-muted-foreground">server console</p>
-                  <h2 className="mt-1 text-2xl font-semibold">My homelab</h2>
-                </div>
-                <Terminal className="size-5 text-muted-foreground" />
-              </div>
-
-              <LabTerminal />
-
-              <div className="mt-6 rounded-md border border-border bg-muted/40 p-4">
-                <p className="font-mono text-xs uppercase tracking-[0.18em] text-muted-foreground">
-                  What I run
-                </p>
-                <p className="mt-2 text-sm leading-6 text-muted-foreground">
-                  Photo storage, backups, Docker services, home automation, and side projects.
-                </p>
-              </div>
-            </div>
-          </div>
+          <LabTerminal />
         </div>
       </div>
     </section>

@@ -1,0 +1,124 @@
+@font-face {
+  font-family: 'Lab Prompt Glyphs';
+  src: url('https://cdn.jsdelivr.net/gh/romkatv/powerlevel10k-media@145eb9fbc2f42ee408dacd9b22d8e6e0e553f83d/MesloLGS%20NF%20Regular.ttf') format('truetype');
+  font-display: swap;
+  unicode-range: U+E0B1;
+}
+
+.stage {
+  --light-x: 35%;
+  --light-y: 20%;
+  position: relative;
+  isolation: isolate;
+  perspective: 1000px;
+  padding: 12px 6px;
+}
+
+.stage::before {
+  content: '';
+  position: absolute;
+  inset: 40px 0 5px;
+  z-index: -1;
+  pointer-events: none;
+  background: radial-gradient(ellipse at var(--light-x) var(--light-y), hsl(var(--pastel-blue) / 0.23), transparent 68%), radial-gradient(ellipse at 82% 85%, hsl(var(--pastel-mint) / 0.18), transparent 65%);
+  filter: blur(24px);
+  transform: translateY(18px) scale(1.08);
+}
+
+.float { animation: drift 7.5s ease-in-out infinite; animation-play-state: paused; }
+.stage[data-playing='true'][data-visible='true'] .float { animation-play-state: running; }
+.stage[data-playing='true']:hover .float,
+.stage[data-playing='true']:focus-within .float { animation-play-state: paused; }
+
+.window {
+  position: relative;
+  overflow: hidden;
+  border: 1px solid hsl(var(--border));
+  border-radius: 12px;
+  background: hsl(var(--card));
+  box-shadow: 0 30px 50px -23px hsl(0 0% 0% / 0.28), 0 0 0 1px hsl(var(--foreground) / 0.025);
+  transform-origin: 50% 50%;
+}
+
+.bar {
+  display: grid;
+  grid-template-columns: 50px minmax(0, 1fr) 50px;
+  align-items: center;
+  gap: 8px;
+  padding: 11px 16px;
+  border-bottom: 1px solid hsl(var(--border));
+  background: hsl(var(--muted) / 0.5);
+}
+
+.bar h2 { margin: 0; text-align: center; font-family: var(--font-body); font-size: 12px; line-height: 1.5; font-weight: 500; color: hsl(var(--muted-foreground)); }
+.lights { display: flex; gap: 7px; align-items: center; }
+.lights span { width: 9px; height: 9px; border-radius: 50%; }
+.lights span:nth-child(1) { background: hsl(var(--pastel-amber)); }
+.lights span:nth-child(2) { background: hsl(var(--pastel-mint)); }
+.lights span:nth-child(3) { background: hsl(var(--pastel-blue)); }
+.motionToggle { display: grid; place-items: center; justify-self: end; width: 26px; height: 26px; margin: -3px 0; border-radius: 4px; color: hsl(var(--muted-foreground)); transition: color 180ms ease, background 180ms ease; }
+.motionToggle:hover { color: hsl(var(--foreground)); background: hsl(var(--foreground) / 0.06); }
+.motionToggle svg { width: 12px; height: 12px; }
+.motionToggle:focus-visible { outline: 2px solid hsl(var(--ring)); outline-offset: 3px; }
+
+.screen {
+  min-height: 285px;
+  padding: 23px 18px 28px;
+  background: #0d1117;
+  color: #c9d1d9;
+  font-family: 'SFMono-Regular', 'SF Mono', 'Lab Prompt Glyphs', ui-monospace, monospace;
+  font-size: 13px;
+  font-weight: 400;
+  line-height: 1.8;
+  overflow-wrap: anywhere;
+}
+
+.historyCommand, .output { white-space: pre-wrap; }
+.historyEntry { min-width: 0; }
+.stage[data-playing='true'][data-visible='true'] .historyEntry { animation: arrive 180ms ease-out both; }
+.transient, .branch { color: #5fd700; }
+.executable { color: #7ee787; }
+.active { position: relative; min-height: 24px; }
+.segments { display: inline-flex; align-items: center; vertical-align: baseline; gap: 1ch; padding: 0 1ch; white-space: nowrap; background: #585858; }
+.directory { color: #00afff; font-weight: 700; }
+.slash { color: #0087af; font-weight: 400; }
+.divider { color: #bcbcbc; font-family: 'Lab Prompt Glyphs', monospace; }
+.entry { white-space: pre-wrap; overflow-wrap: anywhere; }
+.suggestion { color: #57606a; }
+.cursor { display: inline-block; width: 0.6em; height: 1.22em; vertical-align: -0.23em; background: #79c0ff; animation: blink 1.1s steps(2, start) infinite; animation-play-state: paused; }
+.stage[data-playing='true'][data-visible='true'] .cursor { animation-play-state: running; }
+.status { position: absolute; right: 0; top: 0; padding: 0 1ch; background: #585858; color: #5faf00; }
+
+.footer { padding: 17px 20px 19px; border-top: 1px solid hsl(var(--border)); }
+.footer p { margin: 0 0 10px; color: hsl(var(--muted-foreground)); font-size: 13px; line-height: 1.6; }
+.footer a { display: inline-flex; position: relative; align-items: center; gap: 8px; color: hsl(var(--foreground)); font-size: 13px; text-decoration: none; }
+.footer a::after { content: ''; position: absolute; left: 0; right: 22px; bottom: -3px; height: 1px; background: currentColor; transform: scaleX(0); transform-origin: 0 50%; transition: transform 250ms ease; }
+.footer a:hover::after { transform: scaleX(1); }
+.footer a svg { width: 14px; height: 14px; transition: transform 250ms ease; }
+.footer a:hover svg { transform: translate(2px, -2px); }
+.reflection { position: absolute; inset: 0; pointer-events: none; border-radius: inherit; background: radial-gradient(ellipse at var(--light-x) var(--light-y), #c3deef0c, transparent 58%); }
+
+@keyframes blink { 50% { opacity: 0.2; } }
+@keyframes drift { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-2.6px); } }
+@keyframes arrive { from { opacity: 0; transform: translateY(3px); } to { opacity: 1; transform: translateY(0); } }
+
+@media (max-width: 430px) {
+  .stage { padding: 8px 3px; }
+  .bar { padding-inline: 12px; grid-template-columns: 40px minmax(0, 1fr) 40px; }
+  .screen { min-height: 304px; padding: 20px 12px 25px; font-size: 12px; }
+  .footer { padding: 16px; }
+}
+
+@media (pointer: coarse) {
+  .motionToggle { width: 44px; height: 44px; margin-block: -12px; }
+  .footer a { min-height: 44px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .stage:not([data-motion-opt-in='true']) .window { transform: none !important; }
+  .stage:not([data-motion-opt-in='true']) .historyEntry { opacity: 1; transform: none; }
+  .stage:not([data-motion-opt-in='true']) .cursor { display: none; }
+  .stage[data-motion-opt-in='true'] .float { animation-duration: 7.5s !important; animation-iteration-count: infinite !important; }
+  .stage[data-motion-opt-in='true'] .cursor { animation-duration: 1.1s !important; animation-iteration-count: infinite !important; }
+  .stage[data-motion-opt-in='true'] .historyEntry { animation-duration: 180ms !important; }
+}
