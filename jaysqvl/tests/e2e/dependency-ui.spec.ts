@@ -24,6 +24,7 @@ test('production React hydration, Next images, icons, and theme controls work', 
   await expect(profile).toBeVisible();
   await expect.poll(() => profile.evaluate((image: HTMLImageElement) => image.naturalWidth)).toBeGreaterThan(0);
   expect(await profile.getAttribute('src')).toContain('/_next/image?');
+  await expect(page.getByRole('link', { name: 'LinkedIn profile', exact: true })).toBeVisible();
   const toggle = page.getByRole('button', { name: 'Toggle theme', exact: true });
   await expect(toggle.locator('svg')).toHaveCount(2);
   await expect(page.locator('html')).toHaveClass(/dark/);
@@ -40,19 +41,46 @@ test('Motion continues the terminal animation without hydration errors', async (
   const errors: string[] = [];
   page.on('pageerror', (error) => errors.push(error.message));
   await page.goto('/');
-  const active = page.locator('.lab-terminal__active');
-  await expect(active).toContainText('rsync camera-roll');
-  await expect(active).toContainText('npm route add lab-tools', { timeout: 10_000 });
-  await expect(page.locator('.lab-terminal__history .lab-terminal__row')).toHaveCount(2);
+  const terminal = page.locator('[data-operation]');
+  await terminal.scrollIntoViewIfNeeded();
+  await expect(terminal).toHaveAttribute('data-playing', 'true');
+  const firstEntry = terminal.locator('[data-step="0"]');
+  await expect(firstEntry).toContainText('tailscale up');
+  const initialY = await firstEntry.evaluate(entry => entry.getBoundingClientRect().top);
+  const screen = terminal.locator('[data-terminal-screen]');
+  const initialHeight = await screen.evaluate(element => element.clientHeight);
+  const initialOperation = await terminal.getAttribute('data-operation');
+  await expect.poll(() => terminal.getAttribute('data-operation'), { timeout: 10_000 }).not.toBe(initialOperation);
+  await expect.poll(() => terminal.locator('[data-terminal-history] > div').count(), { timeout: 15_000 }).toBeGreaterThanOrEqual(4);
+  await expect(firstEntry).toContainText('tailscale up');
+  await expect(terminal.locator('[data-terminal-history]')).toContainText('tailscale ping --c 1 nas');
+  await expect.poll(() => screen.evaluate(element => element.scrollTop)).toBeGreaterThan(0);
+  await expect.poll(() => firstEntry.evaluate(entry => entry.getBoundingClientRect().top)).toBeLessThan(initialY);
+  expect(await screen.evaluate(element => element.clientHeight)).toBe(initialHeight);
+  const pause = page.getByRole('button', { name: 'Pause terminal animation', exact: true });
+  await pause.click();
+  await expect(terminal).toHaveAttribute('data-playing', 'false');
+  const pausedText = await terminal.textContent();
+  await page.waitForTimeout(1200);
+  expect(await terminal.textContent()).toBe(pausedText);
   expect(errors).toEqual([]);
 });
 
 test('reduced-motion mode renders static terminal history', async ({ page }) => {
   await page.emulateMedia({ reducedMotion: 'reduce' });
   await page.goto('/');
-  await expect(page.locator('.lab-terminal__history')).toHaveAttribute('aria-hidden', 'false');
-  await expect(page.locator('.lab-terminal__history .lab-terminal__row')).toHaveCount(3);
-  await expect(page.locator('.terminal-cursor')).toHaveCount(0);
+  const terminal = page.locator('[data-operation]');
+  await expect(terminal).toHaveAttribute('data-playing', 'false');
+  await expect(terminal).toHaveAttribute('data-phase', 'idle');
+  await expect(terminal.locator('[data-terminal-history]')).toContainText('app');
+  await expect(terminal.locator('[data-terminal-history]')).toContainText('worker');
+  await expect(terminal.locator('[data-terminal-history]')).not.toContainText(/immich|photos/i);
+  await expect(terminal.locator('[data-terminal-cursor]')).toBeHidden();
+  await page.getByRole('button', { name: 'Play terminal animation', exact: true }).click();
+  await expect(terminal).toHaveAttribute('data-playing', 'true');
+  await expect(terminal.locator('[data-terminal-cursor]')).toBeVisible();
+  await expect(terminal).toHaveAttribute('data-operation', 'tailscale up');
+  await expect.poll(() => terminal.getAttribute('data-operation'), { timeout: 10_000 }).not.toBe('tailscale up');
 });
 
 test('React Flow renders connections, selection, and zoom controls', async ({ page }) => {

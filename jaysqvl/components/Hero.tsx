@@ -3,7 +3,6 @@ import {
   ArrowDownRight,
   GitBranch,
   Link2,
-  Terminal,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import LabTerminal from '@/components/LabTerminal';
@@ -100,26 +99,8 @@ export default function Hero() {
                 <Link2 className="size-4" />
               </a>
             </div>
-
             <div className="p-4 sm:p-5">
-              <div className="mb-5 flex items-center justify-between">
-                <div>
-                  <p className="font-mono text-xs uppercase tracking-[0.18em] text-muted-foreground">server console</p>
-                  <h2 className="mt-1 text-2xl font-semibold">My homelab</h2>
-                </div>
-                <Terminal className="size-5 text-muted-foreground" />
-              </div>
-
               <LabTerminal />
-
-              <div className="mt-6 rounded-md border border-border bg-muted/40 p-4">
-                <p className="font-mono text-xs uppercase tracking-[0.18em] text-muted-foreground">
-                  What I run
-                </p>
-                <p className="mt-2 text-sm leading-6 text-muted-foreground">
-                  Photo storage, backups, Docker services, home automation, and side projects.
-                </p>
-              </div>
             </div>
           </div>
         </div>
