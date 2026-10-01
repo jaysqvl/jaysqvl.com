@@ -20,11 +20,11 @@ test('production React hydration, Next images, icons, and theme controls work', 
   page.on('pageerror', (error) => errors.push(error.message));
   await page.goto('/');
   await expect(page.getByRole('heading', { level: 1 })).toHaveText('Hi, I’m Jay.');
-  const companyLogo = page.getByRole('img', { name: 'OffroadExpert logo', exact: true });
-  await companyLogo.scrollIntoViewIfNeeded();
-  await expect(companyLogo).toBeVisible();
-  await expect.poll(() => companyLogo.evaluate((image: HTMLImageElement) => image.naturalWidth)).toBeGreaterThan(0);
-  expect(await companyLogo.getAttribute('src')).toContain('/_next/image?');
+  const profile = page.getByRole('img', { name: 'Jay Esquivel Jr.', exact: true });
+  await expect(profile).toBeVisible();
+  await expect.poll(() => profile.evaluate((image: HTMLImageElement) => image.naturalWidth)).toBeGreaterThan(0);
+  expect(await profile.getAttribute('src')).toContain('/_next/image?');
+  await expect(page.getByRole('link', { name: 'LinkedIn profile', exact: true })).toBeVisible();
   const toggle = page.getByRole('button', { name: 'Toggle theme', exact: true });
   await expect(toggle.locator('svg')).toHaveCount(2);
   await expect(page.locator('html')).toHaveClass(/dark/);
@@ -42,13 +42,22 @@ test('Motion continues the terminal animation without hydration errors', async (
   page.on('pageerror', (error) => errors.push(error.message));
   await page.goto('/');
   const terminal = page.locator('[data-operation]');
+  await terminal.scrollIntoViewIfNeeded();
   await expect(terminal).toHaveAttribute('data-playing', 'true');
+  const firstEntry = terminal.locator('[data-step="0"]');
+  await expect(firstEntry).toContainText('tailscale up');
+  const initialY = await firstEntry.evaluate(entry => entry.getBoundingClientRect().top);
+  const screen = terminal.locator('[data-terminal-screen]');
+  const initialHeight = await screen.evaluate(element => element.clientHeight);
   const initialOperation = await terminal.getAttribute('data-operation');
   await expect.poll(() => terminal.getAttribute('data-operation'), { timeout: 10_000 }).not.toBe(initialOperation);
-  await expect(terminal.locator('[data-terminal-history] > div')).toHaveCount(2);
+  await expect.poll(() => terminal.locator('[data-terminal-history] > div').count(), { timeout: 15_000 }).toBeGreaterThanOrEqual(4);
+  await expect(firstEntry).toContainText('tailscale up');
+  await expect(terminal.locator('[data-terminal-history]')).toContainText('tailscale ping --c 1 nas');
+  await expect.poll(() => screen.evaluate(element => element.scrollTop)).toBeGreaterThan(0);
+  await expect.poll(() => firstEntry.evaluate(entry => entry.getBoundingClientRect().top)).toBeLessThan(initialY);
+  expect(await screen.evaluate(element => element.clientHeight)).toBe(initialHeight);
   const pause = page.getByRole('button', { name: 'Pause terminal animation', exact: true });
-  // Focus also settles the floating window before interacting with its control.
-  await pause.focus();
   await pause.click();
   await expect(terminal).toHaveAttribute('data-playing', 'false');
   const pausedText = await terminal.textContent();
@@ -63,12 +72,15 @@ test('reduced-motion mode renders static terminal history', async ({ page }) => 
   const terminal = page.locator('[data-operation]');
   await expect(terminal).toHaveAttribute('data-playing', 'false');
   await expect(terminal).toHaveAttribute('data-phase', 'idle');
-  await expect(terminal.locator('[data-terminal-history]')).toContainText('photos');
+  await expect(terminal.locator('[data-terminal-history]')).toContainText('app');
+  await expect(terminal.locator('[data-terminal-history]')).toContainText('worker');
+  await expect(terminal.locator('[data-terminal-history]')).not.toContainText(/immich|photos/i);
   await expect(terminal.locator('[data-terminal-cursor]')).toBeHidden();
   await page.getByRole('button', { name: 'Play terminal animation', exact: true }).click();
   await expect(terminal).toHaveAttribute('data-playing', 'true');
   await expect(terminal.locator('[data-terminal-cursor]')).toBeVisible();
-  await expect.poll(() => terminal.getAttribute('data-operation'), { timeout: 10_000 }).not.toBe('docker compose config --services');
+  await expect(terminal).toHaveAttribute('data-operation', 'tailscale up');
+  await expect.poll(() => terminal.getAttribute('data-operation'), { timeout: 10_000 }).not.toBe('tailscale up');
 });
 
 test('React Flow renders connections, selection, and zoom controls', async ({ page }) => {

@@ -25,11 +25,6 @@
   transform: translateY(18px) scale(1.08);
 }
 
-.float { animation: drift 7.5s ease-in-out infinite; animation-play-state: paused; }
-.stage[data-playing='true'][data-visible='true'] .float { animation-play-state: running; }
-.stage[data-playing='true']:hover .float,
-.stage[data-playing='true']:focus-within .float { animation-play-state: paused; }
-
 .window {
   position: relative;
   overflow: hidden;
@@ -62,7 +57,7 @@
 .motionToggle:focus-visible { outline: 2px solid hsl(var(--ring)); outline-offset: 3px; }
 
 .screen {
-  min-height: 285px;
+  height: 285px;
   padding: 23px 18px 28px;
   background: #0d1117;
   color: #c9d1d9;
@@ -71,11 +66,14 @@
   font-weight: 400;
   line-height: 1.8;
   overflow-wrap: anywhere;
+  overflow: hidden;
+  scrollbar-width: none;
 }
 
+.screen::-webkit-scrollbar { display: none; }
+.transcript { display: flow-root; }
 .historyCommand, .output { white-space: pre-wrap; }
 .historyEntry { min-width: 0; }
-.stage[data-playing='true'][data-visible='true'] .historyEntry { animation: arrive 180ms ease-out both; }
 .transient, .branch { color: #5fd700; }
 .executable { color: #7ee787; }
 .active { position: relative; min-height: 24px; }
@@ -99,13 +97,11 @@
 .reflection { position: absolute; inset: 0; pointer-events: none; border-radius: inherit; background: radial-gradient(ellipse at var(--light-x) var(--light-y), #c3deef0c, transparent 58%); }
 
 @keyframes blink { 50% { opacity: 0.2; } }
-@keyframes drift { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-2.6px); } }
-@keyframes arrive { from { opacity: 0; transform: translateY(3px); } to { opacity: 1; transform: translateY(0); } }
 
 @media (max-width: 430px) {
   .stage { padding: 8px 3px; }
   .bar { padding-inline: 12px; grid-template-columns: 40px minmax(0, 1fr) 40px; }
-  .screen { min-height: 304px; padding: 20px 12px 25px; font-size: 12px; }
+  .screen { height: 304px; padding: 20px 12px 25px; font-size: 12px; }
   .footer { padding: 16px; }
 }
 
@@ -116,9 +112,6 @@
 
 @media (prefers-reduced-motion: reduce) {
   .stage:not([data-motion-opt-in='true']) .window { transform: none !important; }
-  .stage:not([data-motion-opt-in='true']) .historyEntry { opacity: 1; transform: none; }
   .stage:not([data-motion-opt-in='true']) .cursor { display: none; }
-  .stage[data-motion-opt-in='true'] .float { animation-duration: 7.5s !important; animation-iteration-count: infinite !important; }
   .stage[data-motion-opt-in='true'] .cursor { animation-duration: 1.1s !important; animation-iteration-count: infinite !important; }
-  .stage[data-motion-opt-in='true'] .historyEntry { animation-duration: 180ms !important; }
 }

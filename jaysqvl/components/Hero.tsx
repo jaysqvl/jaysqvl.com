@@ -1,6 +1,8 @@
+import Image from 'next/image';
 import {
   ArrowDownRight,
   GitBranch,
+  Link2,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import LabTerminal from '@/components/LabTerminal';
@@ -64,7 +66,43 @@ export default function Hero() {
         </div>
 
         <div className="relative">
-          <LabTerminal />
+          <div className="control-panel">
+            <div className="flex items-start justify-between gap-4 border-b border-border p-4 sm:p-5">
+              <div className="flex min-w-0 items-center gap-3">
+                <div className="relative size-14 shrink-0 overflow-hidden rounded-md border border-border bg-muted">
+                  <Image
+                    src="/profile.jpg"
+                    alt="Jay Esquivel Jr."
+                    fill
+                    preload
+                    sizes="56px"
+                    className="object-cover"
+                  />
+                </div>
+                <div className="min-w-0">
+                  <p className="font-mono text-xs uppercase tracking-[0.18em] text-muted-foreground">public profile</p>
+                  <div className="mt-1 flex items-center gap-2">
+                    <span className="relative grid size-7 shrink-0 place-items-center overflow-hidden rounded-md border border-border bg-black">
+                      <Image src="/logos/2k.svg" alt="2K logo" fill sizes="28px" className="object-cover" />
+                    </span>
+                    <p className="text-lg font-semibold">Online Software Engineer @ 2K</p>
+                  </div>
+                </div>
+              </div>
+              <a
+                href="https://linkedin.com/in/jaysqvl"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="rounded-md border border-border p-2 text-muted-foreground transition-colors hover:text-foreground"
+                aria-label="LinkedIn profile"
+              >
+                <Link2 className="size-4" />
+              </a>
+            </div>
+            <div className="p-4 sm:p-5">
+              <LabTerminal />
+            </div>
+          </div>
         </div>
       </div>
     </section>
