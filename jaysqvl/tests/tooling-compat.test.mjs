@@ -30,3 +30,34 @@ test('ESLint compatibility keeps React, accessibility, and Next rules active', a
   assert.equal(valid.errorCount, 0);
   assert.equal(valid.warningCount, 0);
 });
+
+test('Next ESLint handles JavaScript globals without losing undefined-name checks', async () => {
+  const eslint = new ESLint({
+    overrideConfig: [{
+      languageOptions: { globals: { configured: 'readonly' } },
+      rules: { 'no-undef': 'error' },
+    }],
+  });
+  const [result] = await eslint.lintText(
+    '/* global injected */\nexport const value = window + injected + configured + missing;',
+    { filePath: 'lib/LintGlobalsProbe.mjs' },
+  );
+  assert.equal(result.fatalErrorCount, 0);
+  const undefinedNames = result.messages.filter(({ ruleId }) => ruleId === 'no-undef');
+  assert.equal(undefinedNames.length, 1);
+  assert.match(undefinedNames[0].message, /'missing'/);
+});
+
+test('Next ESLint resolves TypeScript aliases while still rejecting missing imports', async () => {
+  const eslint = new ESLint({
+    overrideConfig: [{ rules: { 'import/no-unresolved': 'error' } }],
+  });
+  const [result] = await eslint.lintText(
+    "import { cn } from '@/lib/utils';\nimport missing from './does-not-exist';\nexport { cn, missing };",
+    { filePath: 'components/LintImportsProbe.tsx' },
+  );
+  assert.equal(result.fatalErrorCount, 0);
+  const unresolved = result.messages.filter(({ ruleId }) => ruleId === 'import/no-unresolved');
+  assert.equal(unresolved.length, 1);
+  assert.match(unresolved[0].message, /does-not-exist/);
+});
