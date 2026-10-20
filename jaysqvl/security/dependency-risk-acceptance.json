@@ -1,0 +1,44 @@
+{
+  "schemaVersion": 1,
+  "advisory": "GHSA-vfj7-8cjw-p6xm",
+  "acceptedBy": "jaysqvl",
+  "acceptedAt": "2026-10-20T12:49:28Z",
+  "expiresAt": "2026-11-19T12:49:28Z",
+  "eslintConfigSha256": "8a94b6c567a72cbdf4aa24498e28ab34d53d6592eac235e54819e17f3027714d",
+  "chain": [
+    {
+      "name": "eslint-config-next",
+      "version": "16.4.2",
+      "resolved": "https://registry.npmjs.org/eslint-config-next/-/eslint-config-next-16.4.2.tgz",
+      "integrity": "sha512-P33vjcETMXc+qBjpF77TeJHZLzk6cPcTy8KjpxLucYB3mCIFIORMcZ+cBXcAiIYjE5RM7jyknEEOwMNdnx/ADQ==",
+      "nextRange": "16.4.2"
+    },
+    {
+      "name": "@next/eslint-plugin-next",
+      "version": "16.4.2",
+      "resolved": "https://registry.npmjs.org/@next/eslint-plugin-next/-/eslint-plugin-next-16.4.2.tgz",
+      "integrity": "sha512-gCTWlw0e+Y6kajpFyKKgA195jUJCRhlzJE0lV7ufe8a+ghIsANWZ0/FiJwg6DuOG1+OvRbcZDcFBoRh3mNJx0g==",
+      "nextRange": "3.3.1"
+    },
+    {
+      "name": "fast-glob",
+      "version": "3.3.1",
+      "resolved": "https://registry.npmjs.org/fast-glob/-/fast-glob-3.3.1.tgz",
+      "integrity": "sha512-kNFPyjhh5cKjrUltxs+wFx+ZkbRaxxmZ+X0ZU31SOsxCEtP9VPgtq2teZw1DebupL5GmDaNQ6yKMMVcM41iqDg==",
+      "nextRange": "^4.0.4"
+    },
+    {
+      "name": "micromatch",
+      "version": "4.0.8",
+      "resolved": "https://registry.npmjs.org/micromatch/-/micromatch-4.0.8.tgz",
+      "integrity": "sha512-PXwfBhYu0hBCPw8Dn0E+WDYb7af3dSLVWKi3HGv84IdF4TyFoC0ysxFd0Goxw7nSv4T/PzEJQxsYsEiFCKo2BA==",
+      "nextRange": "^3.0.3"
+    },
+    {
+      "name": "braces",
+      "version": "3.0.3",
+      "resolved": "https://registry.npmjs.org/braces/-/braces-3.0.3.tgz",
+      "integrity": "sha512-yQbXgO/OSZVD2IsiLlro+7Hf6Q18EJrKSEsdoMzKePKXct3gvD8oLcOQdIzGupr5Fj+EDe8gO/lxc1BzfMpxvA=="
+    }
+  ]
+}
