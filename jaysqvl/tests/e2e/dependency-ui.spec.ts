@@ -66,6 +66,32 @@ test('Motion continues the terminal animation without hydration errors', async (
   expect(errors).toEqual([]);
 });
 
+for (const reducedMotion of ['no-preference', 'reduce'] as const) {
+  test(`Motion springs preserve pointer tilt and reset (reducedMotion=${reducedMotion})`, async ({ page }) => {
+    await page.emulateMedia({ reducedMotion });
+    await page.goto('/');
+    const terminal = page.locator('[data-operation]');
+    await terminal.scrollIntoViewIfNeeded();
+    await expect(terminal).toHaveAttribute('data-playing', String(reducedMotion === 'no-preference'));
+    const window = terminal.getByRole('article', { name: 'Homelab — zsh', exact: true });
+    const transform = () => window.evaluate(element => getComputedStyle(element).transform);
+    const initial = await transform();
+    const bounds = await terminal.boundingBox();
+    expect(bounds).not.toBeNull();
+    if (!bounds) throw new Error('Terminal bounds unavailable');
+    await page.mouse.move(bounds.x + bounds.width * 0.8, bounds.y + bounds.height * 0.2);
+    if (reducedMotion === 'reduce') {
+      // Give a spring time to respond: the legitimate static mode must not tilt.
+      await page.waitForTimeout(300);
+      expect(await transform()).toBe(initial);
+    } else {
+      await expect.poll(transform).not.toBe(initial);
+      await page.mouse.move(0, 0);
+      await expect.poll(transform).toBe(initial);
+    }
+  });
+}
+
 test('reduced-motion mode renders static terminal history', async ({ page }) => {
   await page.emulateMedia({ reducedMotion: 'reduce' });
   await page.goto('/');
