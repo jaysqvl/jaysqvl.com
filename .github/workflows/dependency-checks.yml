@@ -31,7 +31,7 @@ jobs:
         run: npm ci --ignore-scripts
       - name: Audit production dependencies (no exceptions)
         run: npm audit --omit=dev --audit-level=low
-      - name: Audit all dependencies (reviewed, expiring development exception)
+      - name: Audit all dependencies (no exceptions)
         run: npm run audit:dependencies
 
   verify:
