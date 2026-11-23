@@ -1,12 +1,33 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
 import { createRequire } from 'node:module';
+import { execFileSync } from 'node:child_process';
+import { dirname, join } from 'node:path';
 import { ESLint } from 'eslint';
 
 const require = createRequire(import.meta.url);
 
+for (const consumer of ['eslint', '@eslint/config-array', '@typescript-eslint/typescript-estree']) {
+  test(`${consumer} bounds glob preprocessing and preserves file matching`, () => {
+    const { Minimatch } = createRequire(require.resolve(consumer))('minimatch');
+    for (const count of [4, 6]) {
+      const pattern = Array(count).fill('**/../a/b').join('/');
+      assert.throws(() => new Minimatch(pattern, { optimizationLevel: 2, braceExpandMax: 8 }),
+        /too many patterns/);
+    }
+    const files = new Minimatch('components/**/*.{ts,tsx}', { dot: true });
+    assert.equal(files.match('components/ui/button.tsx'), true);
+    assert.equal(files.match('components/.internal/helper.ts'), true);
+    assert.equal(files.match('components/ui/button.js'), false);
+    assert.equal(files.match('lib/helper.ts'), false);
+  });
+}
+
 test('TypeScript 7 CLI coexists with the supported TypeScript 6 tooling API', () => {
-  assert.match(require('@typescript/native/package.json').version, /^7\./);
+  assert.match(require('@typescript/cli/package.json').version, /^7\./);
+  const cli = join(dirname(require.resolve('@typescript/cli/package.json')), 'bin/tsc');
+  assert.match(execFileSync(process.execPath, [cli, '--version'],
+    { encoding: 'utf8' }), /^Version 7\./);
   assert.match(require('typescript').version, /^6\./);
   assert.equal(require('typescript'), require('@typescript/old'));
 });
